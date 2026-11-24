@@ -180,7 +180,7 @@ namespace BrickBuilder
             var tabs = stage.Create("Tabs", picker.transform);
             for (int k = 0; k < categories.Count; k++)
             {
-                var tab = Button(stage, tabs.transform, "Tab" + k, new Vector3(-0.66f + k * 0.264f, 1.62f, 0f), new Vector2(0.25f, 0.07f), Title(categories[k]), materials["Button"]);
+                var tab = Button(stage, tabs.transform, "Tab" + k, new Vector3(-0.66f + k * 0.264f, 1.62f, 0f), new Vector2(0.25f, 0.07f), CategoryTitle(categories[k]), materials["Button"]);
                 var marker = stage.Primitive(PrimitiveType.Cube, "Marker", tab.transform);
                 Object.DestroyImmediate(marker.GetComponent<Collider>());
                 marker.transform.localPosition = new Vector3(0f, -0.045f, 0f);
@@ -421,7 +421,7 @@ namespace BrickBuilder
         /// <summary>Sets a field of a struct value and returns the changed copy (VS Set Member's target output).</summary>
         static Val SetField(GraphWriter g, Type owner, string name, Val target, object value)
         {
-            var unit = g.Add(new SetMember(new Member(owner, name)));
+            var unit = g.Add(new SetMember(new Member(owner, name)) { chainable = true });
             g.usedMembers.Add(owner.FullName + "." + name);
             g.Feed(unit, "target", target);
             g.Feed(unit, "input", value);
@@ -704,6 +704,6 @@ namespace BrickBuilder
 
         static Vector3 V3(JToken a) => new Vector3((float)a[0], (float)a[1], (float)a[2]);
         static string Key(string prefab) => new string(prefab.Select(c => char.IsLetterOrDigit(c) ? c : '_').ToArray());
-        static string Title(string category) => category == "side_studs" ? "Side studs" : char.ToUpperInvariant(category[0]) + category.Substring(1);
+        static string CategoryTitle(string category) => category == "side_studs" ? "Side studs" : char.ToUpperInvariant(category[0]) + category.Substring(1);
     }
 }

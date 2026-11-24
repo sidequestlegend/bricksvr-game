@@ -1,417 +1,1921 @@
 {
- "schema": 1,
- "slug": "brick-builder",
- "hash": "",
- "bundles": {
-  "windows": "",
-  "android": ""
- },
- "objects": {
-  "area": {
-   "path": "Area",
-   "sync": "none",
-   "grab": false,
-   "click": false,
-   "seat": false
+  "behaviours": [
+    {
+      "fields": {
+        "index": 0
+      },
+      "id": "h00",
+      "object": "held0",
+      "type": "HeldBrick"
+    },
+    {
+      "fields": {
+        "index": 1
+      },
+      "id": "h01",
+      "object": "held1",
+      "type": "HeldBrick"
+    },
+    {
+      "fields": {
+        "index": 2
+      },
+      "id": "h02",
+      "object": "held2",
+      "type": "HeldBrick"
+    },
+    {
+      "fields": {
+        "index": 3
+      },
+      "id": "h03",
+      "object": "held3",
+      "type": "HeldBrick"
+    },
+    {
+      "fields": {
+        "index": 4
+      },
+      "id": "h04",
+      "object": "held4",
+      "type": "HeldBrick"
+    },
+    {
+      "fields": {
+        "index": 5
+      },
+      "id": "h05",
+      "object": "held5",
+      "type": "HeldBrick"
+    },
+    {
+      "fields": {
+        "index": 6
+      },
+      "id": "h06",
+      "object": "held6",
+      "type": "HeldBrick"
+    },
+    {
+      "fields": {
+        "index": 7
+      },
+      "id": "h07",
+      "object": "held7",
+      "type": "HeldBrick"
+    },
+    {
+      "fields": {
+        "index": 8
+      },
+      "id": "h08",
+      "object": "held8",
+      "type": "HeldBrick"
+    },
+    {
+      "fields": {
+        "index": 9
+      },
+      "id": "h09",
+      "object": "held9",
+      "type": "HeldBrick"
+    },
+    {
+      "fields": {
+        "index": 10
+      },
+      "id": "h10",
+      "object": "held10",
+      "type": "HeldBrick"
+    },
+    {
+      "fields": {
+        "index": 11
+      },
+      "id": "h11",
+      "object": "held11",
+      "type": "HeldBrick"
+    },
+    {
+      "fields": {
+        "index": 0
+      },
+      "id": "b1",
+      "object": "tab0",
+      "type": "PickerTab"
+    },
+    {
+      "fields": {
+        "index": 1
+      },
+      "id": "b2",
+      "object": "tab1",
+      "type": "PickerTab"
+    },
+    {
+      "fields": {
+        "index": 2
+      },
+      "id": "b3",
+      "object": "tab2",
+      "type": "PickerTab"
+    },
+    {
+      "fields": {
+        "index": 3
+      },
+      "id": "b4",
+      "object": "tab3",
+      "type": "PickerTab"
+    },
+    {
+      "fields": {
+        "index": 4
+      },
+      "id": "b5",
+      "object": "tab4",
+      "type": "PickerTab"
+    },
+    {
+      "fields": {
+        "index": 5
+      },
+      "id": "b6",
+      "object": "tab5",
+      "type": "PickerTab"
+    },
+    {
+      "fields": {
+        "type": 0
+      },
+      "id": "b7",
+      "object": "tile_1x1",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 1
+      },
+      "id": "b8",
+      "object": "tile_1x2",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 2
+      },
+      "id": "b9",
+      "object": "tile_1x3",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 3
+      },
+      "id": "b10",
+      "object": "tile_1x4",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 4
+      },
+      "id": "b11",
+      "object": "tile_1x6",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 5
+      },
+      "id": "b12",
+      "object": "tile_1x8",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 6
+      },
+      "id": "b13",
+      "object": "tile_1x10",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 7
+      },
+      "id": "b14",
+      "object": "tile_2x2",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 8
+      },
+      "id": "b15",
+      "object": "tile_2x3",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 9
+      },
+      "id": "b16",
+      "object": "tile_4x2",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 10
+      },
+      "id": "b17",
+      "object": "tile_2x6",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 11
+      },
+      "id": "b18",
+      "object": "tile_2x8",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 12
+      },
+      "id": "b19",
+      "object": "tile_2x2Corner",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 27
+      },
+      "id": "b20",
+      "object": "tile_1x1Plate",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 28
+      },
+      "id": "b21",
+      "object": "tile_1x2Plate",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 29
+      },
+      "id": "b22",
+      "object": "tile_1x3Plate",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 30
+      },
+      "id": "b23",
+      "object": "tile_1x4Plate",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 31
+      },
+      "id": "b24",
+      "object": "tile_1x6Plate",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 32
+      },
+      "id": "b25",
+      "object": "tile_1x8Plate",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 33
+      },
+      "id": "b26",
+      "object": "tile_1x10Plate",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 34
+      },
+      "id": "b27",
+      "object": "tile_2x2Plate",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 35
+      },
+      "id": "b28",
+      "object": "tile_2x3Plate",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 36
+      },
+      "id": "b29",
+      "object": "tile_2x4Plate",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 37
+      },
+      "id": "b30",
+      "object": "tile_2x6Plate",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 38
+      },
+      "id": "b31",
+      "object": "tile_2x8Plate",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 39
+      },
+      "id": "b32",
+      "object": "tile_2x2CornerPlate",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 40
+      },
+      "id": "b33",
+      "object": "tile_1x2Plate1Stud",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 41
+      },
+      "id": "b34",
+      "object": "tile_2x2Plate1Stud",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 42
+      },
+      "id": "b35",
+      "object": "tile_1x1RoundPlate",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 13
+      },
+      "id": "b36",
+      "object": "tile_1x1Tile",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 14
+      },
+      "id": "b37",
+      "object": "tile_1x2Tile",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 15
+      },
+      "id": "b38",
+      "object": "tile_1x3Tile",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 16
+      },
+      "id": "b39",
+      "object": "tile_1x4Tile",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 17
+      },
+      "id": "b40",
+      "object": "tile_1x6Tile",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 18
+      },
+      "id": "b41",
+      "object": "tile_1x8Tile",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 19
+      },
+      "id": "b42",
+      "object": "tile_1x10Tile",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 20
+      },
+      "id": "b43",
+      "object": "tile_2x2Tile",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 21
+      },
+      "id": "b44",
+      "object": "tile_2x3Tile",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 22
+      },
+      "id": "b45",
+      "object": "tile_2x4Tile",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 23
+      },
+      "id": "b46",
+      "object": "tile_2x6Tile",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 24
+      },
+      "id": "b47",
+      "object": "tile_2x8Tile",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 25
+      },
+      "id": "b48",
+      "object": "tile_2x2CornerTile",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 26
+      },
+      "id": "b49",
+      "object": "tile_1x1RoundTile",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 43
+      },
+      "id": "b50",
+      "object": "tile_1x2Slope",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 44
+      },
+      "id": "b51",
+      "object": "tile_1x3Slope",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 45
+      },
+      "id": "b52",
+      "object": "tile_1x4Slope",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 46
+      },
+      "id": "b53",
+      "object": "tile_2x2Slope",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 47
+      },
+      "id": "b54",
+      "object": "tile_2x2CornerSlope",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 48
+      },
+      "id": "b55",
+      "object": "tile_3x3CornerSlope",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 49
+      },
+      "id": "b56",
+      "object": "tile_4x4CornerSlope",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 50
+      },
+      "id": "b57",
+      "object": "tile_1x2SlopeInverted",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 51
+      },
+      "id": "b58",
+      "object": "tile_1x1_2_3Slope",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 52
+      },
+      "id": "b59",
+      "object": "tile_1x4_2_3Slope",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 56
+      },
+      "id": "b60",
+      "object": "tile_1x1_1FaceSideStud",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 57
+      },
+      "id": "b61",
+      "object": "tile_1x2_1FaceSideStud",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 58
+      },
+      "id": "b62",
+      "object": "tile_1x4_1FaceSideStud",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 53
+      },
+      "id": "b63",
+      "object": "tile_1x2Window",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 54
+      },
+      "id": "b64",
+      "object": "tile_FlatPlant",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 55
+      },
+      "id": "b65",
+      "object": "tile_ThreeLeafedPlant",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 59
+      },
+      "id": "b66",
+      "object": "tile_1x2Masonry",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 60
+      },
+      "id": "b67",
+      "object": "tile_1x4Masonry",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 61
+      },
+      "id": "b68",
+      "object": "tile_1x3Arch",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 62
+      },
+      "id": "b69",
+      "object": "tile_1x4Arch",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 63
+      },
+      "id": "b70",
+      "object": "tile_1x6Arch",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "type": 64
+      },
+      "id": "b71",
+      "object": "tile_1x1Pyramid",
+      "type": "PickerTile"
+    },
+    {
+      "fields": {
+        "rgb": 13179401
+      },
+      "id": "b72",
+      "object": "swatch0",
+      "type": "Swatch"
+    },
+    {
+      "fields": {
+        "rgb": 16681496
+      },
+      "id": "b73",
+      "object": "swatch1",
+      "type": "Swatch"
+    },
+    {
+      "fields": {
+        "rgb": 15912247
+      },
+      "id": "b74",
+      "object": "swatch2",
+      "type": "Swatch"
+    },
+    {
+      "fields": {
+        "rgb": 4955978
+      },
+      "id": "b75",
+      "object": "swatch3",
+      "type": "Swatch"
+    },
+    {
+      "fields": {
+        "rgb": 21951
+      },
+      "id": "b76",
+      "object": "swatch4",
+      "type": "Swatch"
+    },
+    {
+      "fields": {
+        "rgb": 8454267
+      },
+      "id": "b77",
+      "object": "swatch5",
+      "type": "Swatch"
+    },
+    {
+      "fields": {
+        "rgb": 16777215
+      },
+      "id": "b78",
+      "object": "swatch6",
+      "type": "Swatch"
+    },
+    {
+      "fields": {
+        "rgb": 10199453
+      },
+      "id": "b79",
+      "object": "swatch7",
+      "type": "Swatch"
+    },
+    {
+      "fields": {
+        "rgb": 332573
+      },
+      "id": "b80",
+      "object": "swatch8",
+      "type": "Swatch"
+    },
+    {
+      "fields": {
+        "rgb": 5777938
+      },
+      "id": "b81",
+      "object": "swatch9",
+      "type": "Swatch"
+    },
+    {
+      "fields": {
+        "rgb": 14994846
+      },
+      "id": "b82",
+      "object": "swatch10",
+      "type": "Swatch"
+    },
+    {
+      "fields": {
+        "rgb": 16553900
+      },
+      "id": "b83",
+      "object": "swatch11",
+      "type": "Swatch"
+    },
+    {
+      "fields": {
+        "tool": "hammer"
+      },
+      "id": "b84",
+      "object": "hammerButton",
+      "type": "ToolButton"
+    },
+    {
+      "fields": {
+        "tool": "rotate"
+      },
+      "id": "b85",
+      "object": "rotateButton",
+      "type": "ToolButton"
+    },
+    {
+      "fields": {
+        "tool": "lock"
+      },
+      "id": "b86",
+      "object": "lockButton",
+      "type": "ToolButton"
+    },
+    {
+      "fields": {
+        "tool": "save"
+      },
+      "id": "b87",
+      "object": "saveButton",
+      "type": "ToolButton"
+    },
+    {
+      "fields": {
+        "tool": "load"
+      },
+      "id": "b88",
+      "object": "loadButton",
+      "type": "ToolButton"
+    },
+    {
+      "fields": {
+        "head": {
+          "$v3": [0, 0.19, 0]
+        }
+      },
+      "id": "b89",
+      "object": "hammer",
+      "type": "Hammer"
+    },
+    {
+      "fields": {
+        "audio": {
+          "$comp": "area",
+          "kind": "AudioSource"
+        },
+        "carpetClips": [
+          {
+            "$clip": 3,
+            "on": "area"
+          },
+          {
+            "$clip": 4,
+            "on": "area"
+          },
+          {
+            "$clip": 5,
+            "on": "area"
+          }
+        ],
+        "clickClip": {
+          "$clip": 6,
+          "on": "area"
+        },
+        "ghostObject": {
+          "$obj": "ghost"
+        },
+        "snapClips": [
+          {
+            "$clip": 0,
+            "on": "area"
+          },
+          {
+            "$clip": 1,
+            "on": "area"
+          },
+          {
+            "$clip": 2,
+            "on": "area"
+          }
+        ],
+        "spawnClip": {
+          "$clip": 7,
+          "on": "area"
+        },
+        "status": {
+          "$comp": "status",
+          "kind": "TMP"
+        },
+        "successClip": {
+          "$clip": 8,
+          "on": "area"
+        }
+      },
+      "id": "area",
+      "object": "area",
+      "type": "BuildArea"
+    },
+    {
+      "fields": {},
+      "id": "log",
+      "object": "area",
+      "type": "BrickLog"
+    },
+    {
+      "fields": {
+        "index": 0
+      },
+      "id": "s00",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 1
+      },
+      "id": "s01",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 2
+      },
+      "id": "s02",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 3
+      },
+      "id": "s03",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 4
+      },
+      "id": "s04",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 5
+      },
+      "id": "s05",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 6
+      },
+      "id": "s06",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 7
+      },
+      "id": "s07",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 8
+      },
+      "id": "s08",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 9
+      },
+      "id": "s09",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 10
+      },
+      "id": "s10",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 11
+      },
+      "id": "s11",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 12
+      },
+      "id": "s12",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 13
+      },
+      "id": "s13",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 14
+      },
+      "id": "s14",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 15
+      },
+      "id": "s15",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 16
+      },
+      "id": "s16",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 17
+      },
+      "id": "s17",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 18
+      },
+      "id": "s18",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 19
+      },
+      "id": "s19",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 20
+      },
+      "id": "s20",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 21
+      },
+      "id": "s21",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 22
+      },
+      "id": "s22",
+      "object": "area",
+      "type": "BrickSegment"
+    },
+    {
+      "fields": {
+        "index": 23
+      },
+      "id": "s23",
+      "object": "area",
+      "type": "BrickSegment"
+    }
+  ],
+  "bundles": {
+    "android": "",
+    "windows": ""
   },
-  "ghost": {
-   "path": "Ghost",
-   "sync": "none",
-   "grab": false,
-   "click": false,
-   "seat": false
+  "events": [
+    {
+      "behaviour": "b89",
+      "kind": "heldTrigger",
+      "method": "Smash",
+      "object": "hammer"
+    },
+    {
+      "behaviour": "area",
+      "kind": "click",
+      "method": "SurfaceClicked",
+      "object": "carpet"
+    },
+    {
+      "behaviour": "area",
+      "kind": "click",
+      "method": "SurfaceClicked",
+      "object": "chunks"
+    },
+    {
+      "behaviour": "area",
+      "kind": "uiSlider",
+      "method": "HueChanged",
+      "object": "hue"
+    },
+    {
+      "behaviour": "area",
+      "kind": "uiSlider",
+      "method": "SaturationChanged",
+      "object": "saturation"
+    },
+    {
+      "behaviour": "area",
+      "kind": "uiSlider",
+      "method": "ValueChanged",
+      "object": "value"
+    }
+  ],
+  "hash": "c3c20bbbc4a96e83bdb0e5952d06da4038cde1d9",
+  "objects": {
+    "area": {
+      "click": false,
+      "grab": false,
+      "path": "Area",
+      "seat": false,
+      "sync": "none"
+    },
+    "carpet": {
+      "click": true,
+      "grab": false,
+      "path": "Area/Carpet",
+      "seat": false,
+      "sync": "none"
+    },
+    "cat1": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Picker/Cat1",
+      "seat": false,
+      "sync": "none"
+    },
+    "cat2": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Picker/Cat2",
+      "seat": false,
+      "sync": "none"
+    },
+    "cat3": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Picker/Cat3",
+      "seat": false,
+      "sync": "none"
+    },
+    "cat4": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Picker/Cat4",
+      "seat": false,
+      "sync": "none"
+    },
+    "cat5": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Picker/Cat5",
+      "seat": false,
+      "sync": "none"
+    },
+    "chunks": {
+      "click": true,
+      "grab": false,
+      "path": "Area/Chunks",
+      "seat": false,
+      "sync": "none"
+    },
+    "ghost": {
+      "click": false,
+      "grab": false,
+      "path": "Ghost",
+      "seat": false,
+      "sync": "none"
+    },
+    "hammer": {
+      "click": false,
+      "grab": true,
+      "path": "Hammer",
+      "seat": false,
+      "sync": "transform"
+    },
+    "hammerButton": {
+      "click": true,
+      "grab": false,
+      "path": "Tools/HammerButton",
+      "seat": false,
+      "sync": "none"
+    },
+    "held0": {
+      "click": false,
+      "grab": true,
+      "path": "Pool/Held0",
+      "seat": false,
+      "sync": "transform"
+    },
+    "held1": {
+      "click": false,
+      "grab": true,
+      "path": "Pool/Held1",
+      "seat": false,
+      "sync": "transform"
+    },
+    "held10": {
+      "click": false,
+      "grab": true,
+      "path": "Pool/Held10",
+      "seat": false,
+      "sync": "transform"
+    },
+    "held11": {
+      "click": false,
+      "grab": true,
+      "path": "Pool/Held11",
+      "seat": false,
+      "sync": "transform"
+    },
+    "held2": {
+      "click": false,
+      "grab": true,
+      "path": "Pool/Held2",
+      "seat": false,
+      "sync": "transform"
+    },
+    "held3": {
+      "click": false,
+      "grab": true,
+      "path": "Pool/Held3",
+      "seat": false,
+      "sync": "transform"
+    },
+    "held4": {
+      "click": false,
+      "grab": true,
+      "path": "Pool/Held4",
+      "seat": false,
+      "sync": "transform"
+    },
+    "held5": {
+      "click": false,
+      "grab": true,
+      "path": "Pool/Held5",
+      "seat": false,
+      "sync": "transform"
+    },
+    "held6": {
+      "click": false,
+      "grab": true,
+      "path": "Pool/Held6",
+      "seat": false,
+      "sync": "transform"
+    },
+    "held7": {
+      "click": false,
+      "grab": true,
+      "path": "Pool/Held7",
+      "seat": false,
+      "sync": "transform"
+    },
+    "held8": {
+      "click": false,
+      "grab": true,
+      "path": "Pool/Held8",
+      "seat": false,
+      "sync": "transform"
+    },
+    "held9": {
+      "click": false,
+      "grab": true,
+      "path": "Pool/Held9",
+      "seat": false,
+      "sync": "transform"
+    },
+    "hue": {
+      "click": false,
+      "grab": false,
+      "path": "Picker/Sliders/Hue",
+      "seat": false,
+      "sync": "none"
+    },
+    "loadButton": {
+      "click": true,
+      "grab": false,
+      "path": "Tools/LoadButton",
+      "seat": false,
+      "sync": "none"
+    },
+    "lockButton": {
+      "click": true,
+      "grab": false,
+      "path": "Tools/LockButton",
+      "seat": false,
+      "sync": "none"
+    },
+    "rotateButton": {
+      "click": true,
+      "grab": false,
+      "path": "Tools/RotateButton",
+      "seat": false,
+      "sync": "none"
+    },
+    "saturation": {
+      "click": false,
+      "grab": false,
+      "path": "Picker/Sliders/Saturation",
+      "seat": false,
+      "sync": "none"
+    },
+    "saveButton": {
+      "click": true,
+      "grab": false,
+      "path": "Tools/SaveButton",
+      "seat": false,
+      "sync": "none"
+    },
+    "status": {
+      "click": false,
+      "grab": false,
+      "path": "Picker/Status",
+      "seat": false,
+      "sync": "none"
+    },
+    "swatch0": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Swatches/S0",
+      "seat": false,
+      "sync": "none"
+    },
+    "swatch1": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Swatches/S1",
+      "seat": false,
+      "sync": "none"
+    },
+    "swatch10": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Swatches/S10",
+      "seat": false,
+      "sync": "none"
+    },
+    "swatch11": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Swatches/S11",
+      "seat": false,
+      "sync": "none"
+    },
+    "swatch2": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Swatches/S2",
+      "seat": false,
+      "sync": "none"
+    },
+    "swatch3": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Swatches/S3",
+      "seat": false,
+      "sync": "none"
+    },
+    "swatch4": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Swatches/S4",
+      "seat": false,
+      "sync": "none"
+    },
+    "swatch5": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Swatches/S5",
+      "seat": false,
+      "sync": "none"
+    },
+    "swatch6": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Swatches/S6",
+      "seat": false,
+      "sync": "none"
+    },
+    "swatch7": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Swatches/S7",
+      "seat": false,
+      "sync": "none"
+    },
+    "swatch8": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Swatches/S8",
+      "seat": false,
+      "sync": "none"
+    },
+    "swatch9": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Swatches/S9",
+      "seat": false,
+      "sync": "none"
+    },
+    "tab0": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Tabs/Tab0",
+      "seat": false,
+      "sync": "none"
+    },
+    "tab1": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Tabs/Tab1",
+      "seat": false,
+      "sync": "none"
+    },
+    "tab2": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Tabs/Tab2",
+      "seat": false,
+      "sync": "none"
+    },
+    "tab3": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Tabs/Tab3",
+      "seat": false,
+      "sync": "none"
+    },
+    "tab4": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Tabs/Tab4",
+      "seat": false,
+      "sync": "none"
+    },
+    "tab5": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Tabs/Tab5",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x1": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat0/Tile_1x1",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x10": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat0/Tile_1x10",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x10Plate": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat1/Tile_1x10Plate",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x10Tile": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat2/Tile_1x10Tile",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x1Plate": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat1/Tile_1x1Plate",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x1Pyramid": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat5/Tile_1x1Pyramid",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x1RoundPlate": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat1/Tile_1x1RoundPlate",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x1RoundTile": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat2/Tile_1x1RoundTile",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x1Tile": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat2/Tile_1x1Tile",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x1_1FaceSideStud": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat4/Tile_1x1_1FaceSideStud",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x1_2_3Slope": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat3/Tile_1x1-2_3Slope",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x2": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat0/Tile_1x2",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x2Masonry": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat5/Tile_1x2Masonry",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x2Plate": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat1/Tile_1x2Plate",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x2Plate1Stud": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat1/Tile_1x2Plate1Stud",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x2Slope": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat3/Tile_1x2Slope",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x2SlopeInverted": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat3/Tile_1x2SlopeInverted",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x2Tile": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat2/Tile_1x2Tile",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x2Window": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat5/Tile_1x2Window",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x2_1FaceSideStud": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat4/Tile_1x2_1FaceSideStud",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x3": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat0/Tile_1x3",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x3Arch": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat5/Tile_1x3Arch",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x3Plate": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat1/Tile_1x3Plate",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x3Slope": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat3/Tile_1x3Slope",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x3Tile": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat2/Tile_1x3Tile",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x4": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat0/Tile_1x4",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x4Arch": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat5/Tile_1x4Arch",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x4Masonry": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat5/Tile_1x4Masonry",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x4Plate": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat1/Tile_1x4Plate",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x4Slope": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat3/Tile_1x4Slope",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x4Tile": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat2/Tile_1x4Tile",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x4_1FaceSideStud": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat4/Tile_1x4_1FaceSideStud",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x4_2_3Slope": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat3/Tile_1x4-2_3Slope",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x6": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat0/Tile_1x6",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x6Arch": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat5/Tile_1x6Arch",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x6Plate": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat1/Tile_1x6Plate",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x6Tile": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat2/Tile_1x6Tile",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x8": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat0/Tile_1x8",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x8Plate": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat1/Tile_1x8Plate",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_1x8Tile": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat2/Tile_1x8Tile",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x2": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat0/Tile_2x2",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x2Corner": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat0/Tile_2x2Corner",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x2CornerPlate": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat1/Tile_2x2CornerPlate",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x2CornerSlope": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat3/Tile_2x2CornerSlope",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x2CornerTile": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat2/Tile_2x2CornerTile",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x2Plate": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat1/Tile_2x2Plate",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x2Plate1Stud": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat1/Tile_2x2Plate1Stud",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x2Slope": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat3/Tile_2x2Slope",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x2Tile": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat2/Tile_2x2Tile",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x3": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat0/Tile_2x3",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x3Plate": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat1/Tile_2x3Plate",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x3Tile": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat2/Tile_2x3Tile",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x4Plate": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat1/Tile_2x4Plate",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x4Tile": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat2/Tile_2x4Tile",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x6": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat0/Tile_2x6",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x6Plate": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat1/Tile_2x6Plate",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x6Tile": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat2/Tile_2x6Tile",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x8": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat0/Tile_2x8",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x8Plate": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat1/Tile_2x8Plate",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_2x8Tile": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat2/Tile_2x8Tile",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_3x3CornerSlope": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat3/Tile_3x3CornerSlope",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_4x2": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat0/Tile_4x2",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_4x4CornerSlope": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat3/Tile_4x4CornerSlope",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_FlatPlant": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat5/Tile_FlatPlant",
+      "seat": false,
+      "sync": "none"
+    },
+    "tile_ThreeLeafedPlant": {
+      "click": true,
+      "grab": false,
+      "path": "Picker/Cat5/Tile_ThreeLeafedPlant",
+      "seat": false,
+      "sync": "none"
+    },
+    "value": {
+      "click": false,
+      "grab": false,
+      "path": "Picker/Sliders/Value",
+      "seat": false,
+      "sync": "none"
+    }
   },
-  "held0": {
-   "path": "Pool/Held0",
-   "sync": "transform",
-   "grab": true,
-   "click": false,
-   "seat": false
-  },
-  "held1": {
-   "path": "Pool/Held1",
-   "sync": "transform",
-   "grab": true,
-   "click": false,
-   "seat": false
-  },
-  "held2": {
-   "path": "Pool/Held2",
-   "sync": "transform",
-   "grab": true,
-   "click": false,
-   "seat": false
-  },
-  "held3": {
-   "path": "Pool/Held3",
-   "sync": "transform",
-   "grab": true,
-   "click": false,
-   "seat": false
-  },
-  "held4": {
-   "path": "Pool/Held4",
-   "sync": "transform",
-   "grab": true,
-   "click": false,
-   "seat": false
-  },
-  "held5": {
-   "path": "Pool/Held5",
-   "sync": "transform",
-   "grab": true,
-   "click": false,
-   "seat": false
-  },
-  "held6": {
-   "path": "Pool/Held6",
-   "sync": "transform",
-   "grab": true,
-   "click": false,
-   "seat": false
-  },
-  "held7": {
-   "path": "Pool/Held7",
-   "sync": "transform",
-   "grab": true,
-   "click": false,
-   "seat": false
-  },
-  "held8": {
-   "path": "Pool/Held8",
-   "sync": "transform",
-   "grab": true,
-   "click": false,
-   "seat": false
-  },
-  "held9": {
-   "path": "Pool/Held9",
-   "sync": "transform",
-   "grab": true,
-   "click": false,
-   "seat": false
-  },
-  "held10": {
-   "path": "Pool/Held10",
-   "sync": "transform",
-   "grab": true,
-   "click": false,
-   "seat": false
-  },
-  "held11": {
-   "path": "Pool/Held11",
-   "sync": "transform",
-   "grab": true,
-   "click": false,
-   "seat": false
-  }
- },
- "refs": [
-  "area",
-  "ghost"
- ],
- "behaviours": [
-  {
-   "id": "area",
-   "type": "BuildArea",
-   "object": "area",
-   "fields": {}
-  },
-  {
-   "id": "log",
-   "type": "BrickLog",
-   "object": "area",
-   "perPlayer": true,
-   "fields": {}
-  },
-  {
-   "id": "s00",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 0
-   }
-  },
-  {
-   "id": "s01",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 1
-   }
-  },
-  {
-   "id": "s02",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 2
-   }
-  },
-  {
-   "id": "s03",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 3
-   }
-  },
-  {
-   "id": "s04",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 4
-   }
-  },
-  {
-   "id": "s05",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 5
-   }
-  },
-  {
-   "id": "s06",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 6
-   }
-  },
-  {
-   "id": "s07",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 7
-   }
-  },
-  {
-   "id": "s08",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 8
-   }
-  },
-  {
-   "id": "s09",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 9
-   }
-  },
-  {
-   "id": "s10",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 10
-   }
-  },
-  {
-   "id": "s11",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 11
-   }
-  },
-  {
-   "id": "s12",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 12
-   }
-  },
-  {
-   "id": "s13",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 13
-   }
-  },
-  {
-   "id": "s14",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 14
-   }
-  },
-  {
-   "id": "s15",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 15
-   }
-  },
-  {
-   "id": "s16",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 16
-   }
-  },
-  {
-   "id": "s17",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 17
-   }
-  },
-  {
-   "id": "s18",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 18
-   }
-  },
-  {
-   "id": "s19",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 19
-   }
-  },
-  {
-   "id": "s20",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 20
-   }
-  },
-  {
-   "id": "s21",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 21
-   }
-  },
-  {
-   "id": "s22",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 22
-   }
-  },
-  {
-   "id": "s23",
-   "type": "BrickSegment",
-   "object": "area",
-   "fields": {
-    "index": 23
-   }
-  },
-  {
-   "id": "h00",
-   "type": "HeldBrick",
-   "object": "held0",
-   "fields": {
-    "index": 0
-   }
-  },
-  {
-   "id": "h01",
-   "type": "HeldBrick",
-   "object": "held1",
-   "fields": {
-    "index": 1
-   }
-  },
-  {
-   "id": "h02",
-   "type": "HeldBrick",
-   "object": "held2",
-   "fields": {
-    "index": 2
-   }
-  },
-  {
-   "id": "h03",
-   "type": "HeldBrick",
-   "object": "held3",
-   "fields": {
-    "index": 3
-   }
-  },
-  {
-   "id": "h04",
-   "type": "HeldBrick",
-   "object": "held4",
-   "fields": {
-    "index": 4
-   }
-  },
-  {
-   "id": "h05",
-   "type": "HeldBrick",
-   "object": "held5",
-   "fields": {
-    "index": 5
-   }
-  },
-  {
-   "id": "h06",
-   "type": "HeldBrick",
-   "object": "held6",
-   "fields": {
-    "index": 6
-   }
-  },
-  {
-   "id": "h07",
-   "type": "HeldBrick",
-   "object": "held7",
-   "fields": {
-    "index": 7
-   }
-  },
-  {
-   "id": "h08",
-   "type": "HeldBrick",
-   "object": "held8",
-   "fields": {
-    "index": 8
-   }
-  },
-  {
-   "id": "h09",
-   "type": "HeldBrick",
-   "object": "held9",
-   "fields": {
-    "index": 9
-   }
-  },
-  {
-   "id": "h10",
-   "type": "HeldBrick",
-   "object": "held10",
-   "fields": {
-    "index": 10
-   }
-  },
-  {
-   "id": "h11",
-   "type": "HeldBrick",
-   "object": "held11",
-   "fields": {
-    "index": 11
-   }
-  }
- ],
- "events": []
+  "refs": ["area", "ghost", "status", "hammer", "hue", "saturation", "value"],
+  "schema": 1,
+  "slug": "brick-builder"
 }

@@ -36,6 +36,24 @@ namespace BrickBuilder
             KitPlayTest.Commands["framems"] = FrameMs;
         }
 
+        static HashSet<string> upstreamGuids;
+
+        /// <summary>Every GUID a .meta file of the upstream repository (the fork's Assets, not altspace/) declares.</summary>
+        static HashSet<string> UpstreamGuids()
+        {
+            if (upstreamGuids != null) return upstreamGuids;
+            upstreamGuids = new HashSet<string>();
+            foreach (var meta in Directory.GetFiles("../Assets", "*.meta", SearchOption.AllDirectories))
+                using (var reader = new StreamReader(meta))
+                    for (int i = 0; i < 4; i++)
+                    {
+                        var line = reader.ReadLine();
+                        if (line == null) break;
+                        if (line.StartsWith("guid: ")) { upstreamGuids.Add(line.Substring(6).Trim()); break; }
+                    }
+            return upstreamGuids;
+        }
+
         static string F(double v) => v.ToString("0.###", CultureInfo.InvariantCulture);
 
         [MenuItem("PortKit/Bricks/Check Models")]
@@ -75,6 +93,7 @@ namespace BrickBuilder
                 // every mesh reference of the imported prefabs
                 int refs = 0, resolved = 0, componentRefs = 0;
                 var broken = new List<string>();
+                var neverIn = new List<string>();
                 var componentGuids = Directory.GetFiles(BrickKitBuilder.Models + "../Prefabs/BrickComponents", "*.prefab.meta")
                     .Select(f => File.ReadAllText(f)).ToList();
                 foreach (var file in Directory.GetFiles("Assets/Upstream/Assets", "*.prefab", SearchOption.AllDirectories))
@@ -89,11 +108,11 @@ namespace BrickBuilder
                         bool ok = !string.IsNullOrEmpty(asset) && AssetDatabase.LoadAllAssetsAtPath(asset).OfType<Mesh>()
                             .Any(x => AssetDatabase.TryGetGUIDAndLocalFileIdentifier(x, out string _, out long l) && l == id);
                         if (ok) resolved++;
-                        else if (file.Replace('\\', '/').Contains("/Prefabs/BrickComponents/")) componentRefs++;
+                        else if (!UpstreamGuids().Contains(guid)) { componentRefs++; neverIn.Add(Path.GetFileName(file)); }
                         else broken.Add($"{Path.GetFileName(file)} -> {guid}:{id} ({(string.IsNullOrEmpty(asset) ? "no asset with that GUID" : asset)})");
                     }
                 }
-                Line(broken.Count == 0, $"mesh references in the imported upstream prefabs: {resolved} of {refs} resolve; {componentRefs} in Prefabs/BrickComponents point at GUIDs that never existed (rebuilt from bricks.json instead); other broken: {broken.Count}");
+                Line(broken.Count == 0, $"mesh references in the imported upstream prefabs: {resolved} of {refs} resolve; {componentRefs} point at GUIDs no file of the upstream repository has (in {string.Join(", ", neverIn.Distinct().OrderBy(n => n))}: the kit rebuilds those from bricks.json); broken references to upstream files: {broken.Count}");
                 foreach (var b in broken.Distinct().Take(40)) report.AppendLine("   " + b);
 
                 // slopes: the high side and the studs are at +X (tools/bricks/README.md, "Asymmetric parts"), as the
@@ -122,10 +141,14 @@ namespace BrickBuilder
                         ok = low.Average(p => p.x) > 0f && studX >= 0f;
                         why = $"underside centre x {F(low.Average(p => p.x))}, studs x {F(studX)}";
                     }
-                    else if (alongZ)
+                    else if (studs.Count == 0)
                     {
-                        ok = Mathf.Abs(highZ) > 0.0005f || Mathf.Abs(highX) < 0.0005f;
-                        why = $"top centre ({F(highX)}, {F(highZ)}) (runs along Z)";
+                        // the 2/3 wedges have no studs: their upright wall collider (the tallest unrotated held box) is the high side
+                        var wall = ((JArray)b["heldBoxes"]).Cast<JObject>().Where(h => Mathf.Abs((float)h["q"][3] - 1f) < 1e-4f)
+                            .OrderByDescending(h => (float)h["size"][1] / Mathf.Max(1e-6f, (float)h["size"][0])).First();
+                        float wallX = (float)wall["c"][0];
+                        ok = Mathf.Sign(highX) == Mathf.Sign(wallX) && Mathf.Abs(highX) > 0.0005f;
+                        why = $"top centre ({F(highX)}, {F(highZ)}), the held prefab's upright wall collider at x {F(wallX)}{(alongZ ? " (runs along Z)" : "")}";
                     }
                     else
                     {
