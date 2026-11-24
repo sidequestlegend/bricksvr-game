@@ -1,20 +1,34 @@
 # Third-party notices: Brick Builder (the Altspace port of BricksVR)
 
+Full licence texts travel with the kit (`Assets/Kit/Licenses/`, `Assets/Kit/Sounds/LICENSE-*.txt`, and TextMesh Pro's
+`LiberationSans - OFL.txt`, which the kit's bundles carry because the kit uses that font).
+
 ## The game
 
 Brick Builder is a port of BricksVR (https://github.com/d12/bricksvr-game), MIT licence,
-Copyright 2021 BricksVR Studios Inc. The BricksVR name and logos are excluded from that licence and are not used.
-The port's script also holds the portkit runtime (MIT).
+Copyright 2021 BricksVR Studios Inc. (full text: `Licenses/BricksVR-LICENSE-MIT.txt`). The BricksVR name and logos
+are excluded from that licence and are not used.
+The port's script also holds the portkit runtime: MIT licence, Copyright (c) 2026 the portkit authors (full text:
+`Licenses/portkit-LICENSE-MIT.txt`). Both notices are also at the top of the script `pk-brick-builder.js`.
 
 ## Brick models
 
-Regenerated for this port from the brick catalogue in the upstream code (`altspace/tools/bricks/`): plain geometric
-shapes, no lettering or logos. Same licence as the port (MIT). The upstream FBX files are lost (Git LFS objects gone).
+Regenerated for this port (`altspace/tools/bricks/`), same licence as the port (MIT, above): 265 as plain geometric
+shapes from the brick catalogue in the upstream code, no lettering or logos; the two plants and the pyramid rebuilt
+from upstream's own vertex dumps (`BrickObjs/*.pobj`, part of the MIT repository). The upstream FBX files are lost
+(Git LFS objects gone).
+
+## Font
+
+Liberation Sans (TextMesh Pro's default font asset, used for every label): SIL Open Font License 1.1.
+Digitized data copyright (c) 2010 Google Corporation with Reserved Font Arimo, Tinos and Cousine.
+Copyright (c) 2012 Red Hat, Inc. with Reserved Font Name Liberation.
+Full text: `LiberationSans - OFL.txt` (in the bundles beside this file).
 
 ## Sounds (replacing the 9 lost upstream sounds)
 
-All by Kenney (www.kenney.nl), CC0 1.0 (http://creativecommons.org/publicdomain/zero/1.0/). Licence texts are kept
-beside the files in `Assets/Kit/Sounds/`.
+All by Kenney (www.kenney.nl), CC0 1.0 Universal (http://creativecommons.org/publicdomain/zero/1.0/; full legal code:
+`Licenses/CC0-1.0-legalcode.txt`). Kenney's own licence notes are kept beside the files in `Assets/Kit/Sounds/`.
 
 | File in the kit | Replaces upstream | Source file | Pack, where downloaded |
 |---|---|---|---|

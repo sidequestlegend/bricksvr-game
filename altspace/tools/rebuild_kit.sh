@@ -7,10 +7,8 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 P="$(dirname "$HERE")"
 R="$P/../../portkit/tools/remote.sh"
 step() { echo "== $1"; }
-errors_before=$(grep -c "error CS" "$P/Logs/Editor.log" 2>/dev/null || echo 0)
-step compile; bash "$R" "$P" compile 600 | tail -1
-new_errors=$(grep "error CS" "$P/Logs/Editor.log" | tail -n +$((errors_before + 1)) | sort -u)
-[ -n "$new_errors" ] && { echo "$new_errors" | head -20; exit 1; }
+# remote.sh compile asks the compiler itself (portkit d8f370d) and fails on compile errors
+step compile; out="$(bash "$R" "$P" compile 600)" || { echo "$out" | tail -20; exit 1; }; echo "$out" | tail -1
 step "build prefabs"; bash "$R" "$P" menu "PortKit/Kit/Build Prefabs" 600 >/dev/null; tail -4 "$P/Logs/portkit_kits.txt"
 tail -1 "$P/Logs/portkit_kits.txt" | grep -q DONE || exit 1
 step script; (cd "$P/ts" && npm run build 2>&1 | tail -1)

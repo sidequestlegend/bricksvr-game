@@ -1,17 +1,13 @@
-"""The upstream import for brick-builder: portkit's importer, then two fixes for this repository.
+"""The upstream import for brick-builder: portkit's importer, then the regenerated brick models laid in.
 
     python altspace/tools/import_upstream_bricks.py            (from anywhere)
 
 1. The start files are every held and placed brick prefab the catalogue names (altspace/ts/src/catalogue.json),
    the five Assets/Prefabs/BrickComponents prefabs and the hammer; portkit's importer copies what they reach.
-2. 634 files in the upstream are Git LFS pointers whose objects are gone (HTTP 410). portkit's importer copies
-   them as they are (a 130-byte text where Unity expects a WAV, PNG or FBX: import errors). After it ran, every
-   LFS pointer under the destination is deleted with its .meta, and altspace/GeneratedBrickModels/** (the
-   regenerated brick models with the upstream .meta files, so the upstream GUIDs resolve) is copied over
+2. 634 files in the upstream are Git LFS pointers whose objects are gone (HTTP 410). portkit's importer skips them
+   (portkit d8f370d) and lists them in its report. altspace/GeneratedBrickModels/** (the regenerated brick models
+   with the upstream .meta files, so the upstream GUIDs resolve) is then copied over
    Assets/Upstream/Assets/Resources/BrickModels/.
-
-Kit gap (reported, not fixed here: portkit is not edited by game ports): import_upstream.py should skip LFS
-pointer files itself.
 """
 from __future__ import annotations
 
@@ -25,7 +21,6 @@ HERE = Path(__file__).resolve().parent
 PROJECT = HERE.parent                      # altspace/
 REPO = PROJECT.parent
 IMPORTER = REPO.parent / "portkit" / "tools" / "importer" / "import_upstream.py"
-LFS = b"version https://git-lfs.github.com/spec/v1"
 
 
 def main() -> None:
@@ -47,19 +42,6 @@ def main() -> None:
     derived.write_text(json.dumps(config, indent=1), encoding="utf-8")
     subprocess.run([sys.executable, str(IMPORTER), str(derived)], check=True)
 
-    removed: dict[str, int] = {}
-    for path in sorted(destination.rglob("*")):
-        if not path.is_file() or path.name.endswith(".meta"):
-            continue
-        with path.open("rb") as f:
-            head = f.read(len(LFS))
-        if head == LFS:
-            path.unlink()
-            meta = path.with_name(path.name + ".meta")
-            if meta.exists():
-                meta.unlink()
-            removed[path.suffix.lower()] = removed.get(path.suffix.lower(), 0) + 1
-
     generated = PROJECT / "GeneratedBrickModels"
     target = destination / "Assets" / "Resources" / "BrickModels"
     copied = 0
@@ -75,8 +57,7 @@ def main() -> None:
         if meta.exists():
             shutil.copy2(meta, target / (str(folder.relative_to(generated)) + ".meta"))
 
-    lines = [f"LFS pointers removed (objects gone upstream): " + ", ".join(f"{n} {k}" for k, n in sorted(removed.items())),
-             f"generated brick models copied in: {copied} FBX with their .meta files -> {target.relative_to(PROJECT)}"]
+    lines = [f"generated brick models copied in: {copied} FBX with their .meta files -> {target.relative_to(PROJECT)}"]
     print("\n".join(lines))
     with (destination / "IMPORT_REPORT.txt").open("a", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")

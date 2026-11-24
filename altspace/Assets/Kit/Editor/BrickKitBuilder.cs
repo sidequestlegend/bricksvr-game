@@ -53,6 +53,11 @@ namespace BrickBuilder
             ("room", ""), ("width", "64"), ("depth", "64"), ("height", "480"), ("performance", "false"),
         };
 
+        /// <summary>The build area at the default width and depth: 64 studs of 5.6 cm (the picker and tools stand outside it).</summary>
+        public override string GizmoSize => "3.584 0.2 3.584";
+        /// <summary>The photo shows the picker (65 brick tiles in colour); the whole kit is mostly empty carpet.</summary>
+        public override string PhotoRoot => "Picker";
+
         JObject info;
         readonly Dictionary<string, Material> materials = new Dictionary<string, Material>();
 
@@ -337,7 +342,7 @@ namespace BrickBuilder
             {
                 var t0 = g.Keep(g.Get(typeof(Time), "realtimeSinceStartup"));
                 var chunk = g.Keep(ops.Target);
-                g.If(g.Not(g.IsDefined(chunk, ItemsVariable)), () => g.SetObjVar(ItemsVariable, new Val(g, g.Add(new CreateList { inputCount = 0 }).valueOutputs["list"], typeof(System.Collections.IList)), chunk, typeof(System.Collections.IList)));
+                g.If(g.Not(g.IsDefined(chunk, ItemsVariable)), () => g.SetObjVar(ItemsVariable, g.NewList(), chunk, typeof(System.Collections.IList)));
                 var items = g.Keep(g.ObjVarOf(chunk, ItemsVariable, typeof(System.Collections.IList)));
                 var meshes = g.Keep(g.ObjVarOf(g.KitRoot(), MeshesVariable, typeof(System.Collections.IList)));
                 var oris = g.Keep(g.ObjVarOf(g.KitRoot(), OrisVariable, typeof(System.Collections.IList)));
@@ -351,11 +356,11 @@ namespace BrickBuilder
                     var matrix = g.Call(typeof(Matrix4x4), "TRS", new[] { typeof(Vector3), typeof(Quaternion), typeof(Vector3) }, null, position, rotation, Vector3.one * MeshScale);
                     var rgb = g.ParseInt(g.ListItem(f, 6, typeof(string)));
                     var offset = g.Call(typeof(Vector4), ".ctor", new[] { typeof(float), typeof(float), typeof(float), typeof(float) }, null, 0f, 0f, rgb, 0f);
-                    var instance = Struct(g, typeof(CombineInstance));
-                    instance = SetField(g, typeof(CombineInstance), "mesh", instance, g.ListItem(meshes, g.ParseInt(g.ListItem(f, 1, typeof(string))), typeof(Mesh)));
-                    instance = SetField(g, typeof(CombineInstance), "transform", instance, matrix);
-                    instance = g.Keep(SetField(g, typeof(CombineInstance), "lightmapScaleOffset", instance, offset));
-                    g.If(g.Less(slot, g.Count(items)), () => SetListItem(g, items, slot, instance), () => g.ListAdd(items, instance));
+                    var instance = g.NewStruct(typeof(CombineInstance));
+                    instance = g.SetChained(typeof(CombineInstance), "mesh", instance, g.ListItem(meshes, g.ParseInt(g.ListItem(f, 1, typeof(string))), typeof(Mesh)));
+                    instance = g.SetChained(typeof(CombineInstance), "transform", instance, matrix);
+                    instance = g.Keep(g.SetChained(typeof(CombineInstance), "lightmapScaleOffset", instance, offset));
+                    g.If(g.Less(slot, g.Count(items)), () => g.SetListItem(items, slot, instance), () => g.ListAdd(items, instance));
                 });
                 var filter = g.Keep(g.ComponentOf(chunk, typeof(MeshFilter)));
                 g.IfNotNull(g.Get(typeof(MeshFilter), "sharedMesh", filter), () => { }, () =>
@@ -425,36 +430,6 @@ namespace BrickBuilder
             var shifted = g.Call(typeof(Mathf), "Floor", new[] { typeof(float) }, null, rgb / (float)(1 << shift));
             var high = g.Call(typeof(Mathf), "Floor", new[] { typeof(float) }, null, shifted / 256f) * 256f;
             return (shifted - high) / 255f;
-        }
-
-        // ------------------------------------------------------------------ graph helpers the port kit does not have
-
-        /// <summary>A default struct value (VS "Create Struct").</summary>
-        static Val Struct(GraphWriter g, Type type)
-        {
-            var unit = g.Add(new CreateStruct(type));
-            return new Val(g, unit.valueOutputs["output"], type);
-        }
-
-        /// <summary>Sets a field of a struct value and returns the changed copy (VS Set Member's target output).</summary>
-        static Val SetField(GraphWriter g, Type owner, string name, Val target, object value)
-        {
-            var unit = g.Add(new SetMember(new Member(owner, name)) { chainable = true });
-            g.usedMembers.Add(owner.FullName + "." + name);
-            g.Feed(unit, "target", target);
-            g.Feed(unit, "input", value);
-            g.Chain(unit, "assign", "assigned");
-            return new Val(g, unit.valueOutputs["targetOutput"], owner);
-        }
-
-        /// <summary>list[index] = item, as a step (a stock "Set List Item" unit).</summary>
-        static void SetListItem(GraphWriter g, Val list, Val index, Val item)
-        {
-            var unit = g.Add(new SetListItem());
-            g.Feed(unit, "list", list);
-            g.Feed(unit, "index", index);
-            g.Feed(unit, "item", item);
-            g.Chain(unit, "enter", "exit");
         }
 
         // ------------------------------------------------------------------ meshes
