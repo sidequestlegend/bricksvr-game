@@ -1,0 +1,11 @@
+{
+  "source": "..",
+  "destination": "Assets/Upstream",
+  "roots": ["Assets/Resources", "Assets/Materials", "Assets/Textures", "Assets/Prefabs", "Assets/Shaders"],
+  "start": ["Assets/Resources/BrickModels", "Assets/Prefabs/BrickComponents", "Assets/Prefabs/Hammer.prefab"],
+  "script_roots": ["Assets/Scripts"],
+  "skip_suffixes": [".cs", ".asmdef", ".asmref", ".dll", ".unity", ".blend", ".blend1", ".shader", ".asset"],
+  "skip_dirs": ["Editor", ".git", "Library", "Temp", "Logs", "obj", "altspace", "Oculus", "Normal", "Steamworks", "Plugins"],
+  "copy_files": ["LICENSE", "README.md"],
+  "notice": "BricksVR (d12/bricksvr-game, MIT, Copyright 2021 BricksVR Studios Inc.), https://github.com/d12/bricksvr-game"
+}
