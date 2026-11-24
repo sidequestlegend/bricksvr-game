@@ -1,2 +1,9 @@
 __pycache__/
 *.pyc
+
+# TypeScript port: dependencies, builds and dotnet output are never committed
+ts/node_modules/
+ts/dist/
+ts/portkit/node_modules/
+ts/golden/bin/
+ts/golden/obj/

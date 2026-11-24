@@ -1,0 +1,417 @@
+{
+ "schema": 1,
+ "slug": "brick-builder",
+ "hash": "",
+ "bundles": {
+  "windows": "",
+  "android": ""
+ },
+ "objects": {
+  "area": {
+   "path": "Area",
+   "sync": "none",
+   "grab": false,
+   "click": false,
+   "seat": false
+  },
+  "ghost": {
+   "path": "Ghost",
+   "sync": "none",
+   "grab": false,
+   "click": false,
+   "seat": false
+  },
+  "held0": {
+   "path": "Pool/Held0",
+   "sync": "transform",
+   "grab": true,
+   "click": false,
+   "seat": false
+  },
+  "held1": {
+   "path": "Pool/Held1",
+   "sync": "transform",
+   "grab": true,
+   "click": false,
+   "seat": false
+  },
+  "held2": {
+   "path": "Pool/Held2",
+   "sync": "transform",
+   "grab": true,
+   "click": false,
+   "seat": false
+  },
+  "held3": {
+   "path": "Pool/Held3",
+   "sync": "transform",
+   "grab": true,
+   "click": false,
+   "seat": false
+  },
+  "held4": {
+   "path": "Pool/Held4",
+   "sync": "transform",
+   "grab": true,
+   "click": false,
+   "seat": false
+  },
+  "held5": {
+   "path": "Pool/Held5",
+   "sync": "transform",
+   "grab": true,
+   "click": false,
+   "seat": false
+  },
+  "held6": {
+   "path": "Pool/Held6",
+   "sync": "transform",
+   "grab": true,
+   "click": false,
+   "seat": false
+  },
+  "held7": {
+   "path": "Pool/Held7",
+   "sync": "transform",
+   "grab": true,
+   "click": false,
+   "seat": false
+  },
+  "held8": {
+   "path": "Pool/Held8",
+   "sync": "transform",
+   "grab": true,
+   "click": false,
+   "seat": false
+  },
+  "held9": {
+   "path": "Pool/Held9",
+   "sync": "transform",
+   "grab": true,
+   "click": false,
+   "seat": false
+  },
+  "held10": {
+   "path": "Pool/Held10",
+   "sync": "transform",
+   "grab": true,
+   "click": false,
+   "seat": false
+  },
+  "held11": {
+   "path": "Pool/Held11",
+   "sync": "transform",
+   "grab": true,
+   "click": false,
+   "seat": false
+  }
+ },
+ "refs": [
+  "area",
+  "ghost"
+ ],
+ "behaviours": [
+  {
+   "id": "area",
+   "type": "BuildArea",
+   "object": "area",
+   "fields": {}
+  },
+  {
+   "id": "log",
+   "type": "BrickLog",
+   "object": "area",
+   "perPlayer": true,
+   "fields": {}
+  },
+  {
+   "id": "s00",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 0
+   }
+  },
+  {
+   "id": "s01",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 1
+   }
+  },
+  {
+   "id": "s02",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 2
+   }
+  },
+  {
+   "id": "s03",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 3
+   }
+  },
+  {
+   "id": "s04",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 4
+   }
+  },
+  {
+   "id": "s05",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 5
+   }
+  },
+  {
+   "id": "s06",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 6
+   }
+  },
+  {
+   "id": "s07",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 7
+   }
+  },
+  {
+   "id": "s08",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 8
+   }
+  },
+  {
+   "id": "s09",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 9
+   }
+  },
+  {
+   "id": "s10",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 10
+   }
+  },
+  {
+   "id": "s11",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 11
+   }
+  },
+  {
+   "id": "s12",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 12
+   }
+  },
+  {
+   "id": "s13",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 13
+   }
+  },
+  {
+   "id": "s14",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 14
+   }
+  },
+  {
+   "id": "s15",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 15
+   }
+  },
+  {
+   "id": "s16",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 16
+   }
+  },
+  {
+   "id": "s17",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 17
+   }
+  },
+  {
+   "id": "s18",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 18
+   }
+  },
+  {
+   "id": "s19",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 19
+   }
+  },
+  {
+   "id": "s20",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 20
+   }
+  },
+  {
+   "id": "s21",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 21
+   }
+  },
+  {
+   "id": "s22",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 22
+   }
+  },
+  {
+   "id": "s23",
+   "type": "BrickSegment",
+   "object": "area",
+   "fields": {
+    "index": 23
+   }
+  },
+  {
+   "id": "h00",
+   "type": "HeldBrick",
+   "object": "held0",
+   "fields": {
+    "index": 0
+   }
+  },
+  {
+   "id": "h01",
+   "type": "HeldBrick",
+   "object": "held1",
+   "fields": {
+    "index": 1
+   }
+  },
+  {
+   "id": "h02",
+   "type": "HeldBrick",
+   "object": "held2",
+   "fields": {
+    "index": 2
+   }
+  },
+  {
+   "id": "h03",
+   "type": "HeldBrick",
+   "object": "held3",
+   "fields": {
+    "index": 3
+   }
+  },
+  {
+   "id": "h04",
+   "type": "HeldBrick",
+   "object": "held4",
+   "fields": {
+    "index": 4
+   }
+  },
+  {
+   "id": "h05",
+   "type": "HeldBrick",
+   "object": "held5",
+   "fields": {
+    "index": 5
+   }
+  },
+  {
+   "id": "h06",
+   "type": "HeldBrick",
+   "object": "held6",
+   "fields": {
+    "index": 6
+   }
+  },
+  {
+   "id": "h07",
+   "type": "HeldBrick",
+   "object": "held7",
+   "fields": {
+    "index": 7
+   }
+  },
+  {
+   "id": "h08",
+   "type": "HeldBrick",
+   "object": "held8",
+   "fields": {
+    "index": 8
+   }
+  },
+  {
+   "id": "h09",
+   "type": "HeldBrick",
+   "object": "held9",
+   "fields": {
+    "index": 9
+   }
+  },
+  {
+   "id": "h10",
+   "type": "HeldBrick",
+   "object": "held10",
+   "fields": {
+    "index": 10
+   }
+  },
+  {
+   "id": "h11",
+   "type": "HeldBrick",
+   "object": "held11",
+   "fields": {
+    "index": 11
+   }
+  }
+ ],
+ "events": []
+}
