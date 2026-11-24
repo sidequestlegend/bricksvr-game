@@ -54,8 +54,8 @@ DONE
 ```
 
 The relay graph has 798 units and uses 68 distinct members, all on the SDK allow list of 29,061 (it carries the game's
-ops `bricks`, `bspawn` (spike only) and `tint`). The kit: 3,393 objects, 114 bound (13 synced, 13 grabbable, 90 clickable),
-7 refs, 127 behaviours, 6 events. Bundles: Android 2,939 KiB, Windows 3,394 KiB, each with the third-party notices; no
+ops `bricks`, `bspawn` (spike only) and `tint`). The kit: 3,395 objects, 114 bound (13 synced, 13 grabbable, 90 clickable),
+7 refs, 127 behaviours, 6 events. Bundles: Android 2,939 KiB, Windows 3,396 KiB, each with the third-party notices; no
 textures (the brick shader has no scratch texture; the UI is flat colours and TextMesh Pro).
 
 ### The regenerated brick models in Unity (`PortKit/Bricks/Check Models`, `Logs/brick_models.txt`)
@@ -142,20 +142,20 @@ with `probe` and `renderstats`. **RESULT 17 passed, 0 failed** (`playtest/eviden
 indexing (`ArgumentOutOfRangeException` in `SearchInit.IndexationOnStartup`), at every Play start, not the kit's.
 
 ```
-PASS the kit loads from a hand-written bs-snippet and the instance starts: at 5666 ms after the page opened
+PASS the kit loads from a hand-written bs-snippet and the instance starts: at 5453 ms after the page opened
 PASS a category tab shows its bricks: category 1; Cat1 active True, Cat0 active False
 PASS a click on a picker tile selects that brick: {"type":7,"prefab":"2x2",...}
 PASS a swatch sets the colour; the picker's bricks show it (relay op tint): colour 55bf, tile 0.000 0.333 0.749 1.000
 PASS clicks on the carpet place the selected brick in the selected colour, snapped to the studs: [["2x2",[-360,48,-840],"55bf"],["2x2",[40,48,-840],"55bf"],["2x2",[440,48,-840],"55bf"]]
 PASS a click on a brick's top puts the next brick on its studs (the build is clickable): ["2x2",[-360,144,-840],"f2cd37"]
 PASS every placed brick is drawn by the chunk renderer: 4 drawn of 4; ...
-PASS a held brick grabbed and let go above the carpet snaps, and its pool slot is free again: slot 2 at 0.560 0.031 -0.280; bricks 4 -> 5; slot {"t":-1,...}
+PASS a held brick grabbed and let go above the carpet snaps, and its pool slot is free again: slot 8 at 0.560 0.031 -0.280; bricks 4 -> 5; slot {"t":-1,...}
 PASS the hammer removes the brick it hits, for the renderer too: hammer true, marker True; 5 -> 4 bricks; drawn 4
 PASS the hammer's trigger away from the build removes nothing: ok; 4 bricks
 PASS the owner locks the area (protected state); the status line says so: locked true; status '2x2 Brick   4 bricks   locked (you may build)'
 PASS and unlocks it again: false
-PASS the kit loads ... (after the reload) at 5655 ms after the page opened
-PASS after a reload the build is there again (late join from room state): 5 of 5 bricks, digest 5:c7274e1f
+PASS the kit loads ... (after the reload) at 5033 ms after the page opened
+PASS after a reload the build is there again (late join from room state): 5 of 5 bricks, digest 5:92ee23d4
 PASS and every brick of it is drawn: 5 drawn; ...
 PASS Load puts back the build saved on this device: 4 bricks, saved 4
 PASS the loaded build is drawn: 4 drawn
@@ -167,6 +167,10 @@ there when the camera turned; letting go detached it (it then lay loose and went
 mode `BS.AttachedObject` does take the object to the local player; whether it follows a real controller is unverified.
 The kit uses it for a brick taken from the build with the grip and for a picker tile clicked in VR (both VR only).
 
+Run rung 3 with Player 2 deactivated (`PortKit/Multiplayer/Deactivate Players`): a clone left running from rung 4
+loads the same test page and plays the single-player script at the same time (seen once: 5 failures from the two pages
+clicking into each other's build).
+
 What a person at the editor would see differently: the desktop grab does not follow InputSim's pointer (portkit
 RESULTS.md), so the held-brick test lets go in place (the brick was put just above the carpet); the first grab of a
 Play session lets go by itself, so the test spends it on the hammer first.
@@ -177,22 +181,29 @@ Play session lets go by itself, so the test spends it on the hammer first.
 (`playtest/evidence_multi.txt`).
 
 ```
-[main]  PASS two players in the room: Main Editor, Player 2
-[vp-..] PASS this player placed three bricks by clicking the carpet: 3          (both players click at the same time)
-[main]  PASS this player placed three bricks by clicking the carpet: 3
-[main]  PASS both players' bricks arrive on this page and are drawn: 6 bricks, 6 drawn
+[main] PASS the kit loads from a hand-written bs-snippet and the instance starts: at 5652 ms after the page opened
+[main] PASS two players in the room: [{"id":1,"name":"Main Editor","sid":"rsess_7a0f5070-c04e-4e07-a8d2-9f8d27226a7c"},{"id":2,"name":"Player 2","sid":"rsess_c4557961-d6cf-48e1-af95-50d159e9c21c"}]
+[main] INFO A is rsess_7a0f5070-c04e-4e07-a8d2-9f8d27226a7c
+[main] PASS this player placed three bricks by clicking the carpet: 3
+[main] PASS both players' bricks arrive on this page and are drawn: 6 bricks, 6 drawn
+[main] PASS both pages show identical builds (digests): 6:4443baf8 / 6:4443baf8
+[main] PASS the reloaded page rebuilds everything, the brick placed while it was away too (digests): 7 bricks, 7:45be76f7 / 7 bricks, 7:45be76f7
+[vp-..] PASS the kit loads from a hand-written bs-snippet and the instance starts: at 5040 ms after the page opened
+[vp-..] PASS two players in the room: [{"id":1,"name":"Main Editor","sid":"rsess_7a0f5070-c04e-4e07-a8d2-9f8d27226a7c"},{"id":2,"name":"Player 2","sid":"rsess_c4557961-d6cf-48e1-af95-50d159e9c21c"}]
+[vp-..] INFO B is rsess_c4557961-d6cf-48e1-af95-50d159e9c21c
+[vp-..] PASS this player placed three bricks by clicking the carpet: 3
 [vp-..] PASS both players' bricks arrive on this page and are drawn: 6 bricks, 6 drawn
-[main]  PASS both pages show identical builds (digests): 6:64229b95 / 6:64229b95
-[vp-..] PASS both pages show identical builds (digests): 6:64229b95 / 6:64229b95
-[main]  INFO B reloads its page                                                  (A places one more brick while B is away)
-[main]  PASS late join by reload: the build is rebuilt and drawn: 7 bricks (had 6), drawn 7
-[vp-..] PASS the reloaded page rebuilds everything, the brick placed while it was away too (digests): 7 bricks, 7:1a27ca4 / 7 bricks, 7:1a27ca4
+[vp-..] PASS both pages show identical builds (digests): 6:4443baf8 / 6:4443baf8
+[vp-..] INFO B reloads its page
+[vp-..] PASS the kit loads from a hand-written bs-snippet and the instance starts: at 4835 ms after the page opened
+[vp-..] PASS two players in the room: [{"id":1,"name":"Main Editor","sid":"rsess_7a0f5070-c04e-4e07-a8d2-9f8d27226a7c"},{"id":3,"name":"Player 2","sid":"rsess_9d0671be-c313-4176-8f34-f9d798f62b04"}]
+[vp-..] PASS late join by reload: the build is rebuilt and drawn: 7 bricks (had 6), drawn 7
 ```
 
 ## Artifacts
 
 `PortKit/Kit/Take Photos`, `PortKit/Kit/Export Artifacts` -> `altspace/dist/` (not committed): `android/brick-builder`
-(3,009,783 bytes), `windows/brick-builder` (3,478,107 bytes), `pk-brick-builder.js` (730,330 bytes, MIT header),
+(3,009,968 bytes), `windows/brick-builder` (3,477,263 bytes), `pk-brick-builder.js` (730,330 bytes, MIT header),
 `brick-builder.jpg`, `brick-builder.snippet.html` (settings room, width, depth, height, performance; box gizmo 3.6 x 4.6 m),
 `manifest.json` (checks android PASS, windows PASS, bindings `c3c20bbbc4a96e83bdb0e5952d06da4038cde1d9`).
 
