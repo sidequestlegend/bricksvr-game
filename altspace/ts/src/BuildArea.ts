@@ -565,7 +565,7 @@ export class BuildArea extends Behaviour {
   /** The preview swatch and every picker tile show the colour (BrickPickerManager.UpdateBrickColors). */
   private ShowColor(sliders = true): void {
     const c = this.rgbColor(this.color);
-    this.Host.op("tint", "@Picker/Cat0", [c.r.toFixed(4), c.g.toFixed(4), c.b.toFixed(4)], "tint");
+    this.Host.op("tint", "@Picker/Preview", [c.r.toFixed(4), c.g.toFixed(4), c.b.toFixed(4)], "tint");
     if (sliders) {
       this.Host.uiSetSlider("@Picker/Sliders/Hue", this.hsv.h);
       this.Host.uiSetSlider("@Picker/Sliders/Saturation", this.hsv.s);

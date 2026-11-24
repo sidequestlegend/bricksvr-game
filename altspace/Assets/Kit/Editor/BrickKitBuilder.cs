@@ -384,14 +384,14 @@ namespace BrickBuilder
                 g.Do(typeof(GameObject), "SetActive", new[] { typeof(bool) }, copy, true);
             });
 
-            // tint | @Picker/Cat0 | r | g | b: the colour of every picker tile and the preview (one material of this kit copy's own)
+            // tint | @Picker/Preview | r | g | b: the colour of every picker tile and the preview (one material of this kit copy's own)
             ops.Add("tint", () =>
             {
                 var pickerRoot = g.Keep(g.Get(typeof(Transform), "gameObject", g.Get(typeof(Transform), "parent", g.Get(typeof(GameObject), "transform", ops.Target))));
                 g.If(g.Not(g.IsDefined(pickerRoot, TintVariable)), () =>
                 {
                     var renderers = g.Keep(g.Call(typeof(GameObject), "GetComponentsInChildren", new[] { typeof(Type), typeof(bool) }, pickerRoot, g.TypeOf(typeof(MeshRenderer)), true));
-                    var own = g.Keep(g.Call(typeof(Material), ".ctor", new[] { typeof(Material) }, null, g.Get(typeof(Renderer), "sharedMaterial", g.ListItem(renderers, 0, typeof(Renderer)))));
+                    var own = g.Keep(g.Call(typeof(Material), ".ctor", new[] { typeof(Material) }, null, g.Get(typeof(Renderer), "sharedMaterial", g.ComponentOf(ops.Target, typeof(MeshRenderer)))));
                     g.SetObjVar(TintVariable, own, pickerRoot, typeof(Material));
                     g.ForEach(renderers, typeof(Renderer), r =>
                         g.If(g.Same(g.Get(typeof(Material), "name", g.Get(typeof(Renderer), "sharedMaterial", r)), "BrickPicker"), () => g.Set(typeof(Renderer), "sharedMaterial", r, own)));

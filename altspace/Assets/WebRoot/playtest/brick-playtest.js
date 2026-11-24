@@ -109,7 +109,7 @@
       check(!!done && s.drawn === want, "late join by reload: every brick is rebuilt and drawn",
         `${s.drawn} drawn of ${want}; the page opened ${Math.round(at)} ms before the last chunk was built (instance started at ${Math.round(start)} ms); ${r.built.ops} chunk ops, merge ${r.built.totalMs.toFixed(1)} ms in all (worst ${r.built.maxMs.toFixed(1)}), colliders ${r.built.totalColliderMs.toFixed(1)} ms (worst ${r.built.maxColliderMs.toFixed(1)})`);
       check(at < 5000 + 0 && done, "late join within 5 s of opening the page (plan's pass rule)", `${Math.round(at)} ms`);
-      check(debug().digest() === flag("brickSpikeDigest"), "the reloaded page holds the same bricks (digest)", debug().digest());
+      check(debug().bricksDigest() === flag("brickSpikeDigest"), "the reloaded page holds the same bricks (digest)", debug().bricksDigest());
       say("INFO", "renderstats after the late join", s.text);
       say("INFO", "frame time", await cmd("framems 120"));
       return;
@@ -159,8 +159,8 @@
     flag("brickSpikeReload", "1");
     flag("brickSpikeCount", String(debug().bricks()));
     await sleep(2500); // the referee archives once a second; let the log drain
-    flag("brickSpikeDigest", debug().digest());
-    say("INFO", "reloading the page for the late join", debug().digest());
+    flag("brickSpikeDigest", debug().bricksDigest());
+    say("INFO", "reloading the page for the late join", debug().bricksDigest());
     await sleep(300);
     location.reload();
     await sleep(120000);

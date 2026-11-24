@@ -1,6 +1,6 @@
 // The game's definition: its slug and the classes bindings.json names by `type`. The build reads the default export.
 
-import type { GameDefinition } from "../portkit/src/index.ts";
+import { Button, type GameDefinition } from "../portkit/src/index.ts";
 import { BrickByPrefabName, BRICKS } from "./BrickData.ts";
 import { BrickLog } from "./BrickLog.ts";
 import { BrickSegment } from "./BrickSegment.ts";
@@ -38,7 +38,9 @@ const game: GameDefinition = {
     const area = () => instance.behaviour<BuildArea>("area");
     return {
       bricks: () => area().ledger.store.count,
-      digest: () => area().ledger.digest(),
+      /** The placed bricks' digest (BrickLedger: equal on clients that show the same bricks). */
+      bricksDigest: () => area().ledger.digest(),
+      me: () => area().Networking.LocalPlayer.sid,
       /** What the renderer sent and what the graph reported built. */
       render: () => {
         const r = area().renderer;
@@ -72,6 +74,26 @@ const game: GameDefinition = {
         return [w.x, w.y, w.z];
       },
       locked: () => area().Protected.Get("locked", false),
+      canWrite: () => area().Protected.CanWrite,
+      /** A held brick from the pool at a lattice point (tests: something to grab). Returns its slot index or -1. */
+      spawn: (prefab: string, x: number, y: number, z: number) => {
+        const def = BrickByPrefabName(prefab);
+        if (!def) return -1;
+        const w = area().ToWorld([x, y, z], [0, 0, 0, 1]);
+        const slot = area().Spawn(def.type, area().color, w.position, w.rotation);
+        return slot ? slot.index : -1;
+      },
+      /** AttachToHand on a pool slot (tests: does it follow the hand in Play mode), and let go again. */
+      attach: (index: number, side: number) => {
+        const slot = area().FindBehavioursOfType<HeldBrick>("HeldBrick").find((h) => h.index === index);
+        if (slot) area().IntoHand(slot, side as 0 | 1);
+        return !!slot;
+      },
+      letGo: (side: number) => area().OnButtonReleased(Button.Grip, side as 0 | 1),
+      slot: (index: number) => {
+        const h = area().FindBehavioursOfType<HeldBrick>("HeldBrick").find((x) => x.index === index);
+        return h ? { t: h.t, c: h.c & 0xffffff, d: h.d, held: h.held } : null;
+      },
     };
   },
 };

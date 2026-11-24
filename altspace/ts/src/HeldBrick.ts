@@ -131,7 +131,7 @@ export class HeldBrick extends Behaviour {
     const path = this.gameObject.key ? `@Pool/Held${this.index}` : "";
     if (this.t >= 0 && path && (this.shown !== this.t || this.shownColor !== this.c)) {
       const rgb = this.c & 0xffffff;
-      this.Host.setColor(`${path}/${BRICKS[this.t]!.prefab}`, "_BaseColor", new Color(((rgb >> 16) & 255) / 255, ((rgb >> 8) & 255) / 255, (rgb & 255) / 255, 1));
+      this.Host.setColor(`${path}/${BRICKS[this.t]!.prefab}/Model`, "_BaseColor", new Color(((rgb >> 16) & 255) / 255, ((rgb >> 8) & 255) / 255, (rgb & 255) / 255, 1));
       this.shownColor = this.c;
     }
     if (this.shown === this.t) return;
