@@ -77,6 +77,37 @@ Test 18 was written after Play mode showed a reload of the only page losing the 
 
 ## Rung 2: the kit in edit mode (`PortKit/Kit/Check`)
 
+**2026-11-25, after the review** (portkit `812f285`; `altspace/tools/rebuild_kit.sh`): PASS.
+
+```
+brick-builder_relay: 857 units, 305 control and 863 value connections, 69 distinct members, all on the allow list of 29061
+ok brick-builder: 3395 objects, 114 bound (13 synced, 13 grabbable, 90 clickable), 7 refs, 127 behaviours, 6 events; bindings c3c20bbbc4a96e83bdb0e5952d06da4038cde1d9 -> ts/bindings.json
+android brick-builder: 2950 KiB, with notices, licence texts: BricksVR-LICENSE-MIT.txt, CC0-1.0-legalcode.txt, portkit-LICENSE-MIT.txt, LICENSE-kenney-casino-audio.txt, LICENSE-kenney-interface-sounds.txt, LiberationSans - OFL.txt
+windows brick-builder: 3406 KiB, with notices, licence texts: (the same six)
+PASS graphs: the SDK's check found 0 nodes the app will not run
+PASS brick-builder bindings: 114 objects resolve by path; hash matches (c3c20bbbc4a96e83bdb0e5952d06da4038cde1d9)
+PASS brick-builder android bundle: PASS Kind=Pass Reasons=[] Reports=[] Stats=files 1 (format 22), scenes 0, objects 244/11102, behaviours 233, scripts 11, ...
+PASS brick-builder windows bundle: PASS Kind=Pass Reasons=[] Reports=[] ...
+DONE
+```
+
+The relay graph now uses the kit's `NewStruct` / `SetChained` / `SetListItem` / `NewList` (857 units, was 798 with the
+builder's own helpers: `NewStruct` is a step of its own). Bundles grew 11 KiB each (2,939 -> 2,950 KiB Android,
+3,396 -> 3,406 KiB Windows): the six licence texts. `PortKit/Bricks/Check Models` (`Logs/brick_models.txt`) passes as
+before and adds the models rebuilt from upstream's dumps, as Unity imports them:
+
+```
+PASS Plants/Plant_Green_Flat.fbx as imported matches upstream's BrickObjs/FlatPlant.pobj: worst vertex 0 um; bounds (-0.00524, -0.00165, -0.00605) .. (0.00524, 0.00262, 0.00605)
+PASS Plants/Plant_Green_MediumHeight.fbx as imported matches upstream's BrickObjs/ThreeLeafedPlant.pobj: worst vertex 0 um; bounds (-0.00556, -0.00165, -0.00642) .. (0.00556, 0.00689, 0.00392)
+PASS Pyramids/Brick_1x1_Pyramid/Brick_1x1_Pyramid_Complete.fbx as imported matches upstream's BrickObjs/1x1Pyramid.pobj: worst vertex 0 um; ...
+PASS Pyramids/Brick_1x1_Pyramid/Brick_1x1_Pyramid_SolidBody.fbx as imported matches upstream's BrickObjs/1x1Pyramid.pobj: worst vertex 0 um; ...
+```
+
+The dumps are the meshes as upstream's Unity loaded them, so this also confirms, on asymmetric parts, the X mirror the
+generator assumes for Unity's FBX import.
+
+First Unity phase (2026-11-24):
+
 ```
 PASS graphs: the SDK's check found 0 nodes the app will not run
 PASS brick-builder bindings: 114 objects resolve by path; hash matches (c3c20bbbc4a96e83bdb0e5952d06da4038cde1d9)
@@ -167,6 +198,25 @@ How (b) works (README op table of this game, `Assets/Kit/Editor/BrickKitBuilder.
 
 ## Rung 3: Play mode, one player (`playtest/single.json`)
 
+**2026-11-25, after the review, on the rebuilt bundles: RESULT 20 passed, 0 failed, twice in a row**
+(`playtest/evidence_single_run1.txt`, `playtest/evidence_single.txt`; picture of the new arch check
+`playtest/evidence_single_arch.jpg`). Three checks are new, for what the fixes changed that Play mode can show:
+
+```
+[main] PASS an arch goes over a 1x1 plate on the carpet, and both are drawn: plate true, arch ...#8; 6 drawn of 6
+[main] PASS a full area refuses new bricks and the status line says so: 222 placed before the refusal; status '2x2 Brick   228 bricks   AREA FULL: remove bricks to build more'
+[main] PASS removing bricks makes room again: 222 removed; status '2x2 Brick   6 bricks'
+```
+
+(the full-area check makes the archive's segments 300 bytes through a test hook, so 24 segments fill at about 230
+records). The other 17 checks are the earlier ones, all passing (placing by clicks, stacking, the held brick from the
+pool, the desktop hammer, the lock, save, reload, Load). Console: one error line per run, the SDK's
+`Failed to load after 25 seconds: http://localhost:43400 (state SCENE_START): no component is still loading (1 registered)`
+(the page and the kit had loaded: the instance started at 5,691 ms and every check passed); the first phase's line was
+Unity's SearchDatabase indexing instead. `playtest.sh` deactivated no leftover players (none running).
+
+First Unity phase (2026-11-24):
+
 A hand-written `<bs-snippet name="brick-builder" ...>` with the built script and both bundles from the test's local server.
 Everything below is the SDK's desktop player driven by portkit's InputSim (real clicks and grabs), checked in Unity
 with `probe` and `renderstats`. **RESULT 17 passed, 0 failed** (`playtest/evidence_single.txt`, picture
@@ -208,6 +258,20 @@ Play session lets go by itself, so the test spends it on the hammer first.
 
 ## Rung 4: two Local Multiplayer players (`playtest/multi.json`)
 
+**2026-11-25, after the review, on the rebuilt bundles: RESULT 14 passed, 0 failed, twice in a row**
+(`playtest/evidence_multi_run1.txt`, `playtest/evidence_multi.txt`; `playtest.sh` activated Player 2 and waited for
+it, "Player 2: Launched (Clone)"; console 0 error lines). Digests at equal state on both pages:
+
+```
+[main] PASS both pages show identical builds (digests): 6:2cb9aa36 / 6:2cb9aa36
+[main] PASS the reloaded page rebuilds everything, the brick placed while it was away too (digests): 7 bricks, 7:c2dc067c / 7 bricks, 7:c2dc067c
+[vp-mppm3fdcd393] PASS late join by reload: the build is rebuilt and drawn: 7 bricks (had 6), drawn 7
+```
+
+(run 1: `6:42ba2f89` on both pages, then `7:3970bf84` on both after the reload).
+
+First Unity phase (2026-11-24):
+
 `PortKit/Multiplayer/Activate Player 2`, then the test on both pages. **RESULT 14 passed, 0 failed**
 (`playtest/evidence_multi.txt`).
 
@@ -233,6 +297,15 @@ Play session lets go by itself, so the test spends it on the hammer first.
 
 ## Artifacts
 
+**2026-11-25**: `PortKit/Kit/Take Photos` ("'Picker' only, 69 renderers", `PhotoRoot`), `PortKit/Kit/Export Artifacts`
+-> `altspace/dist/` (not committed): `android/brick-builder` (3,021,299 bytes, was 3,009,968), `windows/brick-builder`
+(3,487,447 bytes, was 3,477,263), `pk-brick-builder.js` (763,355 bytes, BricksVR MIT header then portkit's MIT banner),
+`brick-builder.jpg` (the picker), `brick-builder.snippet.html` (box gizmo 3.584 x 0.2 x 3.584 m from `GizmoSize`, the
+build area at the default 64 x 64 studs), `manifest.json` (checks android PASS, windows PASS, bindings
+`c3c20bbbc4a96e83bdb0e5952d06da4038cde1d9`).
+
+First Unity phase (2026-11-24):
+
 `PortKit/Kit/Take Photos`, `PortKit/Kit/Export Artifacts` -> `altspace/dist/` (not committed): `android/brick-builder`
 (3,009,968 bytes), `windows/brick-builder` (3,477,263 bytes), `pk-brick-builder.js` (730,330 bytes, MIT header),
 `brick-builder.jpg`, `brick-builder.snippet.html` (settings room, width, depth, height, performance; box gizmo 3.6 x 4.6 m),
@@ -246,3 +319,8 @@ paths, because controller events do not fire in Play mode: the grip on a placed 
 AttachToHand), the hand spawner (A/B/X/Y held and pressed), a picker tile clicked with a laser putting the brick in
 the hand, the grabbable hammer swung into the build, the ghost while a brick is held, haptics. The HSV sliders (uGUI,
 relayed as `uiSlider`) were not moved in the test (the swatches were). The left hand.
+
+After the review, checked in Node only (no Play-mode path drives them): the swung hammer's blast radius and its
+200-brick cap, the hand spawner's set during the hold (from a brick or a picker tile) and the 1x6 arch's spawn offset,
+a loose or held brick blocking a snap, a leaver's pool slot freed by the referee, a repack of 18+ segments handed to
+the relay in parts (the fake relay's 256 KiB cap; the real SDK's pacing is portkit's, unverified in the app).
