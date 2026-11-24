@@ -96,6 +96,14 @@ const game: GameDefinition = {
         return !!slot;
       },
       letGo: (side: number) => area().OnButtonReleased(Button.Grip, side as 0 | 1),
+      /** The archive's segment size in bytes (tests: a small archive fills quickly); returns the one before. */
+      capacity: (bytes: number) => {
+        const before = area().segmentCapacity;
+        if (bytes > 0) area().segmentCapacity = bytes;
+        return before;
+      },
+      /** Removes placed bricks by id (tests). Returns how many went. */
+      remove: (ids: string[]) => area().Delete(ids),
       slot: (index: number) => {
         const h = area().FindBehavioursOfType<HeldBrick>("HeldBrick").find((x) => x.index === index);
         return h ? { t: h.t, c: h.c & 0xffffff, d: h.d, held: h.held } : null;

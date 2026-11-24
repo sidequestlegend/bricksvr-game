@@ -4,7 +4,8 @@
 //   PortKit/Bricks/Check Models      -> Logs/brick_models.txt: the 269 regenerated FBX import; the 18 meshes whose upstream
 //                                       fileIDs are mapped through internalIDToNameTable resolve to those fileIDs; every
 //                                       mesh reference in the imported upstream prefabs resolves (but the BrickComponents
-//                                       ones, whose GUIDs never existed); slopes face the way their studs say.
+//                                       ones, whose GUIDs never existed); slopes face the way their studs say; the plant
+//                                       and pyramid meshes match upstream's BrickObjs vertex dumps as imported.
 //   PKTEST CMD <id> renderstats <holder>   UnityStats (batches, draw calls, SetPass calls, triangles) after a few frames,
 //                                       and what the chunk renderer holds: chunks, bricks drawn (CombineInstances with a
 //                                       mesh), merged vertices; the spike's per-brick objects.
@@ -156,6 +157,24 @@ namespace BrickBuilder
                         why = $"top centre ({F(highX)}, {F(highZ)}), studs at x {string.Join(" ", studs.Select(s => F(s)))}";
                     }
                     Line(ok, $"slope {prefab} faces the way its studs say after import: {why}");
+                }
+
+                // the models rebuilt from upstream's vertex dumps (bricks.json "pobj"): as Unity imports them, every vertex
+                // within 1 um of the dump (Assets/Editor/GenerateObjs.cs wrote the meshes as Unity had loaded them)
+                var catalog = JObject.Parse(File.ReadAllText("tools/bricks/bricks.json"));
+                foreach (JObject b in (JArray)catalog["bricks"])
+                {
+                    if (b["pobj"] == null) continue;
+                    var dump = File.ReadAllLines("../" + (string)b["pobj"]).Where(l => l.StartsWith("v "))
+                        .Select(l => l.Split(' ')).Select(p => new Vector3(float.Parse(p[1], CultureInfo.InvariantCulture), float.Parse(p[2], CultureInfo.InvariantCulture), float.Parse(p[3], CultureInfo.InvariantCulture))).ToList();
+                    foreach (JObject file in (JArray)b["files"])
+                    {
+                        var mesh = AssetDatabase.LoadAllAssetsAtPath(ModelRoot + (string)file["file"]).OfType<Mesh>().First();
+                        var v = mesh.vertices;
+                        float Far(Vector3 a, IList<Vector3> set) => set.Min(q => Mathf.Max(Mathf.Abs(a.x - q.x), Mathf.Abs(a.y - q.y), Mathf.Abs(a.z - q.z)));
+                        float worst = Mathf.Max(dump.Max(a => Far(a, v)), v.Max(a => Far(a, dump)));
+                        Line(worst < 1e-6f, $"{file["file"]} as imported matches upstream's {b["pobj"]}: worst vertex {F(worst * 1e6)} um; bounds {mesh.bounds.min.ToString("F5")} .. {mesh.bounds.max.ToString("F5")}");
+                    }
                 }
             }
             catch (Exception e)

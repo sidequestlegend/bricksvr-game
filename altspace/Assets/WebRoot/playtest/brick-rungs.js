@@ -152,6 +152,46 @@
     await sleep(800);
     check(debug().bricks() === n2, "the hammer's trigger away from the build removes nothing", `${trig}; ${debug().bricks()} bricks`);
 
+    // an arch over a 1x1 plate (review finding 2: the arch's disabled root box is not solid, as in upstream's physics)
+    await clickPath("Picker/Tabs/Tab1", "the Plates tab");
+    await until(() => debug().picker().category === 1, 3000, 50);
+    await clickPath("Picker/Cat1/Tile_1x1Plate", "the 1x1 plate");
+    await until(() => debug().picker().prefab === "1x1Plate", 3000, 50);
+    const underArch = await placeOnCarpet(t, [800, 0, 800], "the carpet where the arch goes");
+    const archId = debug().placeOne("1x3Arch", 0, 800, 48, 800, 0x9ba19d);
+    await sleep(1500);
+    await until(() => debug().render().idle, 4000, 50);
+    const s4 = await stats();
+    check(underArch && !!archId && s4.drawn === debug().bricks(), "an arch goes over a 1x1 plate on the carpet, and both are drawn",
+      `plate ${underArch}, arch ${archId}; ${s4.drawn} drawn of ${debug().bricks()}`);
+    await cmd("shot arch 0.56 0.3 0.15 0.56 0.03 0.56 45");
+    await clickPath("Picker/Tabs/Tab0", "the Bricks tab");
+    await clickPath("Picker/Cat0/Tile_2x2", "the 2x2 brick");
+
+    // a full area (review finding 3): with a small archive, new bricks are refused and the status line says so
+    const oldCapacity = debug().capacity(300);
+    const added = [];
+    let refusedAt = -1;
+    for (let i = 0; i < 400; i++) {
+      const id = debug().placeOne("1x1Plate", 0, -2400 + (i % 60) * 80, 16, 1600 + Math.floor(i / 60) * 80, 0xffffff);
+      if (!id) {
+        refusedAt = i;
+        break;
+      }
+      added.push(id);
+      if (i % 50 === 49) await sleep(300);
+    }
+    await sleep(1500);
+    const fullText = await probe("text", "Picker/Status");
+    check(refusedAt > 0 && fullText.indexOf("AREA FULL") >= 0, "a full area refuses new bricks and the status line says so",
+      `${added.length} placed before the refusal; status '${fullText}'`);
+    const removed = debug().remove(added);
+    debug().capacity(oldCapacity);
+    await sleep(2000);
+    const clearText = await probe("text", "Picker/Status");
+    check(removed === added.length && clearText.indexOf("AREA FULL") < 0, "removing bricks makes room again", `${removed} removed; status '${clearText}'`);
+    await until(() => debug().render().idle, 8000, 50);
+
     // the lock (world owner and moderators only)
     const canWrite = debug().canWrite();
     await clickPath("Tools/LockButton", "Lock");
