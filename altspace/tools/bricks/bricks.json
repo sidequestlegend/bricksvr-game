@@ -1345,7 +1345,8 @@
       "Assets/Scenes/Main Scene.unity"
      ]
     }
-   ]
+   ],
+   "pobj": "BrickObjs/FlatPlant.pobj"
   },
   {
    "name": "Plant_Green_MediumHeight",
@@ -1376,7 +1377,8 @@
       "Assets/Scenes/Main Scene.unity"
      ]
     }
-   ]
+   ],
+   "pobj": "BrickObjs/ThreeLeafedPlant.pobj"
   },
   {
    "name": "Plate_1x1",
@@ -2533,10 +2535,6 @@
    "height_plates": 3,
    "bottom_plates": -1.5,
    "studs": [],
-   "pyramid": {
-    "base_thickness": 0.0013,
-    "apex_y": 0.0004
-   },
    "files": [
     {
      "file": "Pyramids/Brick_1x1_Pyramid/Brick_1x1_Pyramid_Complete.fbx",
@@ -2568,7 +2566,8 @@
       "Assets/Scenes/Main Scene.unity"
      ]
     }
-   ]
+   ],
+   "pobj": "BrickObjs/1x1Pyramid.pobj"
   },
   {
    "name": "Brick_1x1_1FaceSideStud",

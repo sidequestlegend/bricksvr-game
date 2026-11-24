@@ -285,16 +285,6 @@ class Brick:
                 for z in zs:
                     pts += [(x, self.yb, z), (x, min(self.top_x(x), self.top_z(z)), z)]
             hull(bm, pts)
-        elif sh == "pyramid":
-            p = self.e["pyramid"]
-            yb2 = self.yb + p["base_thickness"]
-            box(bm, -self.hx, self.hx, self.yb, yb2, -self.hz, self.hz)
-            hb = bmesh.new()
-            hull(hb, [(sx * self.hx, yb2 - 0.0001, sz * self.hz) for sx in (-1, 1) for sz in (-1, 1)] + [(0, p["apex_y"], 0)])
-            if bevel:
-                bevel_all(bm)
-            _merge(bm, hb)
-            return bm
         else:
             raise ValueError(sh)
         if bevel:
@@ -344,10 +334,6 @@ class Brick:
         elif sh == "slope_inverted":
             c = self.slope_cfg
             box(bm, c["x_hi"] + WALL, self.hx - WALL, self.yb - EPS, self.yt - TOPW, -self.hz + WALL, self.hz - WALL)
-        elif sh == "pyramid":
-            p = self.e["pyramid"]
-            box(bm, -self.hx + WALL, self.hx - WALL, self.yb - EPS, self.yb + p["base_thickness"] - 0.0004,
-                -self.hz + WALL, self.hz - WALL)
         return bm
 
     def openings(self):
@@ -508,29 +494,6 @@ def build_special(e):
     elif sh in ("tube", "tube_short", "tube_slope"):
         h = {"tube": 0.0086, "tube_short": 0.0022, "tube_slope": 0.0060}[sh]
         ring(bm, 0, 0, TUBE_RO, TUBE_RI, -h, 0.0, TUBE_SEG)
-    elif sh in ("plant_flat", "plant_three_leaf"):
-        yb, yt = -PLATE / 2, PLATE / 2
-        cylinder(bm, 0, 0, STUD_R, yb, yt, STUD_SEG)
-        if sh == "plant_flat":
-            leaves = [(i * 72.0, 12.0, 0.0115, 0.0055, 0.0012, 0.0010) for i in range(5)]
-        else:
-            cylinder(bm, 0, 0, 0.0007, yt - 0.0002, 0.0140, 8)
-            leaves = [(i * 120.0 + 30.0, 35.0, 0.0095, 0.0055, 0.0135, 0.0004) for i in range(3)]
-        for yaw, tilt, length, width, y, r0 in leaves:
-            leaf = bmesh.new()
-            poly = []
-            seg = 10
-            for i in range(seg):
-                t = 2 * math.pi * i / seg
-                # leaf outline along +X, pointed tip
-                xx = length / 2 * (1 + math.cos(t))
-                zz = width / 2 * math.sin(t) * (0.35 + 0.65 * math.sin(math.pi * xx / length))
-                poly.append((xx, zz))
-            prism_xz(leaf, poly, -0.0003, 0.0003)
-            m = (Matrix.Translation((0, y, 0)) @ Matrix.Rotation(math.radians(yaw), 4, 'Y') @
-                 Matrix.Translation((r0, 0, 0)) @ Matrix.Rotation(math.radians(tilt), 4, 'Z'))
-            transform(leaf, m)
-            _merge(bm, leaf)
     elif sh == "figure":
         # Placeholder for the upstream 'Bob' model (unused; commented out of BrickData). Built upright with
         # its feet on the female connectors of Bob.prefab, then flipped 180 deg about X like the prefab expects.
@@ -545,6 +508,32 @@ def build_special(e):
         transform(bm, Matrix.Rotation(math.pi, 4, 'X'))
     else:
         raise ValueError(sh)
+    return bm
+
+
+# ================================================================ upstream vertex dumps
+def load_pobj(path):
+    """A mesh from upstream's BrickObjs/<prefab>.pobj (Assets/Editor/GenerateObjs.cs: the Complete mesh as Unity loaded
+    it, i.e. Unity mesh space after import, with Unity's triangles). Taken as is into construction space: Unity's
+    triangle order already gives outward normals there ((b - a) x (c - a) agrees with the dump's own normals on every
+    triangle). Its UVs and normals are not kept: finalize() makes them as for every other brick."""
+    verts, tris = [], []
+    with open(path, encoding="utf-8-sig") as fh:
+        for line in fh:
+            p = line.split()
+            if not p:
+                continue
+            if p[0] == "v":
+                verts.append(tuple(float(x) for x in p[1:4]))
+            elif p[0] == "f":
+                tris.append([int(x.split("/")[0]) - 1 for x in p[1:4]])
+    bm = bmesh.new()
+    bv = [bm.verts.new(v) for v in verts]
+    for t in tris:
+        try:
+            bm.faces.new([bv[i] for i in t])
+        except ValueError:      # the same triangle twice (split vertices are merged later by finalize)
+            pass
     return bm
 
 
@@ -698,7 +687,9 @@ def main(argv):
             if meta:
                 m = re.search(r"meshes:\s*\n(?:.*\n)*?\s*globalScale: ([\d.]+)", meta)
                 gs = float(m.group(1)) if m else gs
-            if e["shape"] in ("stud", "stud_hollow", "tube", "tube_short", "tube_slope", "plant_flat", "plant_three_leaf", "figure"):
+            if e.get("pobj"):
+                bm = load_pobj(os.path.normpath(os.path.join(HERE, "..", "..", "..", e["pobj"])))
+            elif e["shape"] in ("stud", "stud_hollow", "tube", "tube_short", "tube_slope", "figure"):
                 bm = build_special(e)
             else:
                 bm = Brick(e).build(rec["variant"])

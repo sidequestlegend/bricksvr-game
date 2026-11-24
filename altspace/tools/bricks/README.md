@@ -1,8 +1,10 @@
 # Replacement brick models (generated)
 
 The upstream brick models (`Assets/Resources/BrickModels/**/*.fbx`, 269 files) are Git LFS pointers whose
-objects no longer exist on GitHub. This folder regenerates **all 269** of them as plain geometric primitives
-(boxes, cylinders, wedges, booleans) from dimensions recovered from the game's code, prefabs and scene.
+objects no longer exist on GitHub. This folder regenerates **all 269** of them: 265 as plain geometric primitives (boxes, cylinders,
+wedges, booleans) from dimensions recovered from the game's code, prefabs and scene, and the 4 plant and pyramid
+files from upstream's own vertex dumps, `BrickObjs/<prefab>.pobj` (written by `Assets/Editor/GenerateObjs.cs`: the
+Complete mesh of each picker brick as Unity loaded it, with its triangles; MIT like the rest of the repository).
 The studs have no lettering or logo, and nothing is named after a toy brand.
 
 | Path | What |
@@ -130,9 +132,12 @@ mesh name against `CompleteMeshPath`.
   brick tall because its collider says so.
 * **Window 1x2x2:** 1.5 mm frame, 1-plate sill, open (no glass).
 * **Masonry:** 3 courses of raised panels with 0.4 mm joints and a half-stud stagger, on both long faces.
-* **Pyramid:** a 1.3 mm base slab plus a pyramid with its apex at y = +0.4 mm (from its colliders).
-* **Plants:** a stud-sized hub plus 5 flat leaves (`Plant_Green_Flat`), or a stem plus 3 leaves
-  (`Plant_Green_MediumHeight`). Plain shapes sized to sit on one stud (female connector y = -0.002).
+* (Not guesses any more: the pyramid, `Plant_Green_Flat` and `Plant_Green_MediumHeight` are upstream's own meshes,
+  rebuilt vertex for vertex from `BrickObjs/1x1Pyramid.pobj`, `FlatPlant.pobj` and `ThreeLeafedPlant.pobj`, the
+  `pobj` key in `bricks.json`; `verify_bricks.py` checks every vertex against the dump within 1 um. The pyramid's
+  Complete and SolidBody are the same closed mesh: a 1.43 mm base slab under a pyramid with its apex 1.34 mm above
+  the centre. The 61 other dumps are of box-like bricks; the generated ones match them within about 0.5 mm, the
+  difference being the guessed underside detail.)
 * **`Misc/Bob.fbx`:** a rough blocky placeholder figure, built so its feet land on `Bob.prefab`'s two female
   connectors (the prefab flips the model 180 deg about X). Bob is commented out of `BrickData`.
 * **`z_Extras/Round_Stud`, `Tube`, `Tube_Short`, `Slope_Tube`:** unreferenced. Their pivot is at the top of
@@ -146,7 +151,7 @@ mesh name against `CompleteMeshPath`.
 
 ## Triangle budget
 
-Total 44,804 triangles across 269 files; median 104; maximum 1,024 (`Plate_2x8_Complete`, which has 16 studs
+Total 44,689 triangles across 269 files; median 104; maximum 1,024 (`Plate_2x8_Complete`, which has 16 studs
 and 7 tubes). Placed bricks use HollowBody_NoBevel (28 to 448 tris) or SolidBody_NoBevel (12 tris) plus 44-tri
 studs. Studs are 12-sided, tubes 10-sided, pins 8-sided.
 
@@ -176,8 +181,8 @@ the part is one of the 65 pieces in the in-game picker.
 | Bricks_Masonry/Brick_1x2_Masonry | masonry | 2x1 | 3 | Complete: 318, HollowBody: 250, SolidBody: 212 | yes |
 | Bricks_Masonry/Brick_1x4_Masonry | masonry | 4x1 | 3 | Complete: 574, HollowBody: 438, SolidBody: 356 | yes |
 | Misc/Bob | figure (placeholder) | - | - | Bob: 120 |  |
-| Plants/Plant_Green_Flat | plant_flat | 1x1 | 1 | Plant_Green_Flat: 224 | yes |
-| Plants/Plant_Green_MediumHeight | plant_three_leaf | 1x1 | 1 | Plant_Green_MediumHeight: 180 | yes |
+| Plants/Plant_Green_Flat | plant (upstream mesh, `FlatPlant.pobj`) | 1x1 | 1 | Plant_Green_Flat: 176 | yes |
+| Plants/Plant_Green_MediumHeight | plant (upstream mesh, `ThreeLeafedPlant.pobj`) | 1x1 | 1 | Plant_Green_MediumHeight: 169 | yes |
 | Plates/Plate_1x1 | box | 1x1 | 1 | Complete: 94, HollowBody: 60, HollowBody_NoBevel: 28, SolidBody: 44, SolidBody_NoBevel: 12 | yes |
 | Plates/Plate_1x10 | box | 10x1 | 1 | Complete: 598, HollowBody: 258, HollowBody_NoBevel: 226, SolidBody: 44, SolidBody_NoBevel: 12 | yes |
 | Plates/Plate_1x2 | box | 2x1 | 1 | Complete: 150, HollowBody: 82, HollowBody_NoBevel: 50, SolidBody: 44, SolidBody_NoBevel: 12 | yes |
@@ -195,7 +200,7 @@ the part is one of the 65 pieces in the in-game picker.
 | Plates/Plate_2x8 | box | 8x2 | 1 | Complete: 1024, HollowBody: 480, HollowBody_NoBevel: 448, SolidBody: 44, SolidBody_NoBevel: 12 | yes |
 | Plates/Plate_3x3 | box | 3x3 | 1 | Complete: 606, HollowBody: 300, SolidBody: 44 |  |
 | Plates/Plate_Round_1x1 | round | 1x1 | 1 | Complete: 286, HollowBody: 252, SolidBody: 188 | yes |
-| Pyramids/Brick_1x1_Pyramid | pyramid | 1x1 | 3 | Complete: 66, SolidBody: 50 | yes |
+| Pyramids/Brick_1x1_Pyramid | pyramid (upstream mesh, `1x1Pyramid.pobj`) | 1x1 | 3 | Complete: 30, SolidBody: 30 | yes |
 | SideStudBricks/Brick_1x1_1FaceSideStud | box + side studs (+Z) | 1x1 | 3 | Complete: 128 | yes |
 | SideStudBricks/Brick_1x1_4FaceSideStud | box + side studs (4 faces) | 1x1 | 3 | Complete: 230 |  |
 | SideStudBricks/Brick_1x2_1FaceSideStud | box + side studs (+Z) | 2x1 | 3 | Complete: 218 | yes |

@@ -231,8 +231,16 @@ def main():
         hi = [max(p[i] for p in uv) for i in range(3)]
         res.update(mesh_name=model["name"], mesh_file_id=fid, upstream_ids=refs, ids_ok=ok_ids, tris=g["tris"],
                    verts=len(g["verts"]), global_scale=gs, unity_min=[round(v, 5) for v in lo], unity_max=[round(v, 5) for v in hi])
+        # meshes rebuilt from upstream's own vertex dumps (BrickObjs/*.pobj): every vertex on both sides within 1 um
+        if e.get("pobj"):
+            ref = [tuple(float(x) for x in l.split()[1:4]) for l in open(os.path.join(args.assets, "..", e["pobj"]), encoding="utf-8-sig") if l.startswith("v ")]
+            far = lambda a, bs: min(max(abs(a[i] - b[i]) for i in range(3)) for b in bs)
+            worst = max(max(far(a, uv) for a in ref), max(far(b, ref) for b in uv))
+            res["pobj_worst"] = worst
+            if worst > 1e-6:
+                problems.append(f"{rel}: differs from {e['pobj']} by {worst * 1000:.4f} mm")
         # footprint/height vs catalogue (brick-like shapes only)
-        if "size" in e and e["shape"] not in ("stud", "stud_hollow", "tube", "tube_short", "tube_slope", "figure", "plant_flat", "plant_three_leaf"):
+        elif "size" in e and e["shape"] not in ("stud", "stud_hollow", "tube", "tube_short", "tube_slope", "figure", "plant_flat", "plant_three_leaf"):
             sx, sz = e["size"]
             ex = (sx * 0.008 / 2 - 0.0001, sz * 0.008 / 2 - 0.0001)
             yb = e.get("bottom_plates", -1.5) * 0.0032
@@ -247,8 +255,6 @@ def main():
             if abs(lo[1] - yb) > 2e-5:
                 bad.append(f"bottom {lo[1]:.5f} vs {yb:.5f}")
             top_expect = yt + (0.0017 if (r["variant"] == "complete" and e.get("studs") not in ([], None)) else 0.0)
-            if e["shape"] == "pyramid":
-                top_expect = e["pyramid"]["apex_y"]
             ridge = e["shape"] == "slope" and e["slope"].get("flat_cells", 1) == 0 and r["variant"] in ("complete", "hollow", "solid")
             if abs(hi[1] - top_expect) > (0.00025 if ridge else 3e-5):   # a bevelled knife-edge ridge sits ~0.1 mm lower
                 bad.append(f"top {hi[1]:.5f} vs {top_expect:.5f}")
