@@ -22,6 +22,8 @@ import type { FakeClient, FakeRoom } from "../src/platform/fake.ts";
 /** A behaviour with a few synced fields that counts every callback it gets. */
 export class Probe extends Behaviour {
   static override synced = ["value", "text", "list"];
+  /** What other clients may run here. `Set` and `_Private` are public and private methods that are not listed. */
+  static override networkCallable = ["Ping", "Add", "RequestSerialization", "constructor", "_Private"];
   value = 0;
   text = "";
   list: number[] = [];
@@ -98,9 +100,11 @@ export class Probe extends Behaviour {
   }
   override OnPlayerRestored(player: Player): void {
     this.restored.push(player.playerId);
+    this.log.push("OnPlayerRestored:" + player.playerId);
   }
   override OnPlayerDataUpdated(player: Player, keys: string[]): void {
     this.dataUpdates.push({ player: player.playerId, keys });
+    this.log.push(`OnPlayerDataUpdated:${player.playerId}:${keys.join(",")}`);
   }
   override OnKeyPressed(key: string): void {
     this.keys.push("+" + key);
@@ -252,6 +256,7 @@ export class Meter extends Behaviour {
 export class Sheet extends Behaviour {
   static override perPlayer = true;
   static override synced = ["hp", "title"];
+  static override networkCallable = ["Wave"];
   hp = 10;
   title = "";
   started = 0;

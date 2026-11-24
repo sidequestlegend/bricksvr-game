@@ -52,6 +52,14 @@ test("player data: each player writes their own, everyone reads it, and it comes
   assert.equal(data(b).GetInt(player(b, back), "found"), 3);
   assert.deepEqual(data(back).Get<string[]>(player(back, back), "treasures", []), ["chest", "ring"]);
   assert.ok(probe(b, "hunt").restored.includes(idOf(back, "hunt")));
+  // A returning player's saved values: OnPlayerRestored first, then OnPlayerDataUpdated with every key they have,
+  // on the other clients and on their own.
+  for (const [client, label] of [[b, "remote"], [back, "local"]] as const) {
+    const log = probe(client, "hunt").log;
+    const restoredAt = log.indexOf(`OnPlayerRestored:${idOf(back, "hunt")}`);
+    const updatedAt = log.indexOf(`OnPlayerDataUpdated:${idOf(back, "hunt")}:found,treasures`);
+    assert.ok(restoredAt >= 0 && updatedAt === restoredAt + 1, `${label}: ${log.join(" ")}`);
+  }
   // On another device she starts with nothing: the save belongs to the device, not the account.
   back.leave();
   await room.run(40000);
@@ -212,7 +220,7 @@ test("network events carry arguments and their sender; owner events go to one cl
   probe(a).SendCustomNetworkEvent("All", "constructor");
   await room.run(1000);
   assert.equal(probe(b).pings.length, 0);
-  assert.equal(a.logged("warn").filter((line) => line.includes("no public method")).length, 3);
+  assert.equal(a.logged("warn").filter((line) => line.includes("no network-callable method")).length, 3);
   // Nor does a hand-made one-shot get through to them, or to another game.
   inst(c, "probe").platform.oneShot(JSON.stringify({ pk: 1, g: "probe", i: "0", t: "ev", b: "p", e: "_Private" }));
   inst(c, "probe").platform.oneShot(JSON.stringify({ pk: 1, g: "other", i: "0", t: "ev", b: "p", e: "Ping" }));
@@ -287,4 +295,20 @@ test("commands to the referee: numbered, run once and in order, acknowledged, ne
   probe(next).SendCommand("Add", 1);
   await room.run(3000);
   for (const client of left) assert.equal(probe(client).value, 114);
+});
+
+test("a burst of commands goes to the referee in one write and runs in one pass, in order", async () => {
+  const room = new FakeRoom({ seed: 161 });
+  const g = probeGame("burst");
+  const [a, b] = [enter(room, [g]), enter(room, [g])];
+  await untilStarted(room, [a, b], "burst");
+  const referee = [a, b].find((client) => inst(client, "burst").networking.IsReferee)!;
+  const sender = referee === a ? b : a;
+  const writes = room.stats.userWrites;
+  for (let i = 1; i <= 6; i++) probe(sender, "burst").SendCommand("Add", i);
+  const ran = await room.runUntil(() => probe(sender, "burst").acks.length === 6, 5000);
+  assert.ok(ran);
+  assert.deepEqual(probe(referee, "burst").commands.map((c) => c.args[0]), [1, 2, 3, 4, 5, 6]);
+  assert.deepEqual(probe(sender, "burst").acks, [1, 2, 3, 4, 5, 6]);
+  assert.ok(room.stats.userWrites - writes <= 6, `user-state writes for the burst: ${room.stats.userWrites - writes}`);
 });

@@ -129,12 +129,17 @@ export type HostEventKind =
   /** The trigger and buttons of the hand that holds the object (BS.HeldEvents, relayed by a graph). */
   | "heldTrigger"
   | "heldPrimary"
-  | "heldSecondary";
+  | "heldSecondary"
+  /** The text of a TMP_InputField after an edit (relayed by the graph): `arg` is the text. */
+  | "field";
 
 export interface HostEventDetail {
   point?: Vector3;
   normal?: Vector3;
-  /** Which hand, for grab and drop: 0 left, 1 right. */
+  /**
+   * Which hand: 0 left, 1 right. For grab and drop, as the platform says; for a click, inferred by the runtime (the
+   * platform's click names no hand: the hand whose trigger went down in the last second, else the nearest hand).
+   */
   side?: number;
   /** The session id of the player whose body caused a trigger or collision, when it was a player. */
   playerSid?: string;
@@ -142,6 +147,8 @@ export interface HostEventDetail {
   otherName?: string;
   /** The value a graph sent with the event: a slider's position, a toggle's "1" or "0". */
   arg?: string;
+  /** Every argument a graph sent after the target, decoded (`arg` is the first). */
+  args?: string[];
 }
 
 export interface TransformPatch {
@@ -176,6 +183,12 @@ export interface HostObject {
   sit(): void;
   stand(): void;
   releaseGrab(): void;
+  /**
+   * Attaches the object to the local player's hand (0 left, 1 right) with an offset, through `BS.AttachedObject`
+   * (NonPhysics, attachment point LeftHand / RightHand, `Attach(<local user id>)`); `detach` lets it go. Local player only.
+   */
+  attachToHand(side: HandSide, position: Vector3, rotation: Quaternion): void;
+  detach(): void;
 }
 
 export interface KitObjectSpec {
@@ -307,6 +320,8 @@ export interface Platform {
   onInput(handler: (event: InputEvent) => void): Unsubscribe;
   /** Buzzes a controller: strength 0 to 1, for `seconds`. Does nothing on desktop. */
   haptic(side: HandSide, strength: number, seconds: number): void;
+  /** True in a headset (`scene.IsVR()`), false on desktop or when the app does not say. */
+  isVR(): Promise<boolean>;
   /** Moves the local player: where to, which way they face (degrees about Y), and whether their movement stops. */
   teleport(position: Vector3, yDegrees: number, stopMovement: boolean): void;
   /** Allows or stops one of the local player's abilities. A snippet must put back what it changed. */

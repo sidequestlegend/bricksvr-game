@@ -343,14 +343,16 @@ leaf (plus the runtime's announcement leaf). Networked objects: 12 per area (the
 
 ## 9. Test plan and results
 
-`cd altspace/ts && npm test` (typecheck, lint, 22 tests). `npm run golden` regenerates the vectors with dotnet 8.
+`cd altspace/ts && npm test` (typecheck, lint, 22 tests), run on portkit `1118ef0` (re-synced). The game sends no
+network events and no commands (all its state is fields), so it declares no `networkCallable` methods; its only relay
+op is the standard `active` on `@` paths, so it needs no `Host.op` or `defineRelayOp`. `npm run golden` regenerates the vectors with dotnet 8.
 `npm run build` writes `../Assets/WebRoot/pk-brick-builder.js`; this job built it to a scratch folder instead:
-648 KB (258 KB minified), parses.
+676 KB unminified, parses.
 
 ### 9.1 Golden vectors (upstream C# compiled unchanged with dotnet 8)
 
 `ts/golden/Golden.csproj` compiles `S/BrickAttachDetector.cs`, `S/LegoConnectorScript.cs` and `S/ColorInt.cs`
-**unchanged** against `ts/golden/UnityStubs.cs` (Transform hierarchy with Unity's Euler conventions, quaternions,
+**unchanged** against `ts/golden/BrickStubs.cs` (Transform hierarchy with Unity's Euler conventions, quaternions,
 `Physics.CheckBox` / `OverlapBoxNonAlloc` as exact oriented-box tests, inert XR and Normcore stubs). `Harness.cs` builds
 bricks from `catalogue.json` as their prefabs are built, fills each connector's `connectorsCollidingWith` the way the
 trigger callbacks would, calls `RecalculateEnabled` and `CheckIfCanConnect`, and writes `ts/vectors/upstream.json`
@@ -378,7 +380,7 @@ trigger cubes.
 | N1 | 3 players place 2,000 bricks (20/s each, 33.6 s virtual) | all 2,000 on every client, identical, exactly as planned; logs drain to 0 |
 | N1 budget | writes | space state: 34 batches (peak **1/s**, mean 1.0/s, limit 20/s); user state: 505 writes room-wide (peak 16/s across 3 players, about 5/s each, limit 20/s per player); `rate_limited` 0 |
 | N1 leaves | sizes | 7 space-state keys, 42,540 bytes, largest leaf **14,525 bytes** (limit 16,384); largest log leaf while building 558 bytes |
-| N1 late join | rebuild | a joiner shows all 2,000 bricks 1.72 s (virtual) after opening the page, including the fake room's join and kit delays; the rebuild itself (decode 3 segments, place 2,000 bricks, all cover flags) takes **20 to 28 ms** (median of 5, across runs) in Node |
+| N1 late join | rebuild | a joiner shows all 2,000 bricks 1.72 s (virtual) after opening the page, including the fake room's join and kit delays; the rebuild itself (decode 3 segments, place 2,000 bricks, all cover flags) takes **20 to 29 ms** (median of 5, across runs) in Node |
 | N1 ghost | snap test cost | 0.08 to 0.15 ms per `CheckIfCanConnect` beside 2,000 bricks (across runs) |
 | N1 renderer | chunks | 8 chunks, largest 384 bricks |
 | N2 | concurrent: delete a brick while another player builds on it; two players place in the same spot at once; two players delete the same brick | all clients converge on the same set (both overlapping bricks kept, as upstream) |
@@ -389,7 +391,7 @@ trigger cubes.
 | N7 | save 150 bricks, another player clears, reload; leave, come back on the same device, reload; another device has no save | identical bricks each time |
 | N8 | spawn from the pool, grab, drop near the carpet: snaps at y = 48; pick it up from the build, drop it in the air: loose 6 s, then the slot is free | as stated |
 | N9 | the owner locks: a member cannot place or unlock | as stated |
-| N10 | hammer 75 of 400, author leaves | archive repacked to 325 records |
+| N10 | hammer 75 of 400, author leaves | the 75 deleted bricks leave the archive (repacked by the referee while the author was still there); the 75 tombstones stay until they are a quarter of the archive; a joiner rebuilds the 325 |
 | N11 | a non-referee loads a 2,000-brick save at once | the other player has all 2,000 after 2.8 s (virtual): **3 space-state batches and 4 user-state writes**, largest log leaf 11,708 bytes, no rate limiting (plan's spike: at most 100 batches) |
 
 ### 9.3 Not run here (needs Unity)
@@ -433,7 +435,7 @@ the legacy 15-colour palette.
 |---|---|
 | R1 | The renderer (merging chunks into meshes, ghost, studs) and its transport are not built. The relay has no op that carries mesh data: chunks must be meshed by a graph or a new relay op (a portkit change, which this job must not make) |
 | R2 | Scale: upstream players shrink or grow (0.15-5x) and fly; Altspace players do neither, so `scale` decides what is reachable. 7 keeps upstream's brick size |
-| R3 | No `ForceSelect`: a brick picked up from the build appears in place and must be grabbed again |
+| R3 | No `ForceSelect`: a brick picked up from the build appears in place and must be grabbed again. portkit now has `GameObject.AttachToHand` (`BS.AttachedObject`, not verified in Play mode); it may let the slot follow the hand until the grip is let go |
 | R4 | A record queued but not yet sent when its author's page closes (under 0.2 s) is lost; the archive catches everything sent |
 | R5 | Two players placing overlapping bricks at once both keep them (upstream did the same) |
 | R6 | 24 segments hold about 16,000 records per area; a full archive refuses to archive more (an error is logged) |

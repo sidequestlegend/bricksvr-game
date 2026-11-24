@@ -13,6 +13,11 @@
 //                     lives in the player's user state and the referee's part in the referee's user state, so no
 //                     other client can change either. The secret is saved on the device, so a page reload during
 //                     a round gets the same draw back.
+//   dealt draws       For what the referee deals (cards): the referee commits to a seed, every listed player then
+//                     commits to a contribution, then reveals it, and the deal's seed is SHA-256 of all of them.
+//                     The referee cannot grind seeds (its own is fixed before it sees any contribution) and no player
+//                     can steer the result (contributions are fixed before any is shown). The referee knows the deal,
+//                     as a dealer does; after the hand it reveals its seed and everyone checks the deal.
 //   seal / open       One player encrypts a value for another: ECDH P-256 between the two key pairs, then
 //                     AES-GCM (WebCrypto, so asynchronous). Public keys travel in the announcement leaf.
 //                     The trust is the upstream games' own: whoever deals knows what they dealt.
@@ -101,6 +106,44 @@ function parseDrawEntry(e: unknown): DrawEntry | null {
 
 const CURVE = { name: "ECDH", namedCurve: "P-256" };
 
+export type DealState =
+  /** No deal under that label from the current referee. */
+  | "none"
+  /** The referee has committed; listed players are committing to their contributions. */
+  | "committing"
+  /** Every listed player has committed; contributions are being revealed. */
+  | "revealing"
+  /** Every contribution is in: the referee can compute the deal. */
+  | "ready"
+  /** The referee revealed its seed and it matches: everyone can check the deal. */
+  | "revealed"
+  /** The referee's revealed seed does not match its commitment. */
+  | "invalid";
+
+interface DealRecord {
+  l: string;
+  h: string;
+  s: string[];
+  p: number;
+  r?: string;
+}
+
+interface Contribution {
+  l: string;
+  h: string;
+  c?: string;
+}
+
+function parseDeal(raw: unknown): DealRecord | null {
+  if (!isRecord(raw) || typeof raw.l !== "string" || typeof raw.h !== "string" || !Array.isArray(raw.s)) return null;
+  return { l: raw.l, h: raw.h, s: raw.s.filter((x): x is string => typeof x === "string"), p: raw.p === 1 ? 1 : 0, r: typeof raw.r === "string" ? raw.r : undefined };
+}
+
+function parseContribution(raw: unknown): Contribution | null {
+  if (!isRecord(raw) || typeof raw.l !== "string" || typeof raw.h !== "string") return null;
+  return { l: raw.l, h: raw.h, c: typeof raw.c === "string" ? raw.c : undefined };
+}
+
 export class Secrets {
   private readonly core: Core;
   private readonly presence: Presence;
@@ -123,6 +166,12 @@ export class Secrets {
   private drawStore: KeyValueStore | null = null;
   private drawKey = "";
   private restoring: { e: number; l: string; s: string; r: number } | null = null;
+  /** The referee's own seed for its current deal. */
+  private dealSeed: { label: string; seed: string } | null = null;
+  /** This player's contribution to a deal. */
+  private myContribution: { label: string; c: string } | null = null;
+  /** Commitments and contributions as first seen, per deal label and session (they outlive a player's visit). */
+  private readonly dealSeen = new Map<string, { h: string; refSid: string; parts: Map<string, { h: string; c?: string }> }>();
   /** Told when a player's draw changes state. */
   onDrawChanged: (sid: string, label: string, status: DrawStatus) => void = () => {};
 
@@ -140,6 +189,11 @@ export class Secrets {
     this.presence.onExtra(() => this.review());
     this.presence.on(() => this.review());
     this.referee.on(() => this.review());
+  }
+
+  /** `n` bytes from the strong generator (WebCrypto; seeded in the fake room). */
+  RandomBytes(n: number): Uint8Array {
+    return this.crypto.getRandomValues(new Uint8Array(Math.max(0, Math.floor(n))));
   }
 
   // ---- commit / reveal ----------------------------------------------------------------------------------------
@@ -284,6 +338,7 @@ export class Secrets {
   /** Looks at every participant's draw: the referee answers and judges, and everyone reports changes. */
   review(): void {
     if (this.core.disposed) return;
+    this.reviewDeal();
     this.restoreDraw();
     if (this.referee.isMe()) this.officiate();
     for (const who of this.presence.list()) {
@@ -390,6 +445,114 @@ export class Secrets {
     }
   }
 
+  // ---- dealt draws ---------------------------------------------------------------------------------------------
+  //
+  //   referee x.dl  {l: label, h: SHA-256(seed), s: [listed session ids], p: 0 committing | 1 revealing, r?: seed}
+  //   player  x.dc  {l: label, h: SHA-256(contribution), c?: contribution}
+  // The runtime answers for every listed player by itself (review), so game code only calls beginDeal, dealDraw,
+  // revealDeal on the referee and verifyDeal anywhere.
+
+  /** The referee starts a deal under `label` for the players with these session ids. Replaces its previous deal. */
+  beginDeal(label: string, sids: string[]): void {
+    if (!this.referee.isMe()) return;
+    const seed = toBase64(this.crypto.getRandomValues(new Uint8Array(16)));
+    this.dealSeed = { label, seed };
+    this.presence.setExtra("dl", { l: label, h: sha256Text(seed), s: sids.slice(), p: 0 });
+    this.review();
+  }
+
+  /** Where the current referee's deal under `label` stands. */
+  dealState(label: string): DealState {
+    const deal = this.currentDeal();
+    if (!deal || deal.l !== label) return "none";
+    const seen = this.dealSeen.get(label);
+    if (deal.r !== undefined) return seen && sha256Text(deal.r) === seen.h ? "revealed" : "invalid";
+    if (deal.p === 0) return "committing";
+    return this.contributions(deal) ? "ready" : "revealing";
+  }
+
+  /**
+   * The referee's deal, once every listed player still present has revealed a contribution (a listed player who
+   * left counts as absent: say so in the game if it matters). Null before that, and on any other client.
+   */
+  dealDraw(label: string): Draw | null {
+    const deal = this.currentDeal();
+    if (!this.referee.isMe() || !deal || deal.l !== label || !this.dealSeed || this.dealSeed.label !== label) return null;
+    const parts = this.contributions(deal);
+    return parts ? new Draw(dealSeedOf(this.dealSeed.seed, label, parts)) : null;
+  }
+
+  /** The referee publishes its seed (after the hand), so that everyone can check the deal. */
+  revealDeal(label: string): void {
+    const deal = this.currentDeal();
+    if (!this.referee.isMe() || !deal || deal.l !== label || !this.dealSeed || this.dealSeed.label !== label) return;
+    this.presence.setExtra("dl", { ...deal, r: this.dealSeed.seed });
+  }
+
+  /** After revealDeal: the deal, recomputed here from the referee's seed and the contributions this client saw; null if it does not check out. */
+  verifyDeal(label: string): Draw | null {
+    const deal = this.currentDeal();
+    if (!deal || deal.l !== label || deal.r === undefined) return null;
+    const seen = this.dealSeen.get(label);
+    if (!seen || sha256Text(deal.r) !== seen.h) return null;
+    const parts = this.contributions(deal);
+    return parts ? new Draw(dealSeedOf(deal.r, label, parts)) : null;
+  }
+
+  private currentDeal(): DealRecord | null {
+    const ref = this.referee.current();
+    return ref ? parseDeal(this.presence.extra(ref.sid, "dl")) : null;
+  }
+
+  /** Every listed contribution, revealed and matching its commitment ("-" for a listed player who left); null while one is missing. */
+  private contributions(deal: DealRecord): string[] | null {
+    const seen = this.dealSeen.get(deal.l);
+    if (!seen) return null;
+    const out: string[] = [];
+    for (const sid of deal.s) {
+      const part = seen.parts.get(sid);
+      if (part && part.c !== undefined) out.push(part.c);
+      else if (!this.presence.has(sid) && (!part || deal.p === 1)) out.push("-");
+      else return null;
+    }
+    return out;
+  }
+
+  /** Follows the deal: records what is first seen, answers for the local player, and moves the referee's phase on. */
+  private reviewDeal(): void {
+    const ref = this.referee.current();
+    const deal = this.currentDeal();
+    if (!ref || !deal) return;
+    let seen = this.dealSeen.get(deal.l);
+    if (!seen || seen.refSid !== ref.sid) {
+      seen = { h: deal.h, refSid: ref.sid, parts: new Map() };
+      this.dealSeen.set(deal.l, seen);
+      while (this.dealSeen.size > 8) this.dealSeen.delete(this.dealSeen.keys().next().value as string);
+    }
+    for (const sid of deal.s) {
+      const part = parseContribution(this.presence.extra(sid, "dc"));
+      if (!part || part.l !== deal.l) continue;
+      const known = seen.parts.get(sid);
+      if (!known) seen.parts.set(sid, { h: part.h });
+      const entry = seen.parts.get(sid)!;
+      if (part.c !== undefined && entry.c === undefined && entry.h === part.h && sha256Text(part.c) === entry.h) entry.c = part.c;
+    }
+    const me = this.core.me.sid;
+    if (deal.s.includes(me)) {
+      if (!this.myContribution || this.myContribution.label !== deal.l) {
+        this.myContribution = { label: deal.l, c: toBase64(this.crypto.getRandomValues(new Uint8Array(16))) };
+        this.presence.setExtra("dc", { l: deal.l, h: sha256Text(this.myContribution.c) });
+      } else if (deal.p === 1) {
+        const mine = parseContribution(this.presence.extra(me, "dc"));
+        if (mine && mine.c === undefined) this.presence.setExtra("dc", { ...mine, c: this.myContribution.c });
+      }
+    }
+    if (this.referee.isMe() && deal.p === 0 && this.dealSeed && this.dealSeed.label === deal.l) {
+      const all = deal.s.every((sid) => seen!.parts.has(sid) || !this.presence.has(sid));
+      if (all) this.presence.setExtra("dl", { ...deal, p: 1 });
+    }
+  }
+
   // ---- seal / open --------------------------------------------------------------------------------------------
 
   /** The local public key (raw point, base64url). Empty before `init`. */
@@ -474,8 +637,10 @@ export class Secrets {
     }
     const me = this.core.me;
     if (b.t !== me.sid && b.u !== me.uid) throw new Error("this box is sealed for another player");
-    const sender = this.presence.get(b.f);
-    if (sender && sender.publicKey && sender.publicKey !== b.p) throw new Error("the box does not come from the player it names");
+    // The sender's key must be the one that session announced in its own user state: a box that names a player
+    // who has left, or one this client never saw, cannot be told from a forgery and is refused.
+    const senderKey = this.presence.keyOf(b.f);
+    if (senderKey !== b.p) throw new Error("the box does not come from the player it names");
     const key = await this.sharedKey(b.p);
     const aad = utf8Encode(`${this.core.prefix}\n${b.f}\n${b.t}`);
     let plain: ArrayBuffer;
@@ -532,8 +697,7 @@ export class Secrets {
     const me = this.core.me;
     const entry = b.m[me.sid];
     if (!Array.isArray(entry) || typeof entry[0] !== "string" || typeof entry[1] !== "string") return null;
-    const sender = this.presence.get(b.f);
-    if (sender && sender.publicKey && sender.publicKey !== b.p) throw new Error("the bundle does not come from the player it names");
+    if (this.presence.keyOf(b.f) !== b.p) throw new Error("the bundle does not come from the player it names");
     const key = await this.sharedKey(b.p);
     const aad = utf8Encode(`${this.core.prefix}\n${b.f}\n${me.sid}\nall`);
     let plain: ArrayBuffer;
@@ -544,6 +708,15 @@ export class Secrets {
     }
     const parsed = safeParse(utf8Decode(new Uint8Array(plain)).trimEnd());
     return isRecord(parsed) && "v" in parsed ? (decodeValue(parsed.v) as T) : null;
+  }
+
+  /**
+   * Opens a box sealed for the local player and says who sealed it (a session id whose announced key the box was
+   * sealed with). A game that takes a dealt value as authority checks that the sender is the referee.
+   */
+  async openWithSender<T = unknown>(box: string): Promise<{ value: T; from: string }> {
+    const value = await this.open<T>(box);
+    return { value, from: String((safeParse(box) as Record<string, unknown>).f) };
   }
 
   /** True when `box` names the local player as its reader. */
@@ -570,6 +743,10 @@ export class Secrets {
 
 function hashOpening(opening: Opening): string {
   return sha256Text(opening.s + "\n" + canonicalJson(opening.v));
+}
+
+function dealSeedOf(seed: string, label: string, parts: string[]): string {
+  return toHex(sha256(utf8Encode(`${seed}\n${label}\n${parts.join("\n")}`)));
 }
 
 function drawSeed(secret: string, number: string, label: string): string {

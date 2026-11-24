@@ -14,6 +14,8 @@ export class GameRuntime {
   readonly bindings: Bindings;
   /** Running instances by instance key. */
   readonly instances = new Map<string, GameInstance>();
+  /** One object for every instance of this game on the page (Behaviour.Shared): page memory, not synced or saved. */
+  readonly shared: Record<string, unknown> = {};
   private stopped = false;
   private unsubs: Array<() => void> = [];
 
@@ -60,7 +62,7 @@ export class GameRuntime {
     }
     for (const [key, element] of wanted) {
       if (this.instances.has(key)) continue;
-      const instance = new GameInstance(this.platform, this.game, this.bindings, element, key);
+      const instance = new GameInstance(this.platform, this.game, this.bindings, element, key, this.shared);
       this.instances.set(key, instance);
       void instance.start();
     }

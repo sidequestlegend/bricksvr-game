@@ -190,8 +190,12 @@ export class PerUser implements PlayerDataView {
     const player = this.delivered.get(sid);
     if (!player || !this.started) return;
     if (entry.restored && !entry.announced) {
+      // The order is fixed (README): OnPlayerRestored first, then OnPlayerDataUpdated with every key the player
+      // has, so code that only listens for updates sees a returning player's saved values too.
       entry.announced = true;
       this.hooks.restored(player);
+      const all = Object.keys(now).sort();
+      if (all.length) this.hooks.dataUpdated(player, all);
       return;
     }
     const keys: string[] = [];
@@ -282,7 +286,11 @@ export class PerUser implements PlayerDataView {
   playerDelivered(player: Player): void {
     this.delivered.set(player.sid, player);
     if (player.isLocal) {
-      if (this.dataEnabled || this.hasPersistentLocal()) this.hooks.restored(player);
+      if (this.dataEnabled || this.hasPersistentLocal()) {
+        this.hooks.restored(player);
+        const all = Object.keys(this.local).sort();
+        if (this.dataEnabled && all.length) this.hooks.dataUpdated(player, all);
+      }
       return;
     }
     this.readRemoteData(player.sid);

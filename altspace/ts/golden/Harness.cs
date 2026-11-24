@@ -1,5 +1,5 @@
 // Golden vectors: BricksVR's own BrickAttachDetector.cs, LegoConnectorScript.cs and ColorInt.cs, compiled unchanged
-// against UnityStubs.cs, driven over generated situations; the results go to ../vectors/upstream.json and
+// against BrickStubs.cs, driven over generated situations; the results go to ../vectors/upstream.json and
 // test/golden.test.ts plays the same inputs through the TypeScript.
 //
 // Bricks are built from src/catalogue.json exactly as their prefabs are (connector children under MaleConnectors /

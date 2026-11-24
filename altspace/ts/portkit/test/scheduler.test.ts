@@ -141,3 +141,16 @@ test("in a running game: Update with elapsed time, delayed seconds and frames, a
   assert.equal(p.delayed.length, 2);
   assert.equal(instance.scheduler.pending, 0);
 });
+
+test("the first Update runs as the instance starts, not one tick later (Unity: in Start's frame)", async () => {
+  const room = new FakeRoom({ seed: 141 });
+  const g = probeGame("first");
+  const a = enter(room, [g]);
+  let updatesAtStart = -1;
+  const ok = await room.runUntil(() => {
+    if (a.hasInstance("first") && a.instance("first").started && updatesAtStart < 0) updatesAtStart = probe(a, "first").updates;
+    return updatesAtStart >= 0;
+  }, 30000, 1);
+  assert.ok(ok);
+  assert.ok(updatesAtStart >= 1, `Update had run ${updatesAtStart} times when started became true`);
+});

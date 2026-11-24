@@ -194,3 +194,31 @@ test("declared candidates: nobody eligible means no referee; a referee who withd
   }
   assert.equal(inst(a, "lobby").referee.claims, 0, "a never offered, so a never claimed");
 });
+
+test("declared candidates: a departure while there is no referee reaches the next referee's handlers", async () => {
+  const room = new FakeRoom({ seed: 19 });
+  const g = probeGame("lobby2", { referee: "declared" });
+  const [a, b, c] = [enter(room, [g]), enter(room, [g]), enter(room, [g])];
+  await untilStarted(room, [a, b, c], "lobby2");
+  const net = (client: FakeClient) => inst(client, "lobby2").networking;
+  const p = (client: FakeClient) => probe(client, "lobby2");
+  net(a).SetRefereeCandidate(true);
+  await room.run(4000);
+  assert.equal(net(b).Master?.sid, a.sid);
+  // a withdraws: nobody is referee. c leaves in the gap.
+  net(a).SetRefereeCandidate(false);
+  await room.run(3000);
+  assert.equal(net(b).Master, null);
+  const cId = net(c).LocalPlayer.playerId;
+  c.leave();
+  await room.run(20000);
+  assert.deepEqual(p(b).left, [], "held while nobody is referee");
+  assert.equal(net(b).GetPlayerCount(), 2, "the player list itself is up to date");
+  // b offers and is elected: the held departure is delivered now, with b as master.
+  net(b).SetRefereeCandidate(true);
+  await room.run(4000);
+  assert.equal(net(b).Master?.sid, b.sid);
+  assert.deepEqual(p(b).left, [cId]);
+  assert.ok(p(b).log.includes(`OnPlayerLeft:${cId}:master=true`), p(b).log.join(" "));
+  assert.deepEqual(p(a).left, [cId], "and to everyone else, once there is a referee");
+});

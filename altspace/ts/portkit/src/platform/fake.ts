@@ -18,6 +18,7 @@ import type { GameDefinition, GameInstance } from "../instance.ts";
 import { holderName, relayKey } from "../names.ts";
 import type { InputEvent, LocalPoses } from "../types.ts";
 import { seededRandom, utf8Length } from "../util.ts";
+import { KEY_CODES } from "./keycodes.ts";
 import { Quaternion, Vector3 } from "../values.ts";
 import { BsPlatform, type BsOptions, type PageEnv } from "./bs.ts";
 
@@ -134,6 +135,8 @@ export class FakeRoom {
   readonly rng: () => number;
   readonly stats: RoomStats = { stateBatches: 0, rateLimited: 0, oneShots: 0, oneShotsDropped: 0, userWrites: 0, objectRequests: 0, refusedWrites: 0 };
   readonly clients: FakeClient[] = [];
+  /** A game's own relay ops the fake graph answers to (`defineRelayOp`), with what each does here. */
+  readonly relayOps = new Map<string, ((record: { op: string; target: string; args: string[] }, client: FakeClient) => void) | null>();
   private readonly timers: Timer[] = [];
   private seq = 0;
   private readonly sessions = new Map<string, Session>();
@@ -233,6 +236,15 @@ export class FakeRoom {
   // ---- set-up -------------------------------------------------------------------------------------------------
 
   /** Registers what a bundle address holds: the kit prefab of these bindings. */
+  /**
+   * Tells every client's fake relay graph about an op of the game's own (what its kit builder adds in
+   * KitBuilder.RelayOps): it is recorded in `graph(...).events` and `handler`, if any, runs, instead of the
+   * "unknown op" note.
+   */
+  defineRelayOp(name: string, handler: ((record: { op: string; target: string; args: string[] }, client: FakeClient) => void) | null = null): void {
+    this.relayOps.set(name, handler);
+  }
+
   defineKit(url: string, bindings: Bindings): void {
     const pathOfKey = new Map<string, string>();
     // The layer the kit builder gave each bound object: Grabbable (20) for grab, UI (5) for click and seat.
@@ -584,7 +596,9 @@ export interface GraphState {
   color: Map<string, string[]>;
   floats: Map<string, string>;
   uiColor: Map<string, string[]>;
-  /** Triggers, particle bursts and clips, in the order they were asked for. */
+  /** The other value ops, by "<target>/<op>": audioPitch, audioVolume, animEnabled, uiSetToggle, uiSetSlider, scale, rbKinematic. */
+  values: Map<string, string[]>;
+  /** Triggers, particle bursts, clips, spawns and a game's own ops, in the order they were asked for. */
   events: Array<{ op: string; target: string; args: string[] }>;
   /** Payloads and records of the game's ops, as received (clock requests are only counted). */
   payloads: string[];
@@ -598,6 +612,9 @@ class FakeObject extends Emitter {
   readonly children: FakeObject[] = [];
   readonly components: any[] = [];
   hasUnity = true;
+  /** Held by the local player (FakeClient.grab), until drop or ReleaseGrab. */
+  held = false;
+  heldSide = 1;
   destroyed = false;
   active = true;
   /** Clicks reach layers 5 and 22 only; grabs layer 20 (Grabbable) only. */
@@ -716,8 +733,14 @@ class FakeObject extends Emitter {
     this.watchCallback?.();
   }
 
+  /** Lets go of the object if the local player holds it: the page then hears "drop", as from the app. */
   ReleaseGrab(): Promise<boolean> {
-    return this.app.bridge(() => false);
+    return this.app.bridge(() => {
+      if (!this.held) return false;
+      this.held = false;
+      this.emit("drop", { side: this.heldSide });
+      return true;
+    });
   }
 
   Destroy(): void {
@@ -778,6 +801,7 @@ class FakeApp {
     scene.SendToVisualScripting = (id: string, data: unknown) => app.bridge(() => app.graphReceive(id, JSON.stringify(data)));
     scene.Raycast = () => app.bridge(() => null);
     scene.SendHapticImpulse = (strength: number, seconds: number, side: number) => app.bridge(() => void client.haptics.push({ side, strength, seconds }));
+    scene.IsVR = () => app.bridge(() => client.vr);
     scene.TeleportTo = (position: any, yDegrees: number, stop: boolean) =>
       app.bridge(() => void client.teleports.push({ position: new Vector3(position.x, position.y, position.z), yDegrees, stop }));
     for (const ability of ["Move", "Rotate", "Crouch", "Teleport", "Grapple", "Jump", "Grab"]) {
@@ -888,6 +912,23 @@ class FakeApp {
         return app.bridge(() => !!app.session && room.serverObjectOwner(this.gameObject!.networkId) === app.session.sid);
       }
     }
+    class AttachedObject extends Component {
+      config: any;
+      constructor(config: any) {
+        super();
+        this.componentType = "AttachedObject";
+        this.config = config ?? {};
+      }
+      set attachmentPoint(v: number) { this.config.attachmentPoint = v; }
+      set attachmentPosition(v: any) { this.config.attachmentPosition = v; }
+      set attachmentRotation(v: any) { this.config.attachmentRotation = v; }
+      Attach(uid: string): Promise<void> {
+        return app.bridge(() => void client.attached.set(this.gameObject!.path, { uid, point: this.config.attachmentPoint }));
+      }
+      Detach(): Promise<void> {
+        return app.bridge(() => void client.attached.delete(this.gameObject!.path));
+      }
+    }
     class Seat extends Component {
       constructor() {
         super();
@@ -915,9 +956,10 @@ class FakeApp {
       KitItem,
       SyncedObject,
       Seat,
+      AttachedObject,
       PN: { position: 1, rotation: 2 },
       CT: { AudioSource: "AudioSource" },
-      KeyCode: { Space: 32, A: 97, D: 100, E: 101, F: 102, Q: 113, R: 114, S: 115, W: 119, LeftShift: 304 },
+      KeyCode: { ...KEY_CODES },
       ButtonType: { TRIGGER: 0, GRIP: 1, PRIMARY: 2, SECONDARY: 3, THUMBSTICKCLICK: 4 },
       HandSide: { LEFT: 0, RIGHT: 1 },
     };
@@ -1357,10 +1399,29 @@ class FakeApp {
           }
           graph.events.push({ op: record.op, target, args: [args[0]!, kit.refs[Number(args[1])]!] });
           break;
+        case "audioScaled":
+          if (!/^\d+$/.test(args[0] ?? "") || kit.refs[Number(args[1])] === undefined || !Number.isFinite(Number(args[2]))) {
+            this.client.notes.push(`graph: audioScaled needs a clip index, a holder's refs index and a volume scale, got ${args.join("|")}`);
+            break;
+          }
+          graph.events.push({ op: record.op, target, args: [args[0]!, kit.refs[Number(args[1])]!, args[2]!] });
+          break;
+        case "audioPitch":
+        case "audioVolume":
+        case "animEnabled":
+        case "uiSetToggle":
+        case "uiSetSlider":
+        case "scale":
+        case "rbKinematic":
+          graph.values.set(`${target}/${record.op}`, args);
+          break;
         case "animTrigger":
         case "animResetTrigger":
         case "animPlay":
         case "particles":
+        case "rbVelocity":
+        case "spawn":
+        case "despawn":
           graph.events.push({ op: record.op, target, args });
           break;
         case "clock": {
@@ -1369,15 +1430,31 @@ class FakeApp {
           this.room.schedule(16, () => this.client.env.win.__pk1?.clock(parsed.key, requestId, seconds), this.client);
           break;
         }
-        default:
-          this.client.notes.push(`graph: unknown op ${record.op}`);
+        default: {
+          // A game's own op (KitBuilder.RelayOps), when the test told the room about it.
+          const handler = this.room.relayOps.get(record.op);
+          if (handler === undefined) {
+            this.client.notes.push(`graph: unknown op ${record.op}`);
+            break;
+          }
+          graph.events.push({ op: record.op, target, args });
+          if (handler) handler({ op: record.op, target, args }, this.client);
+        }
       }
     }
   }
 }
 
+/** getRandomValues from a seeded generator: deterministic bytes for tests. */
+function seededBytes(next: () => number): <T extends Uint8Array>(array: T) => T {
+  return (array) => {
+    for (let i = 0; i < array.length; i++) array[i] = Math.floor(next() * 256) & 0xff;
+    return array;
+  };
+}
+
 function emptyGraph(): GraphState {
-  return { text: new Map(), active: new Map(), anim: new Map(), color: new Map(), floats: new Map(), uiColor: new Map(), events: [], payloads: [], records: [], clockRequests: 0 };
+  return { text: new Map(), active: new Map(), anim: new Map(), color: new Map(), floats: new Map(), uiColor: new Map(), values: new Map(), events: [], payloads: [], records: [], clockRequests: 0 };
 }
 
 export class FakeClient {
@@ -1390,10 +1467,14 @@ export class FakeClient {
   /** Things the fake itself noticed (rate limits, payloads a graph could not read). */
   readonly notes: string[] = [];
   readonly haptics: Array<{ side: number; strength: number; seconds: number }> = [];
+  /** What scene.IsVR() answers on this client's page (set before the player arrives). */
+  vr = false;
   readonly teleports: Array<{ position: Vector3; yDegrees: number; stop: boolean }> = [];
   readonly abilities = new Map<string, boolean>();
   readonly blocks = new Map<string, boolean>();
   readonly seated = new Set<string>();
+  /** Kit objects attached to this player (BS.AttachedObject), by path: who and where (1 left hand, 2 right hand). */
+  readonly attached = new Map<string, { uid: string; point: number }>();
   readonly runtimes = new Map<string, GameRuntime>();
   readonly platforms: BsPlatform[] = [];
   private readonly elements: FakeSnippet[] = [];
@@ -1466,7 +1547,8 @@ export class FakeClient {
         },
         key: (index) => [...store.keys()][index] ?? null,
       },
-      crypto: { subtle: tracked, getRandomValues: (array) => (webcrypto as any).getRandomValues(array) },
+      // Seeded, so a test with the same seed sees the same nonces, secrets and RandomBytes (keys come from subtle).
+      crypto: { subtle: tracked, getRandomValues: seededBytes(seededRandom(room.options.seed * 104729 + room.clients.length + 17)) },
       setTimeout: (fn, ms) => room.schedule(ms, fn, client),
       clearTimeout: (handle) => room.cancel(handle),
       now: () => room.now,
@@ -1599,13 +1681,17 @@ export class FakeClient {
   grab(slug: string, inst: string, key: string): boolean {
     const object = this.object(slug, inst, key);
     if (object.layer !== 20) return false;
+    object.held = true;
+    object.heldSide = 1;
     object.emit("grab", { side: 1 });
     return true;
   }
 
   /** The local player lets go of an object where it now is. */
   drop(slug: string, inst: string, key: string): void {
-    this.object(slug, inst, key).emit("drop", { side: 1 });
+    const object = this.object(slug, inst, key);
+    object.held = false;
+    object.emit("drop", { side: 1 });
   }
 
   /** Moves an object as a hand or physics would: the host knows at once, the page only through its watch. */

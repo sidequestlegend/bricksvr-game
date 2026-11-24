@@ -1,6 +1,7 @@
 // Stand-ins for the parts of Unity, XR Interaction Toolkit and Normcore that BricksVR's snapping code calls, so that
 // Assets/Scripts/BrickAttachDetector.cs, LegoConnectorScript.cs and ColorInt.cs compile UNCHANGED with dotnet 8,
-// outside Unity (the pattern of portkit/golden/UdonStubs.cs, which is VRChat-shaped; this game is not).
+// outside Unity (the pattern of portkit/golden/UdonStubs.cs and UnityStubs.cs; see Golden.csproj for why this game
+// keeps its own set).
 //
 // What is modelled with care, because the upstream math depends on it:
 //   - Transform: a parent chain of local position / rotation / scale; world getters and setters; setting `parent`

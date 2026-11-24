@@ -70,6 +70,11 @@ export interface RandomView {
   Range(min: number, max: number): number;
   /** An integer in [min, max), as C#'s Random.Range(int, int). */
   RangeInt(min: number, max: number): number;
+  /**
+   * `n` bytes from the strong generator (WebCrypto's getRandomValues; seeded in the fake room). For a seed nobody
+   * can predict; for a value other players must be able to trust, use a fair draw (Secrets).
+   */
+  Bytes(n: number): Uint8Array;
 }
 
 /** The local player's input, as last reported. Controller input only exists in a headset. */
@@ -83,8 +88,21 @@ export interface InputView {
   GetKey(key: string): boolean;
   /** Head and hand poses, or null before the first report (they are only sent while the player moves). */
   readonly Poses: LocalPoses | null;
-  /** Buzzes a controller: strength 0 to 1. Does nothing on desktop. */
+  /** Buzzes one controller (0 left, 1 right): strength 0 to 1. Does nothing on desktop. */
   Haptic(side: HandSide, strength: number, seconds: number): void;
+  /**
+   * The hand of the click being handled, or of the last click: 0 left, 1 right, null when it cannot be told
+   * (desktop, or no trigger press or hand pose to go by). The platform's click event names no hand, so it is
+   * inferred: the hand whose trigger went down within the last second, else the hand nearest the click point.
+   */
+  readonly LastClickSide: HandSide | null;
+  /** True in a headset, false on desktop; null until the app has answered (scene.IsVR, asked once at start). */
+  readonly IsVR: boolean | null;
+  /**
+   * True when `point` is within `metres` of the nearest of the local head and hands (as last reported), the
+   * measure clicks use. True when no pose is known yet, or `metres` is 0 or less.
+   */
+  InReach(point: Vector3, metres: number): boolean;
   /** Moves the local player: position, the way they face (degrees about Y), and whether to stop their movement. */
   TeleportTo(position: Vector3, yDegrees: number, stopMovement?: boolean): void;
   /**
@@ -134,6 +152,10 @@ export interface BehaviourLink {
   readonly protectedValues: ProtectedView;
   /** The player a per-player behaviour belongs to; null for an ordinary behaviour. */
   readonly player: Player | null;
+  readonly instanceKey: string;
+  readonly shared: Record<string, unknown>;
+  /** Click reach set at run time, per behaviour. */
+  readonly reach: Map<Behaviour, number>;
   requestSerialization(): void;
   sendNetworkEvent(target: NetworkEventTargetName, name: string, args: unknown[]): void;
   sendCommand(name: string, args: unknown[]): number;
@@ -184,8 +206,19 @@ export abstract class Behaviour {
   static perPlayer = false;
   /** For a per-player behaviour: its synced fields are saved on the device and put back on the next visit. */
   static persistent = false;
-  /** Metres from the local head within which a click counts as Interact(). 0 means any distance. */
+  /**
+   * Metres from the nearest of the local head and hands within which a click counts as Interact() (or as a bound
+   * click). 0 means any distance. A behaviour can change its own at run time with `InteractReach`.
+   */
   static interactReach = 0;
+  /**
+   * The methods another client may run on this behaviour: by SendCustomNetworkEvent, or by SendCommand on the
+   * referee. Nothing else can be called from the network (a modified client names any method it likes), and a
+   * name starting with `_` never can. A subclass's list adds to its parent's.
+   *
+   *   static networkCallable = ["StartGame", "PlaceBid"];
+   */
+  static networkCallable: readonly string[] = [];
 
   // ---- what the runtime provides ------------------------------------------------------------------------------
 
@@ -211,8 +244,29 @@ export abstract class Behaviour {
   get Input(): InputView { return linkOf(this).input; }
   /** Values only the world's owner and moderators can write. */
   get Protected(): ProtectedView { return linkOf(this).protectedValues; }
-  /** For a per-player behaviour: the player it belongs to. Null on an ordinary behaviour. */
+  /**
+   * For a per-player behaviour: the player it belongs to. Null on an ordinary behaviour. An upstream field named
+   * `Player` would hide it: such a port renames the field (the convention: `upstreamPlayer`) or reads `OwnerPlayer`.
+   */
   get Player(): Player | null { return linkOf(this).player; }
+  /** The same as `Player`, under a name no upstream field is likely to use. */
+  get OwnerPlayer(): Player | null { return linkOf(this).player; }
+  /**
+   * One object shared by every instance of this game on the page (two tables of one game keep one chip balance
+   * here). Page memory only: not synced, not saved, gone when the page reloads (use Storage for that).
+   */
+  get Shared(): Record<string, unknown> { return linkOf(this).shared; }
+  /** This instance's key (the `room` / `instance` attribute, or the element's index): `pk1.<slug>.<key>`. */
+  get InstanceKey(): string { return linkOf(this).instanceKey; }
+  /**
+   * This behaviour's own click reach in metres, overriding the bindings' `reach`, the class's `interactReach` and
+   * the game's default (a snippet setting, for example). Undefined: those apply. 0: any distance.
+   */
+  get InteractReach(): number | undefined { return linkOf(this).reach.get(this); }
+  set InteractReach(metres: number | undefined) {
+    if (metres === undefined) linkOf(this).reach.delete(this);
+    else linkOf(this).reach.set(this, metres);
+  }
 
   // ---- calls --------------------------------------------------------------------------------------------------
 
@@ -230,7 +284,8 @@ export abstract class Behaviour {
   /**
    * Runs `name` on every client (All: here at once, then everywhere else) or only on the owner's. Arguments
    * must be JSON data or the value types of values.ts. While the method runs, `Networking.CallingPlayer` is
-   * the sender: check it before honouring a request not everybody may make.
+   * the sender: check it before honouring a request not everybody may make. `name` must be listed in the
+   * class's `static networkCallable`.
    */
   SendCustomNetworkEvent(target: NetworkEventTargetName, name: string, ...args: unknown[]): void {
     linkOf(this).sendNetworkEvent(target, name, args);
@@ -346,4 +401,5 @@ export type BehaviourClass = (new () => Behaviour) & {
   perPlayer?: boolean;
   persistent?: boolean;
   interactReach?: number;
+  networkCallable?: readonly string[];
 };

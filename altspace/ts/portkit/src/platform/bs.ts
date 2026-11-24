@@ -906,6 +906,14 @@ export class BsPlatform implements Platform {
 
   // ---- the local player ---------------------------------------------------------------------------------------
 
+  async isVR(): Promise<boolean> {
+    try {
+      return (await this.scene.IsVR()) === true;
+    } catch {
+      return false;
+    }
+  }
+
   async raycast(origin: Vector3, direction: Vector3, maxDistance: number, layerMask: number): Promise<RayHit | null> {
     const BS = this.env.BS;
     const reply = await this.scene.Raycast(toBs3(BS, origin), toBs3(BS, direction), maxDistance, layerMask);
@@ -1096,6 +1104,44 @@ class BsHostObject implements HostObject {
 
   stand(): void {
     if (this.seat) this.platform.attempt("Stand", () => this.seat.Stand());
+  }
+
+  private attached: any = null;
+
+  /** UNVERIFIED in Play mode: BS.AttachedObject added to a kit object, attachment point set, then Attach(local user id). */
+  attachToHand(side: HandSide, position: Vector3, rotation: Quaternion): void {
+    const BS = this.platform.api;
+    const uid = this.platform.local().uid;
+    void (async () => {
+      try {
+        if (!this.attached) {
+          this.attached = await this.go.AddComponent(
+            new BS.AttachedObject({
+              uid,
+              attachmentPosition: new BS.Vector3(position.x, position.y, position.z),
+              attachmentRotation: new BS.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w),
+              attachmentType: 1, // NonPhysics
+              attachmentPoint: side === 0 ? 1 : 2, // LeftHand, RightHand
+              autoSync: false,
+              jointAvatar: false,
+            }),
+          );
+        } else {
+          this.attached.attachmentPoint = side === 0 ? 1 : 2;
+          this.attached.attachmentPosition = new BS.Vector3(position.x, position.y, position.z);
+          this.attached.attachmentRotation = new BS.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
+        }
+        await this.attached.Attach(uid);
+      } catch (error) {
+        this.platform.log("warn", `AttachedObject on ${this.path}: ${String(error)}`);
+      }
+    })();
+  }
+
+  detach(): void {
+    if (!this.attached) return;
+    const uid = this.platform.local().uid;
+    this.platform.attempt("Detach", () => this.attached.Detach(uid));
   }
 
   releaseGrab(): void {

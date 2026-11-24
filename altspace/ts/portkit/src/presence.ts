@@ -30,6 +30,8 @@ export class Presence {
   private readonly known = new Map<string, Participant>();
   private readonly extras = new Map<string, Record<string, unknown>>();
   private readonly texts = new Map<string, string>();
+  /** Every public key each session has announced, kept after it leaves (a sealed box can outlive its sender's visit). */
+  private readonly keysSeen = new Map<string, string>();
   private readonly handlers: Handler[] = [];
   private readonly extraHandlers: Array<(sid: string) => void> = [];
   private announced: string | null = null;
@@ -129,6 +131,11 @@ export class Presence {
     return this.known.get(sid);
   }
 
+  /** The public key a session announced, now or before it left; undefined for a session never seen. */
+  keyOf(sid: string): string | undefined {
+    return this.known.get(sid)?.publicKey ?? this.keysSeen.get(sid);
+  }
+
   /** Position of `sid` in `list()`, or -1. */
   rank(sid: string): number {
     return this.list().findIndex((p) => p.sid === sid);
@@ -171,6 +178,7 @@ export class Presence {
         before.publicKey = who.publicKey;
       }
     }
+    for (const who of now.values()) this.keysSeen.set(who.sid, who.publicKey);
     for (const who of left) {
       this.known.delete(who.sid);
       this.extras.delete(who.sid);

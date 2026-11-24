@@ -153,6 +153,20 @@ namespace UnityEngine
         public static Vector3 operator +(Vector3 a, Vector3 b) => new Vector3(a.x + b.x, a.y + b.y, a.z + b.z);
         public static Vector3 operator -(Vector3 a, Vector3 b) => new Vector3(a.x - b.x, a.y - b.y, a.z - b.z);
         public static Vector3 operator *(Vector3 a, float k) => new Vector3(a.x * k, a.y * k, a.z * k);
+        public static Vector3 operator *(float k, Vector3 a) => new Vector3(a.x * k, a.y * k, a.z * k);
+        public static Vector3 operator /(Vector3 a, float k) => new Vector3(a.x / k, a.y / k, a.z / k);
+        public static Vector3 operator -(Vector3 a) => new Vector3(-a.x, -a.y, -a.z);
+        /// <summary>Unity's: equal when the difference's squared length is below 1e-10 (as 9.99999944E-11f).</summary>
+        public static bool operator ==(Vector3 a, Vector3 b) { float dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z; return dx * dx + dy * dy + dz * dz < 9.99999944E-11f; }
+        public static bool operator !=(Vector3 a, Vector3 b) => !(a == b);
+        public override bool Equals(object o) => o is Vector3 v && x.Equals(v.x) && y.Equals(v.y) && z.Equals(v.z);
+        public override int GetHashCode() => x.GetHashCode() ^ (y.GetHashCode() << 2) ^ (z.GetHashCode() >> 2);
+        public float sqrMagnitude => x * x + y * y + z * z;
+        public float magnitude => (float)Math.Sqrt(x * x + y * y + z * z);
+        public Vector3 normalized { get { float m = magnitude; return m > 1E-05f ? this / m : zero; } }
+        public static float Distance(Vector3 a, Vector3 b) => (a - b).magnitude;
+        public static float Dot(Vector3 a, Vector3 b) => a.x * b.x + a.y * b.y + a.z * b.z;
+        public override string ToString() => $"({x:F2}, {y:F2}, {z:F2})";
     }
 
     public struct Quaternion
@@ -187,6 +201,49 @@ namespace UnityEngine
         public static int RoundToInt(float v) => (int)Math.Round(v);
         public static float Round(float v) => (float)Math.Round(v);
         public static int FloorToInt(float v) => (int)Math.Floor(v);
+        public static int CeilToInt(float v) => (int)Math.Ceiling(v);
+        public static float Floor(float v) => (float)Math.Floor(v);
+        public static float Sqrt(float v) => (float)Math.Sqrt(v);
+        public static float Pow(float b, float e) => (float)Math.Pow(b, e);
+        public static float Sin(float v) => (float)Math.Sin(v);
+        public static float Cos(float v) => (float)Math.Cos(v);
+        public static float Clamp01(float v) => v < 0 ? 0 : v > 1 ? 1 : v;
+        public static float Lerp(float a, float b, float t) => a + (b - a) * Clamp01(t);
+        public const float PI = (float)Math.PI;
+        public const float Deg2Rad = (float)(Math.PI / 180);
+        public const float Rad2Deg = (float)(180 / Math.PI);
+    }
+
+    /// <summary>
+    /// UnityEngine.Random: Xorshift128 seeded as Unity seeds it. Its outputs were checked against Unity 6000.3.21f1 for five
+    /// seeds (portkit ts/test/values.test.ts holds them; ts/src/values.ts UnityRandom is the TypeScript twin).
+    /// </summary>
+    public static class Random
+    {
+        static uint x, y, z, w;
+        static Random() { InitState(0); }
+        public static void InitState(int seed)
+        {
+            x = (uint)seed;
+            y = x * 1812433253u + 1u;
+            z = y * 1812433253u + 1u;
+            w = z * 1812433253u + 1u;
+        }
+        static uint Next()
+        {
+            uint t = x ^ (x << 11);
+            x = y; y = z; z = w;
+            w = w ^ (w >> 19) ^ t ^ (t >> 8);
+            return w;
+        }
+        public static float value => (Next() & 0x7FFFFF) / 8388607f;
+        public static float Range(float min, float max) { float t = value; return min * t + max * (1f - t); }
+        public static int Range(int min, int max)
+        {
+            if (min == max) return min;
+            if (min < max) return min + (int)(Next() % (uint)(max - min));
+            return min - (int)(Next() % (uint)(min - max));
+        }
     }
 
     public static class Debug

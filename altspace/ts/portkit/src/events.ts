@@ -13,6 +13,10 @@
 // The room stamps every one-shot with its sender's session, and the method can read who that was
 // (Networking.CallingPlayer): upstream code checks no sender, and a port must before it honours a request that
 // not everybody may make.
+//
+// A remote client chooses the method name, so a method runs from the network only when its class lists it in
+// `static networkCallable` (inherited lists add up). Nothing is callable by default, and a name starting with `_`
+// never is (Udon's rule). The same list governs commands (SendCommand), which the referee runs for a sender.
 
 import type { Behaviour, NetworkEventTargetName } from "./behaviour.ts";
 import { Behaviour as BehaviourBase } from "./behaviour.ts";
@@ -48,6 +52,9 @@ export class NetEvents {
   callingSid: string | null = null;
   sent = 0;
   received = 0;
+  /** Requests naming a method that may not be called from the network, for tests and diagnostics. */
+  refusedCount = 0;
+  private readonly refusedNames = new Set<string>();
 
   constructor(core: Core, sync: Sync, routes: EventRoutes) {
     this.core = core;
@@ -64,7 +71,7 @@ export class NetEvents {
     const address = this.routes.address(behaviour);
     if (!address) return;
     if (!callable(behaviour, name)) {
-      this.core.log("warn", `SendCustomNetworkEvent: ${address.id} has no public method '${name}' (names starting with '_' cannot be sent)`);
+      this.core.log("warn", `SendCustomNetworkEvent: ${address.id} has no network-callable method '${name}' (list it in its class's static networkCallable; names starting with '_' can never be sent)`);
       return;
     }
     const fields: Record<string, unknown> = { b: address.id, e: name };
@@ -182,7 +189,15 @@ export class NetEvents {
 
   /** Runs a method of game code on behalf of `fromSid` (a network event or a command). */
   invoke(behaviour: Behaviour, name: string, args: unknown[], fromSid: string): void {
-    if (!callable(behaviour, name)) return;
+    if (!callable(behaviour, name)) {
+      const key = `${behaviour.constructor.name}.${name}`;
+      if (!this.refusedNames.has(key) && this.refusedNames.size < 64) {
+        this.refusedNames.add(key);
+        this.core.log("warn", `refused a request from session ${fromSid} to run '${String(name).slice(0, 64)}' on ${behaviour.constructor.name}: not in its networkCallable list`);
+      }
+      this.refusedCount++;
+      return;
+    }
     const before = this.callingSid;
     this.callingSid = fromSid;
     try {
@@ -193,11 +208,33 @@ export class NetEvents {
   }
 }
 
-/** A method a network event may call: declared by the game's own classes, and not marked private by a leading `_`. */
+const LISTS = new WeakMap<object, ReadonlySet<string>>();
+
+/** The names a class lets the network call: its own `static networkCallable` and its ancestors'. */
+export function networkCallableOf(cls: Function): ReadonlySet<string> {
+  let set = LISTS.get(cls);
+  if (set) return set;
+  const names = new Set<string>();
+  for (let c: unknown = cls; typeof c === "function" && c !== BehaviourBase && c !== Function.prototype; c = Object.getPrototypeOf(c)) {
+    if (Object.prototype.hasOwnProperty.call(c, "networkCallable")) {
+      const list = (c as { networkCallable?: unknown }).networkCallable;
+      if (Array.isArray(list)) for (const name of list) if (typeof name === "string") names.add(name);
+    }
+  }
+  set = names;
+  LISTS.set(cls, set);
+  return set;
+}
+
+/**
+ * A method a network event or a command may call: listed in its class's `networkCallable`, not marked private by
+ * a leading `_`, and a method of the game's own classes (never one of the runtime's).
+ */
 export function callable(behaviour: Behaviour, name: string): boolean {
-  if (typeof name !== "string" || name.length === 0 || name.charCodeAt(0) === 0x5f) return false;
+  if (typeof name !== "string" || name.length === 0 || name.charCodeAt(0) === 0x5f || name === "constructor") return false;
+  if (!networkCallableOf(behaviour.constructor).has(name)) return false;
   for (let proto = Object.getPrototypeOf(behaviour); proto && proto !== BehaviourBase.prototype && proto !== Object.prototype; proto = Object.getPrototypeOf(proto)) {
-    if (Object.prototype.hasOwnProperty.call(proto, name)) return name !== "constructor" && typeof (behaviour as unknown as Record<string, unknown>)[name] === "function";
+    if (Object.prototype.hasOwnProperty.call(proto, name)) return typeof (behaviour as unknown as Record<string, unknown>)[name] === "function";
   }
   return false;
 }

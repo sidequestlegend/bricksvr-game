@@ -288,9 +288,12 @@ test("deleted bricks leave the archive (garbage collection) and the hammer clear
   world.leave(a); // the bricks' author leaves: what was deleted can go for good
   await world.run(5000);
   const sizes = leafSizes(world, `pk1.${SLUG}.0.v.s`);
-  const archived = world.room.stateKeys(`pk1.${SLUG}.0.v.s`).map((k) => decode((JSON.parse(String(world.room.stateSnapshot()[k])) as { d: Packed }).d).length).reduce((x, y) => x + y, 0);
-  measure(`after hammering ${gone} of 400 and the author leaving: archive holds ${archived} records in ${sizes.totalBytes} bytes; repacks ${area(world, b).stats.repacks}`);
-  assert.ok(archived <= 400 - gone + 2, `archive still holds ${archived}`);
+  const archive = world.room.stateKeys(`pk1.${SLUG}.0.v.s`).flatMap((k) => decode((JSON.parse(String(world.room.stateSnapshot()[k])) as { d: Packed }).d));
+  const places = archive.filter((r) => r.kind === "P").length;
+  measure(`after hammering ${gone} of 400 and the author leaving: archive holds ${places} place records and ${archive.length - places} tombstones in ${sizes.totalBytes} bytes; repacks by the remaining referee ${area(world, b).stats.repacks}`);
+  // every deleted brick has left the archive; their tombstones go once they are a quarter of it (BrickLedger.planArchive)
+  assert.equal(places, 400 - gone);
+  assert.ok(archive.length <= 400, `archive holds ${archive.length} records`);
   const c = world.join({ name: "Cy" });
   await world.settle();
   assert.ok(await converge(world, 400 - gone, 20000));

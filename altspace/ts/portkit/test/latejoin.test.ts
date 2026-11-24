@@ -23,7 +23,7 @@ test("a late joiner starts with the game's state: Start, then one snapshot OnDes
   await untilStarted(room, [a, b, c], "probe");
 
   const ids = [a, b, c].map((client) => inst(client, "probe").networking.LocalPlayer.playerId);
-  assert.deepEqual(probe(c).log, [
+  assert.deepEqual(probe(c).log.filter((line) => !line.startsWith("OnPlayerRestored") && !line.startsWith("OnPlayerDataUpdated")), [
     "Start",
     "OnDeserialization:10:snapshot",
     "OnInstanceStart:joined",

@@ -6,7 +6,7 @@
 
 import { relayKey } from "./names.ts";
 import type { Clock, Platform } from "./types.ts";
-import type { Color } from "./values.ts";
+import type { Color, Vector3 } from "./values.ts";
 
 export interface HostActions {
   /** Sets the text of a TMP or legacy UI text on the object. */
@@ -30,7 +30,33 @@ export interface HostActions {
    * Plays one clip through the target's audio source. The clip is number `clipIndex` of the clip list on
    * `clipsOn` (another object, when a manager keeps the clips), or of the target's own list.
    */
-  playClip(target: string, clipIndex: number, clipsOn?: string): void;
+  playClip(target: string, clipIndex: number, clipsOn?: string, volumeScale?: number): void;
+  /** AudioSource.pitch of the target's audio source. */
+  audioPitch(target: string, pitch: number): void;
+  /** AudioSource.volume of the target's audio source (0 to 1). */
+  audioVolume(target: string, volume: number): void;
+  /** Animator.enabled: a disabled animator holds its pose. */
+  animEnabled(target: string, enabled: boolean): void;
+  /** Toggle.isOn of a uGUI toggle, without firing its event (so no uiToggle comes back). */
+  uiSetToggle(target: string, on: boolean): void;
+  /** Slider.value of a uGUI slider, without firing its event (so no uiSlider comes back). */
+  uiSetSlider(target: string, value: number): void;
+  /** Transform.localScale, for an object the page cannot reach (one addressed by `@<path>`). */
+  scale(target: string, localScale: Vector3): void;
+  /** Rigidbody.linearVelocity of the target (meaningful on the client that simulates the body: its owner). */
+  rbVelocity(target: string, velocity: Vector3): void;
+  /** Rigidbody.isKinematic of the target. */
+  rbKinematic(target: string, kinematic: boolean): void;
+  /** A copy of the target (a template object in the kit) under the same parent, named `name`, active: `@<parent path>/<name>` addresses it. */
+  spawn(target: string, name: string): void;
+  /** Destroys the target (a copy made with `spawn`). */
+  despawn(target: string): void;
+  /**
+   * A relay op of the game's own (added by its kit builder in `KitBuilder.RelayOps`). Arguments go as text,
+   * encoded. With `property`, the op is a value: it is sent only when it changed, and a newer value in the same
+   * tick replaces the older one (as `text` or `color` are); without, every call is sent. Batched like the rest.
+   */
+  op(name: string, target: string, args: Array<string | number | boolean>, property?: string): void;
   /** Asks the host for the synced clock, in seconds. */
   requestClock(): Promise<number>;
   /** Sends what was queued. The runtime calls it once per tick; call it yourself only to force an early send. */
@@ -196,9 +222,10 @@ export class RelayHost implements HostActions {
     this.value("active", target, "active", [active ? "1" : "0"]);
   }
 
-  playClip(target: string, clipIndex: number, clipsOn?: string): void {
+  playClip(target: string, clipIndex: number, clipsOn?: string, volumeScale?: number): void {
     const own = clipsOn === undefined || clipsOn === target;
-    if (own && !target.startsWith("@") && this.refs.indexOf(target) < 0 && this.fallbackClip(target, clipIndex)) return;
+    const scaled = volumeScale !== undefined && volumeScale !== 1;
+    if (own && !scaled && !target.startsWith("@") && this.refs.indexOf(target) < 0 && this.fallbackClip(target, clipIndex)) return;
     // The graph finds the clip in the holder's PkClips list by the holder's refs index, which is always sent.
     const holder = this.resolve("audio", own ? target : clipsOn!);
     if (holder === null) return;
@@ -206,7 +233,48 @@ export class RelayHost implements HostActions {
       this.warnOnce(`audio:${holder}`, `the clips of ${holder} cannot be played: the audio op needs the holder in bindings.refs`);
       return;
     }
-    this.event("audio", target, [String(Math.trunc(clipIndex)), String(holder)]);
+    if (scaled) this.event("audioScaled", target, [String(Math.trunc(clipIndex)), String(holder), relayNumber(volumeScale)]);
+    else this.event("audio", target, [String(Math.trunc(clipIndex)), String(holder)]);
+  }
+
+  audioPitch(target: string, pitch: number): void {
+    this.value("audioPitch", target, "audioPitch", [relayNumber(pitch)]);
+  }
+  audioVolume(target: string, volume: number): void {
+    this.value("audioVolume", target, "audioVolume", [relayNumber(volume)]);
+  }
+  animEnabled(target: string, enabled: boolean): void {
+    this.value("animEnabled", target, "animEnabled", [enabled ? "1" : "0"]);
+  }
+  uiSetToggle(target: string, on: boolean): void {
+    this.value("uiSetToggle", target, "uiSetToggle", [on ? "1" : "0"]);
+  }
+  uiSetSlider(target: string, value: number): void {
+    this.value("uiSetSlider", target, "uiSetSlider", [relayNumber(value)]);
+  }
+  scale(target: string, localScale: Vector3): void {
+    this.value("scale", target, "scale", [relayNumber(localScale.x), relayNumber(localScale.y), relayNumber(localScale.z)]);
+  }
+  rbVelocity(target: string, velocity: Vector3): void {
+    this.event("rbVelocity", target, [relayNumber(velocity.x), relayNumber(velocity.y), relayNumber(velocity.z)]);
+  }
+  rbKinematic(target: string, kinematic: boolean): void {
+    this.value("rbKinematic", target, "rbKinematic", [kinematic ? "1" : "0"]);
+  }
+  spawn(target: string, name: string): void {
+    this.event("spawn", target, [name]);
+  }
+  despawn(target: string): void {
+    this.event("despawn", target, []);
+    // A copy made again under the same path starts from nothing: forget what was sent to the old one.
+    if (target.startsWith("@")) for (const key of [...this.last.keys()]) if (key.startsWith(target + "/")) this.last.delete(key);
+  }
+
+  op(name: string, target: string, args: Array<string | number | boolean>, property?: string): void {
+    if (!/^[A-Za-z][A-Za-z0-9_]{0,63}$/.test(name) || name === "clock") throw new Error(`'${name}' is not a relay op name (letters, digits, _; not clock)`);
+    const text = args.map((a) => (typeof a === "number" ? relayNumber(a) : typeof a === "boolean" ? (a ? "1" : "0") : String(a)));
+    if (property !== undefined) this.value(name, target, `op.${name}.${property}`, text);
+    else this.event(name, target, text);
   }
 
   /** The clock is not batched: its answer is timed from the moment it is sent. */

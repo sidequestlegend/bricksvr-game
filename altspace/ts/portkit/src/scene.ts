@@ -138,6 +138,25 @@ export class GameObject {
     else this.host?.on(kind, handler);
   }
 
+  /**
+   * Attaches this object to the local player's hand (0 left, 1 right), at an offset from it (BS.AttachedObject;
+   * UNVERIFIED in Play mode). Only the local player can be attached to; other players see it only through a synced
+   * transform.
+   */
+  AttachToHand(side: 0 | 1, position: Vector3 = new Vector3(), rotation: Quaternion = new Quaternion()): void {
+    this.host?.attachToHand(side, position, rotation);
+  }
+
+  /** Lets go of what AttachToHand attached. */
+  Detach(): void {
+    this.host?.detach();
+  }
+
+  /** Makes the local player let go of this object if they hold it (VRChat: VRCPickup.Drop()); `drop` follows. */
+  ReleaseGrab(): void {
+    this.host?.releaseGrab();
+  }
+
   /** Asks to own the object's synced transform (VRChat: Networking.SetOwner on a VRCObjectSync). */
   TakeOwnership(): void {
     this.host?.takeOwnership();
@@ -186,6 +205,13 @@ export class TextRef extends ComponentRef {
 }
 
 export class AnimatorRef extends ComponentRef {
+  private on = true;
+  /** Animator.enabled: a disabled animator holds its pose. Reading gives what the script last set. */
+  get enabled(): boolean { return this.on; }
+  set enabled(value: boolean) {
+    this.on = !!value;
+    this.actions.animEnabled(this.gameObject.key, this.on);
+  }
   SetBool(name: string, value: boolean): void { this.actions.animBool(this.gameObject.key, name, value); }
   SetFloat(name: string, value: number): void { this.actions.animFloat(this.gameObject.key, name, value); }
   SetInteger(name: string, value: number): void { this.actions.animInt(this.gameObject.key, name, value); }
@@ -212,10 +238,31 @@ export class RendererRef extends ComponentRef {
 }
 
 export class AudioSourceRef extends ComponentRef {
+  private pitchValue = 1;
+  private volumeValue = 1;
+  /** The clip `Play()` plays (UnityEngine.AudioSource.clip). */
+  clip: AudioClipRef | null = null;
+
   /** Plays a clip (a `$clip` field value, or an index into this object's own clip list) through this audio source. */
-  PlayOneShot(clip: AudioClipRef | number): void {
-    if (typeof clip === "number") this.actions.playClip(this.gameObject.key, clip);
-    else this.actions.playClip(this.gameObject.key, clip.index, clip.on ?? undefined);
+  PlayOneShot(clip: AudioClipRef | number, volumeScale?: number): void {
+    if (typeof clip === "number") this.actions.playClip(this.gameObject.key, clip, undefined, volumeScale);
+    else this.actions.playClip(this.gameObject.key, clip.index, clip.on ?? undefined, volumeScale);
+  }
+  /** Plays `clip` as a one-shot (it overlaps a sound still playing instead of cutting it off). */
+  Play(): void {
+    if (this.clip) this.PlayOneShot(this.clip);
+  }
+  /** AudioSource.pitch (relay op `audioPitch`). Reading gives what the script last set. */
+  get pitch(): number { return this.pitchValue; }
+  set pitch(value: number) {
+    this.pitchValue = value;
+    this.actions.audioPitch(this.gameObject.key, value);
+  }
+  /** AudioSource.volume (relay op `audioVolume`). */
+  get volume(): number { return this.volumeValue; }
+  set volume(value: number) {
+    this.volumeValue = value;
+    this.actions.audioVolume(this.gameObject.key, value);
   }
 }
 

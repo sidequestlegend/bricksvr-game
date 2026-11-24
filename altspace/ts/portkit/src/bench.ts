@@ -37,6 +37,17 @@ const NO_HOST: HostActions = {
   uiColor: noop,
   setActive: noop,
   playClip: noop,
+  audioPitch: noop,
+  audioVolume: noop,
+  animEnabled: noop,
+  uiSetToggle: noop,
+  uiSetSlider: noop,
+  scale: noop,
+  rbVelocity: noop,
+  rbKinematic: noop,
+  spawn: noop,
+  despawn: noop,
+  op: noop,
   requestClock: () => Promise.resolve(0),
   flush: noop,
 };
@@ -133,6 +144,10 @@ export class RulesBench {
     for (const { behaviour, name } of this.delayed.splice(0)) this.call(behaviour, name, []);
   }
 
+  private readonly reach = new Map<Behaviour, number>();
+  /** Behaviour.Shared on a bench. */
+  readonly shared: Record<string, unknown> = {};
+
   private call(behaviour: Behaviour, name: string, args: unknown[]): void {
     const fn = (behaviour as unknown as Record<string, unknown>)[name];
     if (typeof fn === "function") fn.apply(behaviour, args);
@@ -149,7 +164,7 @@ export class RulesBench {
       gameObject,
       networking,
       time: { get time() { return bench.time; }, deltaTime: 0.05, frameCount: 0 },
-      random: { value: 0.5, Range: (min, max) => (min + max) / 2, RangeInt: (min) => Math.floor(min) },
+      random: { value: 0.5, Range: (min, max) => (min + max) / 2, RangeInt: (min) => Math.floor(min), Bytes: (n) => new Uint8Array(Math.max(0, Math.floor(n))).map((_, i) => (i * 37 + 11) & 0xff) },
       debug: { Log: say("info"), LogWarning: say("warn"), LogError: say("error") },
       secrets: unavailable as never,
       storage: unavailable as never,
@@ -167,9 +182,15 @@ export class RulesBench {
         TeleportTo: noop,
         SetAbility: noop,
         SetBlock: noop,
+        LastClickSide: null,
+        IsVR: false,
+        InReach: () => true,
       },
       protectedValues: { CanWrite: true, Set: noop, Get: (_k, fallback) => fallback, Has: () => false },
       player: null,
+      instanceKey: "bench",
+      shared: this.shared,
+      reach: this.reach,
       requestSerialization: () => {
         bench.serializations++;
       },

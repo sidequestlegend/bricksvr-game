@@ -149,3 +149,16 @@ test("instance keys: room, else instance, else index; holders and prefixes follo
   assert.equal(statePrefix("chess-table", "north"), "pk1.chess-table.north");
   assert.equal(networkId("chess-table", "north", "whiteKing"), "pk1/chess-table/north/whiteKing");
 });
+
+test("Behaviour.Shared is one object for every instance of a game on a page, and per page", async () => {
+  const room = new FakeRoom({ seed: 151 });
+  const g = probeGame("chips");
+  const a = enter(room, [g], { elements: [{ slug: "chips", attributes: { room: "t1" } }, { slug: "chips", attributes: { room: "t2" } }] });
+  const b = enter(room, [g], { elements: [{ slug: "chips", attributes: { room: "t1" } }] });
+  await untilStarted(room, [a, b], "chips", "t1");
+  await untilStarted(room, [a], "chips", "t2", 1);
+  probe(a, "chips", "t1").Shared.balance = 500;
+  assert.equal(probe(a, "chips", "t2").Shared.balance, 500, "the other table on the same page sees it");
+  assert.equal(probe(b, "chips", "t1").Shared.balance, undefined, "another page does not");
+  assert.equal(probe(a, "chips", "t2").InstanceKey, "t2");
+});

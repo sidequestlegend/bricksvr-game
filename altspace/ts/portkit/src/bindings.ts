@@ -60,9 +60,9 @@ export interface Bindings {
   events: BindingEvent[];
 }
 
-const EVENT_KINDS = ["click", "grab", "drop", "triggerEnter", "triggerExit", "collisionEnter", "collisionExit", "uiButton", "uiSlider", "uiToggle", "heldTrigger", "heldPrimary", "heldSecondary", "graph"];
+const EVENT_KINDS = ["click", "grab", "drop", "triggerEnter", "triggerExit", "collisionEnter", "collisionExit", "uiButton", "uiSlider", "uiToggle", "heldTrigger", "heldPrimary", "heldSecondary", "field", "graph"];
 /** Kinds only a graph can report. Their entry may name no behaviour: code can listen with `gameObject.On(kind, ...)`. */
-const GRAPH_KINDS = ["uiButton", "uiSlider", "uiToggle", "heldTrigger", "heldPrimary", "heldSecondary"];
+const GRAPH_KINDS = ["uiButton", "uiSlider", "uiToggle", "heldTrigger", "heldPrimary", "heldSecondary", "field"];
 
 /** Checks a parsed bindings.json. Throws one error listing everything that is wrong. */
 export function validateBindings(json: unknown): Bindings {

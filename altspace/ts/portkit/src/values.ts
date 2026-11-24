@@ -78,6 +78,18 @@ export class Vector3 {
     return m > 1e-5 ? this.scale(1 / m) : Vector3.zero;
   }
   static Distance(a: Vector3, b: Vector3): number { return a.sub(b).magnitude; }
+  /** Degrees between two directions, 0 to 180 (UnityEngine.Vector3.Angle; 0 when either is nearly zero). */
+  static Angle(from: Vector3, to: Vector3): number {
+    const denominator = Math.sqrt(from.sqrMagnitude * to.sqrMagnitude);
+    if (denominator < 1e-15) return 0;
+    const dot = Mathf.Clamp(Vector3.Dot(from, to) / denominator, -1, 1);
+    return Math.acos(dot) * Mathf.Rad2Deg;
+  }
+  /** Reflects a direction off the plane with normal `inNormal` (UnityEngine.Vector3.Reflect). */
+  static Reflect(inDirection: Vector3, inNormal: Vector3): Vector3 {
+    const factor = -2 * Vector3.Dot(inNormal, inDirection);
+    return new Vector3(factor * inNormal.x + inDirection.x, factor * inNormal.y + inDirection.y, factor * inNormal.z + inDirection.z);
+  }
   static Dot(a: Vector3, b: Vector3): number { return a.x * b.x + a.y * b.y + a.z * b.z; }
   static Cross(a: Vector3, b: Vector3): Vector3 {
     return new Vector3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
@@ -169,6 +181,48 @@ export class Quaternion {
     };
     return new Vector3(wrap(ex), wrap(ey), wrap(ez));
   }
+  /** Degrees between two rotations (UnityEngine.Quaternion.Angle). */
+  static Angle(a: Quaternion, b: Quaternion): number {
+    const dot = Math.min(Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w), 1);
+    return dot > 0.999999 ? 0 : Math.acos(dot) * 2 * Mathf.Rad2Deg;
+  }
+  /**
+   * The rotation whose forward (Z) is `forward` and whose up is as close to `upwards` as it can be
+   * (UnityEngine.Quaternion.LookRotation). A zero forward gives the identity.
+   */
+  static LookRotation(forward: Vector3, upwards: Vector3 = new Vector3(0, 1, 0)): Quaternion {
+    const f = forward.normalized;
+    if (f.sqrMagnitude < 1e-12) return Quaternion.identity;
+    let r = Vector3.Cross(upwards, f);
+    if (r.sqrMagnitude < 1e-12) {
+      // forward parallel to up: Unity gives the shortest turn from +Z to forward
+      const axis = Vector3.Cross(new Vector3(0, 0, 1), f);
+      if (axis.sqrMagnitude < 1e-12) return f.z >= 0 ? Quaternion.identity : new Quaternion(0, 1, 0, 0);
+      return Quaternion.AngleAxis(Math.acos(Mathf.Clamp(f.z, -1, 1)) * Mathf.Rad2Deg, axis);
+    }
+    r = r.normalized;
+    const u = Vector3.Cross(f, r);
+    // rows: right, up, forward as the matrix's columns
+    const m00 = r.x, m01 = u.x, m02 = f.x;
+    const m10 = r.y, m11 = u.y, m12 = f.y;
+    const m20 = r.z, m21 = u.z, m22 = f.z;
+    const trace = m00 + m11 + m22;
+    let q: Quaternion;
+    if (trace > 0) {
+      const s = Math.sqrt(trace + 1) * 2;
+      q = new Quaternion((m21 - m12) / s, (m02 - m20) / s, (m10 - m01) / s, 0.25 * s);
+    } else if (m00 > m11 && m00 > m22) {
+      const s = Math.sqrt(1 + m00 - m11 - m22) * 2;
+      q = new Quaternion(0.25 * s, (m01 + m10) / s, (m02 + m20) / s, (m21 - m12) / s);
+    } else if (m11 > m22) {
+      const s = Math.sqrt(1 + m11 - m00 - m22) * 2;
+      q = new Quaternion((m01 + m10) / s, 0.25 * s, (m12 + m21) / s, (m02 - m20) / s);
+    } else {
+      const s = Math.sqrt(1 + m22 - m00 - m11) * 2;
+      q = new Quaternion((m02 + m20) / s, (m12 + m21) / s, 0.25 * s, (m10 - m01) / s);
+    }
+    return q;
+  }
   static Slerp(a: Quaternion, b: Quaternion, t: number): Quaternion {
     const k = Mathf.Clamp01(t);
     let dot = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
@@ -232,6 +286,71 @@ export class Color {
   static get blue(): Color { return new Color(0, 0, 1, 1); }
   static get yellow(): Color { return new Color(1, 0.92156863, 0.015686275, 1); }
   static get clear(): Color { return new Color(0, 0, 0, 0); }
+  static get cyan(): Color { return new Color(0, 1, 1, 1); }
+  static get magenta(): Color { return new Color(1, 0, 1, 1); }
+  static get gray(): Color { return new Color(0.5, 0.5, 0.5, 1); }
+  static get grey(): Color { return new Color(0.5, 0.5, 0.5, 1); }
+  /**
+   * UnityEngine.Color.HSVToRGB, line for line: H, S, V in [0, 1]; with `hdr` false each channel is clamped to
+   * [0, 1]. Alpha is 1. (Unity computes in single precision; this in double: the last digits can differ.)
+   */
+  static HSVToRGB(H: number, S: number, V: number, hdr = true): Color {
+    const c = new Color(1, 1, 1, 1);
+    if (S === 0) {
+      c.r = V;
+      c.g = V;
+      c.b = V;
+    } else if (V === 0) {
+      c.r = 0;
+      c.g = 0;
+      c.b = 0;
+    } else {
+      c.r = 0;
+      c.g = 0;
+      c.b = 0;
+      const h = H * 6;
+      const temp = Math.floor(h);
+      const t = h - temp;
+      const var1 = V * (1 - S);
+      const var2 = V * (1 - S * t);
+      const var3 = V * (1 - S * (1 - t));
+      switch (temp) {
+        case 0: c.r = V; c.g = var3; c.b = var1; break;
+        case 1: c.r = var2; c.g = V; c.b = var1; break;
+        case 2: c.r = var1; c.g = V; c.b = var3; break;
+        case 3: c.r = var1; c.g = var2; c.b = V; break;
+        case 4: c.r = var3; c.g = var1; c.b = V; break;
+        case 5: c.r = V; c.g = var1; c.b = var2; break;
+        case 6: c.r = V; c.g = var3; c.b = var1; break;
+        case -1: c.r = V; c.g = var1; c.b = var2; break;
+      }
+      if (!hdr) {
+        c.r = Mathf.Clamp01(c.r);
+        c.g = Mathf.Clamp01(c.g);
+        c.b = Mathf.Clamp01(c.b);
+      }
+    }
+    return c;
+  }
+  /** UnityEngine.Color.RGBToHSV: [H, S, V], each in [0, 1]. */
+  static RGBToHSV(color: Color): [number, number, number] {
+    const { r, g, b } = color;
+    const rgbToHue = (offset: number, dominant: number, c1: number, c2: number): [number, number, number] => {
+      const V = dominant;
+      if (V === 0) return [0, 0, 0];
+      const min = c1 > c2 ? c2 : c1;
+      const delta = V - min;
+      if (delta === 0) return [0, 0, V];
+      const S = delta / V;
+      let H = offset + (c1 - c2) / delta;
+      H /= 6;
+      if (H < 0) H += 1;
+      return [H, S, V];
+    };
+    if (b > g && b > r) return rgbToHue(4, b, r, g);
+    if (g > r) return rgbToHue(2, g, b, r);
+    return rgbToHue(0, r, g, b);
+  }
   clone(): Color { return new Color(this.r, this.g, this.b, this.a); }
   static Lerp(a: Color, b: Color, t: number): Color {
     const k = Mathf.Clamp01(t);
@@ -239,6 +358,54 @@ export class Color {
   }
   equals(o: Color | null | undefined): boolean {
     return !!o && this.r === o.r && this.g === o.g && this.b === o.b && this.a === o.a;
+  }
+}
+
+/**
+ * UnityEngine.Random's generator: Xorshift128, seeded as Unity's Random.InitState seeds it, so a port that seeds the
+ * upstream's Random gets the upstream's numbers. Checked against Unity 6000.3.21f1's own outputs for five seeds
+ * (test/values.test.ts): `value` and `RangeInt` exactly, `Range(float)` to single precision.
+ * For anything a player could gain by predicting, use a fair draw (Secrets) or `Random.Bytes` instead.
+ */
+export class UnityRandom {
+  private x = 0;
+  private y = 0;
+  private z = 0;
+  private w = 0;
+  constructor(seed = 0) {
+    this.InitState(seed);
+  }
+  InitState(seed: number): void {
+    this.x = seed >>> 0;
+    this.y = (Math.imul(1812433253, this.x) + 1) >>> 0;
+    this.z = (Math.imul(1812433253, this.y) + 1) >>> 0;
+    this.w = (Math.imul(1812433253, this.z) + 1) >>> 0;
+  }
+  /** The next raw 32-bit number. */
+  NextUInt(): number {
+    const t = (this.x ^ (this.x << 11)) >>> 0;
+    this.x = this.y;
+    this.y = this.z;
+    this.z = this.w;
+    this.w = (this.w ^ (this.w >>> 19) ^ t ^ (t >>> 8)) >>> 0;
+    return this.w;
+  }
+  /** In [0, 1], both ends included (Unity's Random.value). */
+  get value(): number {
+    return Math.fround((this.NextUInt() & 0x7fffff) / 8388607);
+  }
+  /** Random.Range(float, float): in [min, max], both included. */
+  Range(min: number, max: number): number {
+    const t = this.value;
+    return Math.fround(min * t + max * (1 - t));
+  }
+  /** Random.Range(int, int): in [min, max), max excluded; min when they are equal. */
+  RangeInt(min: number, max: number): number {
+    const lo = Math.trunc(min);
+    const hi = Math.trunc(max);
+    if (lo === hi) return lo;
+    if (lo < hi) return lo + (this.NextUInt() % (hi - lo));
+    return lo - (this.NextUInt() % (lo - hi));
   }
 }
 

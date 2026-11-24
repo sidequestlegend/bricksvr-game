@@ -90,6 +90,7 @@ const OBJECT_EVENTS: readonly string[] = [
   "heldTrigger",
   "heldPrimary",
   "heldSecondary",
+  "field",
 ];
 /** Graph events kept while an instance is still starting (a graph's Start runs as soon as the kit exists). */
 const MAX_EARLY_EVENTS = 256;
@@ -131,7 +132,7 @@ export class GameInstance implements NetHost {
   private readonly playerBehaviourMap = new Map<string, Map<string, Behaviour>>();
   private readonly objectHandlers = new Map<string, Map<string, Array<(detail: HostEventDetail) => void>>>();
   private readonly hostWired = new Set<string>();
-  private readonly graphHandlers = new Map<string, Array<{ behaviour: Behaviour; method: string }>>();
+  private readonly graphHandlers = new Map<string, Array<{ behaviour: Behaviour | (() => Behaviour | null); method: string }>>();
   private readonly pendingLeaves: Player[] = [];
   private readonly earlyGraphEvents: Array<{ name: string; args: string[] }> = [];
   private readonly buttons = new Set<string>();
@@ -141,6 +142,10 @@ export class GameInstance implements NetHost {
   private readonly abilitiesOff = new Set<Ability>();
   private readonly blocksOn = new Set<BlockableControl>();
   private poses: LocalPoses | null = null;
+  private readonly triggerAt: [number, number] = [-Infinity, -Infinity];
+  private lastClickSide: HandSide | null = null;
+  private vr: boolean | null = null;
+  private readonly reachOverride = new Map<Behaviour, number>();
   private position: Vector3 | null = null;
   private startKindValue: StartKind = "idle";
   private lastClockAsk = -Infinity;
@@ -149,7 +154,11 @@ export class GameInstance implements NetHost {
   private readonly debugView: DebugView;
   private readonly inputView: InputView;
 
-  constructor(platform: Platform, game: GameDefinition, bindings: Bindings, element: SnippetElement, inst: string) {
+  /** The page-wide object every instance of this game shares (GameRuntime.shared). */
+  readonly shared: Record<string, unknown>;
+
+  constructor(platform: Platform, game: GameDefinition, bindings: Bindings, element: SnippetElement, inst: string, shared: Record<string, unknown> = {}) {
+    this.shared = shared;
     this.platform = platform;
     this.game = game;
     this.bindings = bindings;
@@ -201,6 +210,7 @@ export class GameInstance implements NetHost {
       get value() { return platform.random(); },
       Range: (min, max) => min + (max - min) * platform.random(),
       RangeInt: (min, max) => Math.floor(min) + Math.floor((Math.floor(max) - Math.floor(min)) * platform.random()),
+      Bytes: (n) => platform.crypto.getRandomValues(new Uint8Array(Math.max(0, Math.floor(n)))),
     };
     const say = (level: "info" | "warn" | "error") => (message: unknown) => this.core.log(level, typeof message === "string" ? message : String(message));
     this.debugView = { Log: say("info"), LogWarning: say("warn"), LogError: say("error") };
@@ -213,6 +223,9 @@ export class GameInstance implements NetHost {
       get Poses() { return owner.poses; },
       get Position() { return owner.position ? owner.position.clone() : null; },
       Haptic: (side, strength, seconds) => platform.haptic(side, strength, seconds),
+      get LastClickSide() { return owner.lastClickSide; },
+      get IsVR() { return owner.vr; },
+      InReach: (point, metres) => !(metres > 0) || this.nearestDistance(point) <= metres,
       TeleportTo: (position, yDegrees, stopMovement = true) => {
         this.position = position.clone();
         platform.teleport(position, yDegrees, stopMovement);
@@ -247,6 +260,7 @@ export class GameInstance implements NetHost {
         }),
       );
       core.own(platform.onPose((poses) => this.onPose(poses)));
+      void platform.isVR().then((vr) => (this.vr = vr), () => (this.vr = false));
       core.own(platform.onInput((event) => this.onInput(event)));
       core.own(platform.onStateError(core.prefix + ".", (path, code, final) => this.onRefusedPath(path.slice(core.prefix.length + 1), code, final)));
 
@@ -427,6 +441,9 @@ export class GameInstance implements NetHost {
     this.commands.review();
     for (const early of this.earlyGraphEvents.splice(0)) this.onGraphEvent(early.name, early.args);
     this.scheduler.start(() => this.tick());
+    // Unity runs the first Update in the frame of Start: so does this, so that state a game sets in Update (which
+    // controls are live, say) is there as soon as the instance has started, not one tick later.
+    this.tick();
     let extra: Record<string, unknown> = {};
     if (this.game.debug) core.guard("debug hooks", () => (extra = this.game.debug!(this)));
     this.platform.expose(relayKey(core.slug, core.inst), {
@@ -518,6 +535,9 @@ export class GameInstance implements NetHost {
       input: this.inputView,
       protectedValues: this.protectedValues,
       player,
+      instanceKey: this.inst,
+      shared: this.shared,
+      reach: this.reachOverride,
       requestSerialization() {
         if (player) {
           if (player.isLocal) instance.perUser.requestSerialization(behaviour);
@@ -630,11 +650,13 @@ export class GameInstance implements NetHost {
       this.deliverJoin(player);
       return;
     }
-    // Upstream clean-up in OnPlayerLeft is usually guarded by "am I the master": when the referee is the one who
-    // left, wait until the next one is known (as VRChat names the new master first), but not for ever.
-    if (this.rule === "anyone" && !this.referee.current()) {
+    // Upstream clean-up in OnPlayerLeft is usually guarded by "am I the master": while there is no referee, a
+    // departure waits until the next one is known (as VRChat names the new master first). Under "anyone" one is
+    // elected within seconds, so the wait is at most 5 s; under "declared" there may be none for a long time (the
+    // instance idles), and the departure is delivered when one is elected, so a referee-only handler still sees it.
+    if (!this.referee.current()) {
       this.pendingLeaves.push(player);
-      this.scheduler.after(5000, () => this.flushLeaves());
+      if (this.rule === "anyone") this.scheduler.after(5000, () => this.flushLeaves());
       return;
     }
     this.deliverLeave(player);
@@ -749,16 +771,44 @@ export class GameInstance implements NetHost {
 
   private wireEvents(): void {
     const explicit = new Set<string>();
+    // A per-player behaviour has one copy per player, and the local player is the one who clicks, grabs or sees a
+    // graph event here: its events go to the local player's copy.
+    const mine = (id: string) => () => this.playerBehaviourMap.get(this.core.me.sid)?.get(id) ?? null;
     for (const event of this.bindings.events) {
       if (!event.behaviour || !event.method) continue; // an event listed only so that the relay graph reports it
-      const behaviour = this.byId.get(event.behaviour);
-      if (!behaviour) continue; // per-player behaviours take no object events
+      const ordinary = this.byId.get(event.behaviour);
+      const perPlayer = !ordinary && this.templates.some((t) => t.binding.id === event.behaviour);
+      if (!ordinary && !perPlayer) continue;
+      const target: Behaviour | (() => Behaviour | null) = ordinary ?? mine(event.behaviour);
       if (event.kind === "graph") {
-        this.addGraphHandler(event.name ?? "", behaviour, event.method);
+        this.addGraphHandler(event.name ?? "", target, event.method);
         continue;
       }
       explicit.add(`${event.object}/${event.kind}/${event.behaviour}`);
-      this.addObjectHandler(event.object!, event.kind, (detail) => this.callBound(behaviour, event, detail));
+      this.addObjectHandler(event.object!, event.kind, (detail) => {
+        const behaviour = typeof target === "function" ? target() : target;
+        if (behaviour) this.callBound(behaviour, event, detail);
+      });
+    }
+    for (const template of this.templates) {
+      const key = template.binding.object;
+      const object = key ? this.bindings.objects[key] : undefined;
+      if (!key || !object) continue;
+      const id = template.binding.id;
+      const proto = template.cls.prototype as Record<string, unknown>;
+      const base = Behaviour.prototype as unknown as Record<string, unknown>;
+      if (object.click && proto.Interact !== base.Interact && !explicit.has(`${key}/click/${id}`)) {
+        this.addObjectHandler(key, "click", (detail) => {
+          const behaviour = mine(id)();
+          if (behaviour && this.withinReach(behaviour, undefined, template.cls.interactReach ?? 0, detail)) this.core.guard(`${id}.Interact`, () => behaviour.Interact());
+        });
+      }
+      if (object.grab && proto.OnPickup !== base.OnPickup && !explicit.has(`${key}/grab/${id}`)) {
+        this.addObjectHandler(key, "grab", () => mine(id)()?.OnPickup());
+      }
+      if (object.grab && proto.OnDrop !== base.OnDrop && !explicit.has(`${key}/drop/${id}`)) {
+        this.addObjectHandler(key, "drop", () => mine(id)()?.OnDrop());
+      }
     }
     for (const behaviour of this.ordinary) {
       const key = behaviour.gameObject.key;
@@ -768,7 +818,7 @@ export class GameInstance implements NetHost {
       const cls = behaviour.constructor as BehaviourClass;
       if (object.click && this.overrides(behaviour, "Interact") && !explicit.has(`${key}/click/${id}`)) {
         this.addObjectHandler(key, "click", (detail) => {
-          if (this.withinReach(behaviour, cls.interactReach ?? 0, detail)) this.core.guard(`${id}.Interact`, () => behaviour.Interact());
+          if (this.withinReach(behaviour, undefined, cls.interactReach ?? 0, detail)) this.core.guard(`${id}.Interact`, () => behaviour.Interact());
         });
       }
       if (object.grab && this.overrides(behaviour, "OnPickup") && !explicit.has(`${key}/grab/${id}`)) {
@@ -782,7 +832,7 @@ export class GameInstance implements NetHost {
 
   private callBound(behaviour: Behaviour, event: BindingEvent, detail: HostEventDetail): void {
     const cls = behaviour.constructor as BehaviourClass;
-    if (event.kind === "click" && !this.withinReach(behaviour, event.reach ?? cls.interactReach ?? 0, detail)) return;
+    if (event.kind === "click" && !this.withinReach(behaviour, event.reach, cls.interactReach ?? 0, detail)) return;
     const fn = (behaviour as unknown as Record<string, unknown>)[event.method];
     if (typeof fn !== "function") {
       this.core.log("warn", `${event.behaviour} has no method '${event.method}' (bound to ${event.kind} of ${event.object})`);
@@ -792,18 +842,43 @@ export class GameInstance implements NetHost {
     let argument: unknown = detail;
     if (event.kind === "uiSlider") argument = Number(detail.arg ?? "0");
     else if (event.kind === "uiToggle") argument = detail.arg === "1" || detail.arg === "true" || detail.arg === "True";
+    else if (event.kind === "field") argument = detail.arg ?? "";
     this.core.guard(`${event.behaviour}.${event.method}`, () => fn.call(behaviour, argument));
   }
 
-  /** True when a click is close enough to count. With no head pose reported yet, every click counts. */
-  private withinReach(behaviour: Behaviour, classReach: number, detail: HostEventDetail): boolean {
-    const reach = classReach > 0 ? classReach : (this.game.interactReach ?? 0);
+  /**
+   * True when a click is close enough to count: measured from the nearest of the local head and hands. The reach is
+   * the behaviour's own (InteractReach), else the binding's, else the class's, else the game's. With no pose
+   * reported yet, every click counts.
+   */
+  private withinReach(behaviour: Behaviour, eventReach: number | undefined, classReach: number, detail: HostEventDetail): boolean {
+    const own = this.reachOverride.get(behaviour);
+    const reach = own !== undefined ? own : eventReach !== undefined ? eventReach : classReach > 0 ? classReach : (this.game.interactReach ?? 0);
     if (!(reach > 0)) return true;
-    const head = this.poses?.head.position ?? this.position;
     const transform = behaviour.gameObject.transform;
     const point = detail.point ?? (transform.known ? transform.position : null);
-    if (!head || !point) return true;
-    return Vector3.Distance(head, point) <= reach;
+    if (!point) return true;
+    return this.nearestDistance(point) <= reach;
+  }
+
+  /** Metres from `point` to the nearest of the local head and hands; 0 when no pose or position is known. */
+  private nearestDistance(point: Vector3): number {
+    const poses = this.poses;
+    const from = poses ? [poses.head.position, poses.leftHand.position, poses.rightHand.position] : this.position ? [this.position] : [];
+    if (!from.length) return 0;
+    let nearest = Infinity;
+    for (const p of from) nearest = Math.min(nearest, Vector3.Distance(p, point));
+    return nearest;
+  }
+
+  /** The hand that clicked: the one whose trigger went down in the last second, else the one nearest the point. */
+  private clickSide(point: Vector3 | undefined): HandSide | null {
+    const now = this.platform.clock.now();
+    const [left, right] = this.triggerAt;
+    const recent = Math.max(left, right);
+    if (now - recent <= 1000) return right >= left ? 1 : 0;
+    if (!this.poses || !point) return null;
+    return Vector3.Distance(this.poses.rightHand.position, point) <= Vector3.Distance(this.poses.leftHand.position, point) ? 1 : 0;
   }
 
   private addObjectHandler(objKey: string, kind: string, handler: (detail: HostEventDetail) => void): void {
@@ -823,6 +898,13 @@ export class GameInstance implements NetHost {
   /** Delivers an object's event to what is bound to it. Also the entry point for events a graph raised. */
   dispatchObject(objKey: string, kind: string, detail: HostEventDetail): void {
     if (!this.started || this.core.disposed) return;
+    if (kind === "click") {
+      if (detail.side === undefined) {
+        const side = this.clickSide(detail.point);
+        if (side !== null) detail.side = side;
+      }
+      this.lastClickSide = detail.side === 0 || detail.side === 1 ? detail.side : null;
+    }
     const handlers = this.objectHandlers.get(objKey)?.get(kind);
     if (!handlers || !handlers.length) return;
     const run = () => {
@@ -839,7 +921,7 @@ export class GameInstance implements NetHost {
     run();
   }
 
-  private addGraphHandler(name: string, behaviour: Behaviour, method: string): void {
+  private addGraphHandler(name: string, behaviour: Behaviour | (() => Behaviour | null), method: string): void {
     if (!name) return;
     let list = this.graphHandlers.get(name);
     if (!list) this.graphHandlers.set(name, (list = []));
@@ -856,15 +938,25 @@ export class GameInstance implements NetHost {
       // "<target>|<value>": an event of one kit object that only a graph can see (UI controls, held buttons).
       const key = this.keyOfTarget(args[0] ?? "");
       if (!key) return;
-      const detail: HostEventDetail = { arg: args[1] };
-      if (args[1] === "left") detail.side = 0;
-      else if (args[1] === "right") detail.side = 1;
+      const detail: HostEventDetail = { arg: args[1], args: args.slice(1) };
+      // A graph that reports a trigger or a collision itself: "<target>|<other name>|<px>|<py>|<pz>|<nx>|<ny>|<nz>".
+      if (name.startsWith("collision") || name.startsWith("trigger")) {
+        const n = args.slice(2, 8).map(Number);
+        if (args[1] !== undefined) detail.otherName = args[1];
+        if (n.length >= 3 && n.slice(0, 3).every(Number.isFinite)) detail.point = new Vector3(n[0], n[1], n[2]);
+        if (n.length >= 6 && n.slice(3, 6).every(Number.isFinite)) detail.normal = new Vector3(n[3], n[4], n[5]);
+      }
+      if (name.startsWith("held") && args[1] === "left") detail.side = 0;
+      else if (name.startsWith("held") && args[1] === "right") detail.side = 1;
       this.dispatchObject(key, name, detail);
       return;
     }
     const handlers = this.graphHandlers.get(name);
     if (!handlers) return;
-    for (const { behaviour, method } of handlers.slice()) {
+    for (const handler of handlers.slice()) {
+      const behaviour = typeof handler.behaviour === "function" ? handler.behaviour() : handler.behaviour;
+      const method = handler.method;
+      if (!behaviour) continue;
       const fn = (behaviour as unknown as Record<string, unknown>)[method];
       if (typeof fn === "function") this.core.guard(`${this.idOf(behaviour)}.${method}`, () => fn.apply(behaviour, args));
     }
@@ -890,6 +982,7 @@ export class GameInstance implements NetHost {
     if (this.core.disposed) return;
     if (event.type === "button") {
       const id = `${event.side}/${event.button}`;
+      if (event.pressed && event.button === 0) this.triggerAt[event.side] = this.platform.clock.now();
       if (event.pressed) this.buttons.add(id);
       else this.buttons.delete(id);
       const { button, side } = event;

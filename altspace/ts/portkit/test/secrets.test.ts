@@ -152,7 +152,9 @@ test("sealed delivery: only the player it is for can open it", async () => {
 
   const hand = { cards: ["AS", "KD"], seat: 2 };
   const box = await secrets(a).seal(b.sid, hand);
-  assert.ok(!box.includes("AS"), "the text gives nothing away");
+  // (Not `includes("AS")`: base64 of random bytes holds any two letters now and then. That check failed about one run
+  // in twenty, which was the cold-run flake. A quote never appears in base64, so the plain JSON cannot hide in it.)
+  assert.ok(!box.includes('"AS"') && !box.includes('"cards"') && !box.includes('"KD"'), "the text gives nothing away");
   assert.deepEqual(await secrets(b).open(box), hand);
   assert.equal(secrets(b).isForMe(box), true);
   assert.equal(secrets(c).isForMe(box), false);
@@ -197,4 +199,52 @@ test("sealAll: one text of fixed size with an entry for everyone, whoever it rea
   [swapped.m[b.sid], swapped.m[c.sid]] = [swapped.m[c.sid], swapped.m[b.sid]];
   await assert.rejects(secrets(b).openMine(JSON.stringify(swapped)), /could not be opened/);
   await assert.rejects(secrets(a).sealAll(() => "x".repeat(300), 256), /more than the slot/);
+});
+
+test("a dealt draw: the referee commits first, every listed player contributes, and the deal can be checked after", async () => {
+  const { room, a, b, c } = await three(77);
+  const all = [a, b, c];
+  const secrets = (client: FakeClient) => probe(client).Secrets;
+  const referee = all.find((client) => inst(client, "probe").networking.IsReferee)!;
+  const seated = all.filter((client) => client !== referee);
+
+  secrets(referee).beginDeal("hand1", seated.map((client) => client.sid));
+  assert.equal(secrets(referee).dealDraw("hand1"), null, "nothing to deal before the players have contributed");
+  await room.run(3000);
+  for (const client of all) assert.equal(secrets(client).dealState("hand1"), "ready", client.name);
+  const deck = secrets(referee).dealDraw("hand1")!;
+  assert.ok(deck);
+  for (const client of seated) assert.equal(secrets(client).dealDraw("hand1"), null, "only the referee can compute the deal before the reveal");
+  // The referee committed to its seed before any contribution existed, and every contribution was committed
+  // before any was shown: the referee's commitment is in its leaf, and each contribution in its player's.
+  const order = deck.Ints(10, 52);
+  secrets(referee).revealDeal("hand1");
+  await room.run(1500);
+  for (const client of all) {
+    assert.equal(secrets(client).dealState("hand1"), "revealed");
+    assert.deepEqual(secrets(client).verifyDeal("hand1")!.Ints(10, 52), order, `${client.name} checks the deal`);
+  }
+  // A new deal gives another order (with overwhelming odds).
+  secrets(referee).beginDeal("hand2", seated.map((client) => client.sid));
+  await room.run(3000);
+  assert.notDeepEqual(secrets(referee).dealDraw("hand2")!.Ints(10, 52), order);
+  // A forged reveal (a seed that is not the committed one) does not check out.
+  const leaf = inst(referee, "probe").presence;
+  const deal = leaf.extra(referee.sid, "dl") as Record<string, unknown>;
+  leaf.setExtra("dl", { ...deal, r: "AAAAAAAAAAAAAAAAAAAAAA" });
+  await room.run(1500);
+  for (const client of seated) {
+    assert.equal(secrets(client).dealState("hand2"), "invalid");
+    assert.equal(secrets(client).verifyDeal("hand2"), null);
+  }
+});
+
+test("RandomBytes: the strong generator, seeded in the fake room", async () => {
+  const first = await three(78);
+  const second = await three(78);
+  const bytes = (client: FakeClient) => Array.from(probe(client).Random.Bytes(8));
+  assert.equal(bytes(first.a).length, 8);
+  assert.deepEqual(bytes(first.b), bytes(second.b), "the same seed gives the same bytes");
+  assert.notDeepEqual(bytes(first.a), bytes(first.a));
+  assert.equal(probe(first.c).Secrets.RandomBytes(16).length, 16);
 });
