@@ -12,7 +12,7 @@ Path shorthand: `S/` = `Assets/Scripts/` (a bare `BrickAttach.cs:200` means `S/B
 `Assets/Resources/`, `MS` = `Assets/Scenes/Main Scene.unity`.
 
 Contents: 1 Upstream at a glance, 2 Feature checklist, 3 State and messages, 4 Platform-call census, 5 Object model,
-6 Assets, 7 Translation map, 8 Snippet design, 9 Test plan and results, 10 Changed or left out, risks, questions,
+6 Assets, 7 Translation map, 8 Snippet design, 9 Test plan and results, 10 Changed or left out, risks, trust, next steps,
 11 The Unity kit (editor-verified).
 
 ---
@@ -42,7 +42,10 @@ Contents: 1 Upstream at a glance, 2 Feature checklist, 3 State and messages, 4 P
 | 269 brick FBX files, 10 sounds, textures, fonts, icons (634 Git LFS pointers) | MIT, but the **objects are gone** (HTTP 410) | `altspace/tools/bricks/README.md` | Brick models regenerated (section 6); the rest replaced or dropped |
 
 The port's script (`pk-brick-builder.js`) is MIT: `altspace/ts/script-header.txt` carries the upstream notice and the
-portkit runtime's MIT notice. `altspace/THIRD-PARTY-NOTICES.md` (also in the bundles) lists the sounds.
+build adds portkit's own MIT banner. `altspace/THIRD-PARTY-NOTICES.md` (also in the bundles) lists the models, the
+font (Liberation Sans, OFL 1.1, with its copyright lines) and the sounds; the full licence texts it refers to are in
+`Assets/Kit/Licenses/` (BricksVR MIT, portkit MIT, CC0 1.0 legal code), `Assets/Kit/Sounds/LICENSE-*.txt` (Kenney)
+and TextMesh Pro's `LiberationSans - OFL.txt`, all packed into the bundles.
 
 ---
 
@@ -85,7 +88,7 @@ kit, its graphs and its renderer (not part of this job), or "left out" (section 
 | F18 | The brick turns to the partner's frame plus the quarter turn about the stud axis nearest to how it is held (computed as "farthest, plus 180") | `:337-375,244` | `GetNewRot`, same tie order |
 | F19 | It moves so the first connector sits on its partner, faces touching; the partner is asked again after the brick has been turned (so between two studs it can pick the other) | `:377-402` | same, including the re-ask (found by the golden vectors) |
 | F20 | Side studs take bricks sideways: the partner brick is tilted until the stud points up, the maths is done, the tilt undone | `:212-226`; side studs `R/1x1_1FaceSideStud.prefab` | done in the connector's frame; the tilt's effect on other bricks' and the floor's connectors is reproduced (`untilting`) |
-| F21 | Refused if any of its colliders would hit a brick ("lego" or "placed lego" layers) | `:231-241,263-279` | `BrickStore.collides` against placed bricks |
+| F21 | Refused if any of its colliders would hit a brick ("lego" or "placed lego" layers) | `:231-241,263-279` | `BrickStore.collides` against placed bricks (only their enabled colliders: the disabled root boxes of arches, slopes and the pyramid are not solid), and `BuildArea.LooseBoxes` for bricks in hands or lying loose (the pool slots, "lego"); test `findings.test.ts` 9 |
 | F22 | Refused when the room is locked and the user is not the owner | `:179`; `RoomOwnershipSync.cs:60-73` | `CanBuild()` |
 | F23 | Not attaching: the brick falls with gravity | `:132-136,151-173` | The slot's object is left to Unity physics |
 | F24 | A loose brick despawns after about 6 s still; at most 10 loose bricks per owner, oldest destroyed | `AutoDespawnPhysicsBricks.cs:25-48`; `OwnedPhysicsBricksStore.cs:19,31-69` | `HeldBrick` frees its slot 6 s after a drop; the pool of 12 is the cap |
@@ -108,15 +111,15 @@ kit, its graphs and its renderer (not part of this job), or "left out" (section 
 | # | Statement | Upstream | Port |
 |---|---|---|---|
 | F33 | Gripping a placed brick turns it back into a held brick where it was (and removes it from the server) | `InteractablePlacedBrick.cs:7-12`; `BrickSwapper.cs:94-136`; `QuickInteractor.cs:57-84` | `BuildArea.PickUp` (tombstone + pool slot), wired to the grip button through `BrickAt` |
-| F34 | The hammer: hitting placed bricks turns every placed brick within max(3, 1 x speed) world units into a physics brick and blows them apart | `Hammer.cs:20-49`; `MS:29588-29589` | `BuildArea.Hammer(center, radius)` deletes them (no debris) |
+| F34 | The hammer: hitting placed bricks turns every placed brick within max(3, 1 x speed) world units into a physics brick and blows them apart | `Hammer.cs:20-49`; `MS:29588-29589` | `BuildArea.HammerAt(head, speed)`: the swung hammer removes every placed brick within max(3, speed) upstream units of the brick hit, at most 200 (upstream's overlap buffer), nearest first (no debris, 10.1 C10); the trigger while holding it is a blow at rest (3 units). Desktop hammer mode removes the one brick clicked (C14). Test `findings.test.ts` 6 |
 | F35 | No undo, no redo, no clear-all | whole code base | Unchanged; `Clear()` added for loading a save (10.1 C7) |
 
 ### 2.6 Hand spawner
 
 | # | Statement | Upstream | Port |
 |---|---|---|---|
-| F36 | Holding A/B/X/Y for 30 frames with the hand in a brick (or picker tile) "sets" that button to the brick's type and colour, with a haptic tick | `HandBrickSpawner.cs:53-130` | `BuildArea.OnButtonPressed/Released`, 0.4 s hold, Primary/Secondary per hand |
-| F37 | A short press spawns the set brick at the hand, turned by the brick's spawn rotation | `:130-162` | `Spawn` with `spawnEuler` |
+| F36 | Holding A/B/X/Y for 30 frames with the hand in a brick (or picker tile) "sets" that button to the brick's type and colour, with a haptic tick | `HandBrickSpawner.cs:53-130` | `BuildArea.UpdateSpawners`: after 0.4 s held, the first moment the hand is in a placed brick or on a tile of the shown tab (`TileAt`, the tile's brick in the picker's colour), Primary/Secondary per hand; test `findings.test.ts` 11 |
+| F37 | A short press spawns the set brick at the hand, turned by the brick's spawn rotation and moved by its spawn offset | `:130-162`; `BrickData.cs:74` (1x6 arch) | `Spawn` with `spawnEuler` and `spawnOffset` (times the snippet's scale), only on a press shorter than 0.4 s and with nothing in that hand |
 
 ### 2.7 Rooms, saving, export
 
@@ -129,7 +132,7 @@ kit, its graphs and its renderer (not part of this job), or "left out" (section 
 | F42 | Late join downloads all bricks (`fetch-bricks`), builds them 8 per frame, then recalculates connectors and meshes | `DownloadBricksOnLoad.cs:48-178` | `BuildArea.Start` reads every segment and log in one pass (`BrickLedger` bulk) |
 | F43 | Rooms persist on the server indefinitely | backend | Room state keeps a build 24 h after the last write; plus a save on the device (`Save` / `Load`) (10.1 C6) |
 | F44 | Export: the server builds a file "openable in Blender" at `bricksvr.com/exports/<code>`, at most every 5 minutes | `ExportManager.cs:20-78`; `BrickServerInterface.cs:238-266` | Left out (no backend) |
-| F45 | `BrickObjs/*.pobj`: OBJ-style vertex dumps of 65 bricks, written by an editor tool, presumably for the export service | `Assets/Editor/GenerateObjs.cs:50` | Not used |
+| F45 | `BrickObjs/*.pobj`: OBJ-style vertex dumps of 65 bricks, written by an editor tool, presumably for the export service | `Assets/Editor/GenerateObjs.cs:50` | Not an in-game feature (export is left out). Used as source data: the plant and pyramid models are rebuilt from them (section 6) |
 
 ### 2.8 Ownership and settings
 
@@ -205,9 +208,17 @@ have seen the same records show the same bricks. Two players who place overlappi
 keep them (both passed their own check), as upstream; everyone sees both.
 
 **Flow of one brick**: the author checks it, applies it locally, appends it to their own log (written at most once a
-tick, sent by the app every 0.2 s); everyone reads the log; the referee copies records into the last segment with room
-once a second; the author drops archived records from the log. A log has 12,000 bytes; if it is full, new records wait
-in memory and go in as the archive catches up.
+tick, sent by the app every 0.2 s); everyone reads the log, and takes from it only records under that log's own
+player's key; the referee copies records into the last segment with room once a second; the author drops archived
+records from the log. A log has 12,000 bytes; if it is full, new records wait in memory and go in as the archive
+catches up. A record the store cannot hold (unknown brick type, orientation 24 or more, bad numbers) is refused on
+ingest by every client, so it never reaches the archive.
+
+**A full area**: every client counts what the archive would keep (all records but what garbage collection may drop
+now) against the 24 segments; a new brick is refused once that passes 97 % (the rest is for tombstones, so removing
+bricks always works, and packing slack), and the status line says "AREA FULL: remove bricks to build more". If the
+referee still finds records that do not fit, it keeps what the archive holds, takes what fits and logs a warning once;
+the rest stays in its authors' logs. Upstream had no limit (a cloud database).
 
 **A player leaves**: their user state goes 30 s later (RELAY.md section 3), but every client keeps every record it
 saw, and the referee has archived them within a second of seeing them. If the referee leaves, the next referee
@@ -216,14 +227,15 @@ archives what the old one had not (it knows those records too).
 **Garbage collection**: when a quarter of the archive is deleted bricks (and at least 64 records), the referee
 rewrites the segments without each deleted brick and its tombstone, once no present player's log holds them and the
 tombstone's target author has gone (`BrickLedger.gcable`). Late joiners then never see them; clients that saw them
-saw both halves.
+saw both halves. A tombstone that outlives its brick still counts toward its target author's last number, so an
+author who returns under the same key never reuses a number it covers.
 
 ### 3.3 What the referee does, and when
 
 | Every | What | Cost |
 |---|---|---|
-| 1 s, only if something is new | `Archive()`: append new records, or repack | one space-state batch (the changed segments) |
-| tick | nothing else; there is no per-tick state | |
+| 1 s, only if something is new | `Archive()`: append new records, or repack | one space-state batch (the changed segments; the runtime hands a repack of up to 24 x 14.5 KB over in parts under the relay's 256 KiB message cap, test `repack.test.ts`: 19 segments, largest message 87,681 bytes) |
+| tick | nothing else; there is no per-tick state | clients decode only the segments that changed (`BuildArea.Poll`) |
 
 The game's behaviours sync no other state; `BuildArea` (the manager) has no synced fields.
 
@@ -288,7 +300,7 @@ switches the right one on with the relay op `active` on `@Pool/Held<n>/<prefab>`
 
 | What | State | Replacement |
 |---|---|---|
-| 269 brick FBX (`R/BrickModels/**`) | Git LFS objects gone | **Regenerated** in `altspace/GeneratedBrickModels/` by `altspace/tools/bricks/generate_bricks.py` (headless Blender) from `bricks.json` (92 bricks, 269 files), same GUIDs and fileIDs; verified against all 548 connectors of the 68 held prefabs (`verify_bricks.py`). Variants: `*_Complete` (held, picker, ghost), `*_HollowBody[_NoBevel]` (placed body, open underside), `*_SolidBody[_NoBevel]` (placed body when every socket is covered or on the carpet), `z_Extras/Stud.fbx` (one uncovered stud). See `altspace/tools/bricks/README.md` |
+| 269 brick FBX (`R/BrickModels/**`) | Git LFS objects gone | **Regenerated** in `altspace/GeneratedBrickModels/` by `altspace/tools/bricks/generate_bricks.py` (headless Blender) from `bricks.json` (92 bricks, 269 files), same GUIDs and fileIDs; verified against all 548 connectors of the 68 held prefabs (`verify_bricks.py`). The two plants and the pyramid (4 files) are upstream's own meshes, rebuilt vertex for vertex from `BrickObjs/FlatPlant.pobj`, `ThreeLeafedPlant.pobj` and `1x1Pyramid.pobj` (checked within 1 um); the other 61 dumps match the generated bricks within about 0.5 mm. Variants: `*_Complete` (held, picker, ghost), `*_HollowBody[_NoBevel]` (placed body, open underside), `*_SolidBody[_NoBevel]` (placed body when every socket is covered or on the carpet), `z_Extras/Stud.fbx` (one uncovered stud). See `altspace/tools/bricks/README.md` |
 | 10 sounds (`Resources/Sounds`) | lost | **Replaced** by 9 Kenney CC0 sounds (Casino Audio: `chips-collide-1..3` for the snaps, `chip-lay-1..3` for the carpet; Interface Sounds: `click_001`, `pluck_001`, `confirmation_001`), downloaded from OpenGameArt (Kenney's account), licence texts beside them in `Assets/Kit/Sounds`; `THIRD-PARTY-NOTICES.md`. `spawnset.wav` was unreferenced: not replaced |
 | `Textures/unknown.png` (scratch overlay of every brick) | lost | **Dropped**: the port's brick shader has no scratch texture (upstream's `_ScratchWeighting` 0) |
 | Carpet textures, floor night mode, skybox, reflection probes | lost | URP defaults / the world's own floor |
@@ -296,10 +308,14 @@ switches the right one on with the relay op `active` on `@Pool/Held<n>/<prefab>`
 | Avatar faces (27), Bob | lost | not needed |
 | Fonts (8 TTF) | lost; the TMP SDF assets survive | the kit's TextMesh Pro font |
 | `Prefabs/BrickComponents/*` and `Prefabs/Hammer.prefab` reference model GUIDs that exist nowhere | broken upstream | **Rebuilt**: the kit builder makes the placed-brick meshes (body + `z_Extras/Stud.fbx` per stud) from `ts/render.json` (from `catalogue.json`); the hammer is two primitives |
-| The import | 634 LFS pointers | `altspace/tools/import_upstream_bricks.py`: portkit's importer, then every LFS pointer it copied deleted (69 FBX, 3 WAV, 1 PNG reached by the start prefabs) and `GeneratedBrickModels/**` laid in with the upstream `.meta` files |
+| The import | 634 LFS pointers | `altspace/tools/import_upstream_bricks.py`: portkit's importer (which skips LFS pointers: 73 reached by the start prefabs) and `GeneratedBrickModels/**` laid in with the upstream `.meta` files |
 
 `altspace/ts/src/catalogue.json` (66 bricks, 543 connectors) is generated by `altspace/tools/bricks/extract_catalogue.py`
-from `BrickData.cs`, the prefabs and `bricks.json`; its order is the wire format's type number (append only).
+from `BrickData.cs`, the prefabs and `bricks.json`; its order is the wire format's type number (append only). Each
+brick's connectors are in Unity's child order (`m_Children`), which is what `BrickAttachDetector.OnValidate` serializes
+into `_maleConnectors` / `_femaleConnectors` and so decides `connectorsToUse[0]`; the extractor checks it against the
+serialized lists (132 of 132 agree; the first catalogue had YAML document order, and 81 lists differed). The placed
+colliders are the enabled ones only (10 disabled root boxes left out).
 
 ---
 
@@ -327,7 +343,7 @@ from `BrickData.cs`, the prefabs and `bricks.json`; its order is the wire format
 <bs-snippet name="brick-builder" room="" width="64" depth="64" height="480" performance="false"
             position="0 0 0" rotation="0 0 0">
   <bs-gizmo type="position" attribute="position"/>
-  <bs-gizmo type="box" attribute="position" size="3.6 0.2 4.6"/>   <!-- the kit's footprint at the default 64 x 64 studs (a gizmo cannot follow width / depth) -->
+  <bs-gizmo type="box" attribute="position" size="3.584 0.2 3.584"/>   <!-- the build area at the default 64 x 64 studs (BrickKitBuilder.GizmoSize; a gizmo cannot follow width / depth) -->
 </bs-snippet>
 ```
 
@@ -348,7 +364,7 @@ leaf (plus the runtime's announcement leaf). Networked objects: 12 per area (the
 
 ## 9. Test plan and results
 
-`cd altspace/ts && npm test` (typecheck, lint, 22 tests), run on portkit `1118ef0` (re-synced). The game sends no
+`cd altspace/ts && npm test` (typecheck, lint, 38 tests), run on portkit `812f285` (re-synced). The game sends no
 network events and no commands (all its state is fields), so it declares no `networkCallable` methods; its only relay
 op is the standard `active` on `@` paths, so it needs no `Host.op` or `defineRelayOp`. `npm run golden` regenerates the vectors with dotnet 8.
 `npm run build` writes `../Assets/WebRoot/pk-brick-builder.js`; this job built it to a scratch folder instead:
@@ -358,20 +374,26 @@ op is the standard `active` on `@` paths, so it needs no `Host.op` or `defineRel
 
 `ts/golden/Golden.csproj` compiles `S/BrickAttachDetector.cs`, `S/LegoConnectorScript.cs` and `S/ColorInt.cs`
 **unchanged** against `ts/golden/BrickStubs.cs` (Transform hierarchy with Unity's Euler conventions, quaternions,
-`Physics.CheckBox` / `OverlapBoxNonAlloc` as exact oriented-box tests, inert XR and Normcore stubs). `Harness.cs` builds
-bricks from `catalogue.json` as their prefabs are built, fills each connector's `connectorsCollidingWith` the way the
-trigger callbacks would, calls `RecalculateEnabled` and `CheckIfCanConnect`, and writes `ts/vectors/upstream.json`
-(650 situations, 509 attach; 64 colours). `test/golden.test.ts` plays them through the TypeScript.
+`Physics.CheckBox` / `OverlapBoxNonAlloc` as exact oriented-box tests over enabled colliders on active objects, inert
+XR and Normcore stubs). `Harness.cs` builds every brick **from its upstream prefab** (`golden/PrefabYaml.cs` reads the
+held and placed prefab YAML: transforms in child order, BoxColliders with `m_Enabled` and `m_IsTrigger`, the
+serialized `_maleConnectors` / `_femaleConnectors` / `colliders` / `tile` / `window` / `heightOverride`), so the vectors
+do not share the port's catalogue (the catalogue only chooses the situations). It fills each connector's
+`connectorsCollidingWith` the way the trigger callbacks would, calls `RecalculateEnabled` and `CheckIfCanConnect`, and
+writes `ts/vectors/upstream.json` (650 situations, 503 attach; 64 colours; cover flags keyed by connector position).
+`test/golden.test.ts` plays them through the TypeScript; `test/catalogue.test.ts` checks the catalogue's connector
+order and obstacles against the prefabs with its own YAML reading. With the first catalogue (document order, disabled
+boxes solid) the new vectors give 163 disagreements and the catalogue tests fail; with the fixed one all agree.
 
 | Set | Cases | Result |
 |---|---|---|
 | let go above the carpet | 150 | all agree; worst position difference 0.86 u (0.09 mm of mesh) |
-| onto a placed brick (40 % with a second brick stacked on it) | 220 | all agree (attach or not, rotation, direction, position within 1.41 u, every cover flag) |
+| onto a placed brick (40 % with a second brick stacked on it) | 220 | all agree (attach or not, rotation, direction, position within 1.18 u, every cover flag) |
 | up into the sockets of a brick | 80 | all agree, worst 0.57 u |
-| onto a side stud | 80 | all agree except the deliberate refusals below, worst 1.41 u |
+| onto a side stud | 80 | all agree except the deliberate refusals below, worst 2.13 u |
 | anywhere, any rotation, near a small build | 120 | all agree except as below |
-| deliberate: port refuses because the brick would reach below the carpet | 16 | checked to agree when the floor rule is switched off |
-| deliberate: a held brick's own side stud into a socket | 1 | upstream ignores that connector's frame (10.1 C4) |
+| deliberate: port refuses because the brick would reach below the carpet | 13 | checked to agree (position, rotation, direction) when the floor rule is switched off |
+| deliberate: a held brick's own side stud into a socket | 0 | exempt only when the harness reports upstream went by that side stud (10.1 C4); none in this set |
 | ColorInt | 64 | all agree |
 
 The vectors found two real bugs in the first TypeScript, both fixed: upstream asks for the closest partner again
@@ -398,6 +420,7 @@ trigger cubes.
 | N9 | the owner locks: a member cannot place or unlock | as stated |
 | N10 | hammer 75 of 400, author leaves | the 75 deleted bricks leave the archive (repacked by the referee while the author was still there); the 75 tombstones stay until they are a quarter of the archive; a joiner rebuilds the 325 |
 | N11 | a non-referee loads a 2,000-brick save at once | the other player has all 2,000 after 2.8 s (virtual): **3 space-state batches and 4 user-state writes**, largest log leaf 11,708 bytes, no rate limiting (plan's spike: at most 100 batches) |
+| N12 | the review's findings 3-15 (`findings.test.ts`, `repack.test.ts`; each fails on the code before its fix) | a full archive refuses with a notice and loses nothing; bad records refused; the hammer's blast; pick-up needs a slot, a leaver's slot is freed; logs speak only for their player; loose bricks block; one segment decoded per write; the hand spawner; a 19-segment repack in parts; tombstone numbers not reused |
 
 ### 9.3 Unity (rungs 2 to 4)
 
@@ -420,7 +443,7 @@ Run in the Unity phase: `altspace/TESTS.md` (rung 2 PASS, rendering spike PASS w
 | C7 | `Clear()` (range tombstones) added, used by loading a save | loading replaces the build |
 | C8 | Lock and unlock by the world's owner and moderators (protected state); upstream let anyone lock | a public key could be written by anyone |
 | C9 | Held and loose bricks are a pool of 12 per area; snapping onto a loose brick is gone | pool instead of instantiating network objects |
-| C10 | Hammer deletes instead of exploding into physics bricks | no physics bricks to spare |
+| C10 | Hammer deletes (the same radius and 200-brick cap as upstream) instead of exploding into physics bricks | no physics bricks to spare |
 | C11 | `texOffset` from the brick id (same on every client) instead of `Random` per client | deterministic look (unused while there is no scratch texture) |
 | C12 | Placed bricks are drawn as one merged mesh per chunk, built by the kit's relay graph from brick records (`bricks` op); colour per brick in UV1 | the relay cannot carry meshes, MaterialPropertyBlock is not on the allow list; 8 draws for 2,000 bricks (11, TESTS.md) |
 | C13 | Studs are all or nothing per brick (4 meshes per type), not one per uncovered stud | a mesh per look without a mesh cache; covered studs are hidden inside the brick above |
@@ -449,10 +472,27 @@ placements, render distance.
 | R3 | No `ForceSelect`. `GameObject.AttachToHand` was tried in Play mode (TESTS.md, rung 3): the slot moved to the desktop player's hand anchor and was let go again. The kit uses it for a brick gripped from the build and a tile clicked in VR, released on grip up; with controllers it is unverified |
 | R4 | A record queued but not yet sent when its author's page closes (under 0.2 s) is lost; the archive catches everything sent |
 | R5 | Two players placing overlapping bricks at once both keep them (upstream did the same) |
-| R6 | 24 segments hold about 16,000 records per area; a full archive refuses to archive more (an error is logged) |
+| R6 | 24 segments hold about 16,000 records per area (bricks plus tombstones not yet collected). Past 97 % new bricks are refused with "AREA FULL" on the status line; removing still works and garbage collection makes room once the deleted bricks' authors have left (3.2) |
 | R7 | Page timer rates and bridge latency in the app are unproven until rung 5 |
 
-### 10.4 Next steps
+### 10.4 Trust: what a modified client can still do
+
+Upstream trusted every client too (Normcore RPCs, a backend that took any brick). Closed in the port: a record in a
+player's log counts only under that player's own key (the relay ties user state to its sender), so nobody can place
+or delete in someone else's name or pre-empt someone's record number with a copy of their own (finding 8,
+`findings.test.ts` 8); records the store cannot hold are refused on ingest (finding 4); the lock is protected state,
+so only the world's owner and moderators can lock or unlock (C8). What a modified client can still do, compared with
+upstream:
+
+| What | Why it stays open | Compared with upstream |
+|---|---|---|
+| Build or remove while the area is locked | `CanBuild` is checked by the builder's own client; a reader cannot tell when a record was made, so it cannot drop records made while locked without dropping honest ones made just before the lock | the same (upstream's lock was client-side too, and anyone could lock) |
+| Remove any brick, or every brick (`Clear` range tombstones under its own key) | deleting is open to every builder by design, as upstream | the same; tombstones name their author, so it is visible who removed what |
+| Write records into the archive segments (public space state) under any author's key | space state is writable by any client (portkit README, Trust), and the archive holds every author's records, so its records cannot be checked against a sender | upstream's backend took any brick from any client. A wiped or shortened archive is repaired: clients that saw a record keep it (the ledger only grows) and the referee writes back, within a second, every record it knows that the segments lack |
+| Flood its own log or the archive to fill the area | per-player limits would refuse honest large builds | upstream had no limit at all; here a full area refuses new bricks for everyone until bricks are removed |
+| Hold every pool slot | slots are claimed by ownership like any synced object | upstream let a client instantiate without limit |
+
+### 10.5 Next steps
 
 Rung 5 (app and Quest) once Shane opens the world: Quest frame time with a big build, the late-join merge on IL2CPP, the
 VR paths (grip pick-up into the hand, hand spawner, laser tile, swinging the hammer, the ghost), and the snippet's
@@ -471,7 +511,7 @@ Evidence: `altspace/TESTS.md`.
 
 `python altspace/tools/import_upstream_bricks.py` runs portkit's importer with `upstream_import.json` (start files: the
 66 types' held and placed prefabs, `Prefabs/BrickComponents/*`, `Prefabs/Hammer.prefab`; 170 data-only stand-ins from
-`Assets/Scripts`, which compile), then deletes the LFS pointers it copied and lays `GeneratedBrickModels/**` in at
+`Assets/Scripts`, which compile; the importer skips the 73 LFS pointers it meets), then lays `GeneratedBrickModels/**` in at
 `Assets/Upstream/Assets/Resources/BrickModels` with the upstream `.meta` files. In Unity (`PortKit/Bricks/Check Models`):
 269 of 269 models import, the 18 `internalIDToNameTable` meshes resolve to their upstream fileIDs, every upstream
 fileID resolves, and every slope faces the way its studs (or wall collider) say. The kit itself is built from
@@ -510,11 +550,16 @@ needed 1,004 to 1,133 batches. Numbers, method and the rejected options: TESTS.m
 | Colour | click a swatch, drag the sliders | the same |
 | Place | let go of a held brick near studs (snap, ghost while held) | click the carpet or a brick's top; Rotate turns it |
 | Take a brick off the build | grip with the hand inside it: it comes into the hand | Hammer mode and click it (removes it) |
-| Remove | swing the hammer into it, or pull the trigger while holding the hammer | Hammer mode and click |
-| Hand spawner | hold A/B/X/Y 0.4 s inside a brick to set, press to spawn | (none) |
+| Remove | swing the hammer into the build (every brick within its blast, at most 200), or pull the trigger while holding it (the smallest blast) | Hammer mode and click (one brick) |
+| Hand spawner | hold A/B/X/Y 0.4 s inside a brick or on a picker tile to set, press to spawn | (none) |
 | Lock, save, load | buttons | buttons |
 
 ### 11.5 Kit gaps found (portkit, not edited here)
+
+All six were closed by the kit pass (portkit `d8f370d`, `f3eaaa1`; GAPS.md) and this port now uses the fixes: the
+importer skips LFS pointers, `remote.sh compile` reports compile errors (no log grep), `GraphWriter.NewStruct` /
+`SetChained` / `SetListItem` / `NewList` replace the builder's own graph code, the README documents `whenEmpty`, and
+the builder sets `GizmoSize` and `PhotoRoot`.
 
 | Gap | Where | Proposed fix |
 |---|---|---|
