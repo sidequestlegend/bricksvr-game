@@ -1,0 +1,11 @@
+{
+  "name": "brick-single",
+  "timeout": 420,
+  "players": 1,
+  "elements": [
+    "<script>window.__brickPlan = \"single\";</script>",
+    "<script src=\"{SERVER}/web/playtest/brick-rungs.js\"></script>",
+    "<script src=\"{SERVER}/web/playtest/brick-playtest.js\"></script>",
+    "<bs-snippet name=\"brick-builder\" title=\"Brick Builder\" script=\"{SERVER}/web/pk-brick-builder.js\" position=\"0 0 0\" rotation=\"0 0 0\" windows=\"{SERVER}/kits/windows/brick-builder\" android=\"{SERVER}/kits/android/brick-builder\"></bs-snippet>"
+  ]
+}

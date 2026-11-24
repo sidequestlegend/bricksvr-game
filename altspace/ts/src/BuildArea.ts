@@ -7,15 +7,16 @@
 // State (see PORT.md 3): each player's records in their own BrickLog (user state), the archive in BrickSegment
 // leaves (space state, referee-written), the lock in protected state. This behaviour itself syncs nothing.
 
-import { Behaviour, Button, type ButtonName, type HandSide, Quaternion, Vector3 } from "../portkit/src/index.ts";
+import { type AudioClipRef, type AudioSourceRef, Behaviour, Button, type ButtonName, Color, type GameObject, type HandSide, type HostEventDetail, Quaternion, type TextRef, Vector3 } from "../portkit/src/index.ts";
 import { CheckIfCanConnect, type HeldPose, heldBoxesAt, type Snap } from "./BrickAttachDetector.ts";
-import { BRICKS } from "./BrickData.ts";
+import { BRICKS, BricksForCategory, CATEGORIES } from "./BrickData.ts";
 import { BrickLedger } from "./BrickLedger.ts";
 import type { BrickLog } from "./BrickLog.ts";
 import { type BrickRecord, decode, encode, MAX_SEQ, type Packed, PLACE_CHARS, placeable, type PlaceRecord, recordId, seqOf, TOMB_CHARS } from "./BrickRecords.ts";
 import type { BrickSegment } from "./BrickSegment.ts";
+import { BrickRenderer } from "./BrickRenderer.ts";
 import { type RenderChunk, renderChunk } from "./ChunkedRenderer.ts";
-import { rgbOf } from "./ColorInt.ts";
+import { argbOf, rgbOf } from "./ColorInt.ts";
 import type { HeldBrick } from "./HeldBrick.ts";
 import { MESH_M_PER_U, ORIS, type Q, qinv, qmul, qrot, U_PER_PLATE, U_PER_STUD, type V3 } from "./Lattice.ts";
 
@@ -49,8 +50,41 @@ export class BuildArea extends Behaviour {
   performanceMode = false;
   /** The ghost the held brick would snap to (ShowSnappableBrickPositions.cs), local only. */
   ghost: Snap | null = null;
+  /** The type of the brick the ghost is for. */
+  ghostType = -1;
 
   readonly stats = { placed: 0, deleted: 0, refused: 0, archiveWrites: 0, logWrites: 0, repacks: 0, rebuildRecords: 0 };
+
+  // ---- kit objects (bindings fields; null in a bench without a kit) ----
+  /** The ghost: one child per brick prefab (Complete mesh, see-through), shown where a held brick would snap. */
+  ghostObject: GameObject | null = null;
+  /** The area's sound source and its clips (Assets/Kit/Sounds, CC0, replacing upstream's lost Resources/Sounds). */
+  audio: AudioSourceRef | null = null;
+  snapClips: AudioClipRef[] = [];
+  carpetClips: AudioClipRef[] = [];
+  clickClip: AudioClipRef | null = null;
+  spawnClip: AudioClipRef | null = null;
+  successClip: AudioClipRef | null = null;
+  /** The picker's status line. */
+  status: TextRef | null = null;
+
+  // ---- the local player's picker (upstream BrickPickerManager: per player, nothing synced) ----
+  /** The brick type the picker has selected (desktop: what a click on the build places). */
+  selectedType = 0;
+  /** ARGB colour of the picker (BrickPickerManager's HSV sliders and save spots). */
+  color = argbOf(0xc91a09);
+  /** Quarter turns about Y for what a click places (desktop). */
+  yaw = 0;
+  /** Desktop hammer: while on, a click on a placed brick removes it (the VR hammer is the grabbable one). */
+  hammerMode = false;
+  category = 0;
+  readonly hsv = { h: 0, s: 0.95, v: 0.79 };
+
+  renderer: BrickRenderer | null = null;
+  private shownGhost = -1;
+  private statusText = "";
+  /** Slots this player holds through AttachToHand (VR: a brick put straight into the hand), by hand side. */
+  private readonly attached = new Map<number, HeldBrick>();
 
   private areaPos = Vector3.zero;
   private areaRot = Quaternion.identity;
@@ -75,7 +109,9 @@ export class BuildArea extends Behaviour {
     const width = Math.min(800, Math.round(num("width", 64)));
     const depth = Math.min(800, Math.round(num("depth", 64)));
     const height = Math.min(1000, Math.round(num("height", 480)));
-    this.scale = num("scale", 7);
+    // The snippet's `scale` attribute scales the holder (portkit: position / rotation / scale), so it multiplies the
+    // kit's own size: the kit is built at upstream's size (meshes at 7x, a stud 5.6 cm).
+    this.scale = 7 * num("scale", 1);
     this.performanceMode = this.Settings.get("performance") === "true";
     this.ledger = new BrickLedger({ halfX: (width * U_PER_STUD) / 2, halfZ: (depth * U_PER_STUD) / 2, height: height * U_PER_PLATE });
     this.segments = this.FindBehavioursOfType<BrickSegment>("BrickSegment").sort((a, b) => a.index - b.index);
@@ -86,7 +122,20 @@ export class BuildArea extends Behaviour {
     this.Poll(true);
     const mine = this.myLogBehaviour();
     if (mine) this.myLog = decode({ a: mine.a, r: mine.r }).filter((r) => r.author === this.author);
+    this.renderer = new BrickRenderer(this.Host);
+    this.RegisterGraphEvent("chunk", "ChunkBuilt");
+    const k = (7 * 80 * 1e-4);
+    this.Host.scale("@Area/Carpet", new Vector3(width * k, 0.02, depth * k));
+    this.selectedType = BricksForCategory(CATEGORIES[0]!)[0]?.type ?? 0;
+    this.ShowCategory(0);
+    this.ShowColor();
     this.started = true;
+    this.UpdateStatus();
+  }
+
+  /** The relay graph built a chunk: "<chunk name>|<ms merging>|<records>|<ms cooking its collider>". */
+  ChunkBuilt(name: string, ms: string, records: string, colliderMs?: string): void {
+    this.renderer?.reported(name, Number(ms), Number(records), this.Time.time, Number(colliderMs ?? 0));
   }
 
   get author(): string {
@@ -145,6 +194,9 @@ export class BuildArea extends Behaviour {
   override Update(): void {
     if (!this.started) return;
     this.Poll(false);
+    this.renderer?.update(this.RenderChunks());
+    this.ShowGhost();
+    this.UpdateStatus();
     if (this.Networking.IsReferee && (this.lastArchive < 0 || this.Time.time - this.lastArchive >= ARCHIVE_SECONDS)) {
       this.lastArchive = this.Time.time;
       this.Archive();
@@ -254,7 +306,9 @@ export class BuildArea extends Behaviour {
   ReleaseLocal(held: HeldPose, color: number): Snap | null {
     const snap = CheckIfCanConnect(this.ledger.store, held, this.CanBuild());
     if (!snap) return null;
-    return this.Place(held.type, snap.ori, snap.pos, color, false) ? snap : null;
+    if (!this.Place(held.type, snap.ori, snap.pos, color, false)) return null;
+    this.PlacedSound(snap.pos[1] + BRICKS[held.type]!.bottomPlates * U_PER_PLATE <= 1);
+    return snap;
   }
 
   /** The same from a world pose (HeldBrick.OnDrop). */
@@ -263,7 +317,13 @@ export class BuildArea extends Behaviour {
   }
 
   /** Where the brick in the hand would go (the ghost), recomputed while it is held. */
+  /** Nothing is held here any more: no ghost. */
+  HeldGone(): void {
+    this.ghost = null;
+  }
+
   HeldMoved(slot: HeldBrick): void {
+    this.ghostType = slot.t;
     this.ghost = CheckIfCanConnect(this.ledger.store, this.ToLocal(slot.t, slot.transform.position, slot.transform.rotation), this.CanBuild());
   }
 
@@ -363,13 +423,23 @@ export class BuildArea extends Behaviour {
     if (!hand) return;
     if (button === Button.Grip) {
       const id = this.BrickAt(hand);
-      if (id) this.PickUp(id);
+      const slot = id ? this.PickUp(id) : null;
+      // XR ForceSelect upstream (BrickSwapper.SwapToRealBrick): the brick goes straight into the gripping hand
+      if (slot) this.IntoHand(slot, side);
       return;
     }
     if (button === Button.Primary || button === Button.Secondary) this.spawner(button, side).downAt = this.Time.time;
   }
 
   override OnButtonReleased(button: ButtonName, side: HandSide): void {
+    if (button === Button.Grip) {
+      const slot = this.attached.get(side);
+      if (slot) {
+        this.attached.delete(side);
+        slot.LetGoOfHand();
+      }
+      return;
+    }
     if (button !== Button.Primary && button !== Button.Secondary) return;
     const slot = this.spawner(button, side);
     if (slot.downAt < 0) return;
@@ -433,6 +503,189 @@ export class BuildArea extends Behaviour {
   /** Chunks to re-mesh since the last call (ChunkedRenderer.ts). An empty chunk means: remove its mesh. */
   RenderChunks(): RenderChunk[] {
     return this.ledger.store.takeDirtyChunks().map((key) => renderChunk(key, this.ledger.store.inChunk(key), this.performanceMode));
+  }
+
+  // ---- the picker, the palette, the tools (BrickPickerManager, ColorPickerSaveSpot, Hammer, RoomOwnershipSync) ------
+
+  /** A picker tile was clicked: select that brick; in VR it also comes to the hand (BrickPickerBrick.Interact). */
+  TileClicked(type: number): void {
+    if (!BRICKS[type]) return;
+    this.selectedType = type;
+    this.Play(this.clickClip);
+    const side = this.Input.LastClickSide;
+    const poses = this.Input.Poses;
+    if (this.Input.IsVR && side !== null && poses) {
+      const pose = side === 0 ? poses.leftHand : poses.rightHand;
+      const def = BRICKS[type]!;
+      const slot = this.Spawn(type, this.color, pose.position, pose.rotation.mul(Quaternion.Euler(def.spawnEuler[0], def.spawnEuler[1], def.spawnEuler[2])));
+      if (slot) {
+        this.Play(this.spawnClip);
+        this.IntoHand(slot, side);
+      }
+    }
+    this.UpdateStatus();
+  }
+
+  /** A category tab (SelectedCategoryManager): one group of tiles is shown. */
+  ShowCategory(index: number): void {
+    if (index < 0 || index >= CATEGORIES.length) return;
+    this.category = index;
+    for (let k = 0; k < CATEGORIES.length; k++) {
+      this.Host.setActive(`@Picker/Cat${k}`, k === index);
+      this.Host.setActive(`@Picker/Tabs/Tab${k}/Marker`, k === index);
+    }
+  }
+
+  /** A palette swatch (upstream's colour save spots): the picker's colour. */
+  SetColorRgb(rgb: number): void {
+    this.color = argbOf(rgb & 0xffffff);
+    const hsv = Color.RGBToHSV(this.rgbColor(rgb));
+    this.hsv.h = hsv[0];
+    this.hsv.s = hsv[1];
+    this.hsv.v = hsv[2];
+    this.Play(this.clickClip);
+    this.ShowColor();
+  }
+
+  /** BrickPickerManager's HSV sliders: one of them moved (0 hue, 1 saturation, 2 value). */
+  SetHsv(which: number, value: number): void {
+    const v = Math.min(1, Math.max(0, value));
+    if (which === 0) this.hsv.h = v;
+    else if (which === 1) this.hsv.s = v;
+    else this.hsv.v = v;
+    const c = Color.HSVToRGB(this.hsv.h, this.hsv.s, this.hsv.v, false);
+    this.color = argbOf((Math.round(c.r * 255) << 16) | (Math.round(c.g * 255) << 8) | Math.round(c.b * 255));
+    this.ShowColor(false);
+  }
+
+  private rgbColor(rgb: number): Color {
+    return new Color(((rgb >> 16) & 255) / 255, ((rgb >> 8) & 255) / 255, (rgb & 255) / 255, 1);
+  }
+
+  /** The preview swatch and every picker tile show the colour (BrickPickerManager.UpdateBrickColors). */
+  private ShowColor(sliders = true): void {
+    const c = this.rgbColor(this.color);
+    this.Host.op("tint", "@Picker/Cat0", [c.r.toFixed(4), c.g.toFixed(4), c.b.toFixed(4)], "tint");
+    if (sliders) {
+      this.Host.uiSetSlider("@Picker/Sliders/Hue", this.hsv.h);
+      this.Host.uiSetSlider("@Picker/Sliders/Saturation", this.hsv.s);
+      this.Host.uiSetSlider("@Picker/Sliders/Value", this.hsv.v);
+    }
+  }
+
+  HueChanged(value: number): void {
+    this.SetHsv(0, value);
+  }
+  SaturationChanged(value: number): void {
+    this.SetHsv(1, value);
+  }
+  ValueChanged(value: number): void {
+    this.SetHsv(2, value);
+  }
+
+  /** A tool button: "hammer" (desktop hammer mode), "rotate", "lock", "save", "load". */
+  Tool(name: string): void {
+    this.Play(this.clickClip);
+    if (name === "hammer") this.hammerMode = !this.hammerMode;
+    else if (name === "rotate") this.yaw = (this.yaw + 1) % 4;
+    else if (name === "lock" && this.Protected.CanWrite) this.SetLocked(!this.Protected.Get("locked", false));
+    else if (name === "save") this.Save();
+    else if (name === "load" && this.Load() >= 0) this.Play(this.successClip);
+    this.Host.setActive("@Tools/HammerButton/On", this.hammerMode);
+    this.UpdateStatus();
+  }
+
+  /**
+   * A click on the carpet or on the build (desktop, or a VR laser): with the hammer on, the placed brick clicked goes;
+   * else the selected brick goes on the face clicked, snapped as a brick let go just above it would be.
+   */
+  SurfaceClicked(detail: HostEventDetail): void {
+    if (!detail || !detail.point) return;
+    const p = this.ToLocal(0, detail.point, Quaternion.identity).pos;
+    const nWorld = detail.normal ?? Vector3.up;
+    const inv = qinv([this.areaRot.x, this.areaRot.y, this.areaRot.z, this.areaRot.w]);
+    const n = qrot(inv, [nWorld.x, nWorld.y, nWorld.z]);
+    if (this.hammerMode) {
+      const id = this.BrickAt([p[0] - n[0] * 12, p[1] - n[1] * 12, p[2] - n[2] * 12], 12);
+      if (id && this.Delete([id])) this.Play(this.carpetClips[0] ?? null);
+      return;
+    }
+    if (n[1] < 0.5) return;
+    this.PlaceAt(this.selectedType, p, this.yaw, this.color);
+  }
+
+  /** A brick on a horizontal face at `p` (u): tried at the half-stud alignments nearest the point. */
+  PlaceAt(type: number, p: V3, yaw: number, color: number): Snap | null {
+    const def = BRICKS[type];
+    if (!def) return null;
+    const rootY = p[1] - def.bottomPlates * U_PER_PLATE + 4;
+    const q = ORIS[yaw & 3]!.q;
+    const half = U_PER_STUD / 2;
+    const bx = Math.round(p[0] / half) * half;
+    const bz = Math.round(p[2] / half) * half;
+    const tries: V3[] = [];
+    for (const dx of [0, half, -half]) for (const dz of [0, half, -half]) tries.push([bx + dx, rootY, bz + dz]);
+    tries.sort((a, b) => Math.hypot(a[0] - p[0], a[2] - p[2]) - Math.hypot(b[0] - p[0], b[2] - p[2]));
+    for (const pos of tries) {
+      const snap = this.ReleaseLocal({ type, pos, q }, color);
+      if (snap) return snap;
+    }
+    return null;
+  }
+
+  /** The grabbable hammer's head hit the build (Hammer.OnCollisionEnter): the brick it is in goes. */
+  HammerAt(world: Vector3, radiusU = 30): number {
+    const p = this.ToLocal(0, world, Quaternion.identity).pos;
+    const id = this.BrickAt(p, radiusU);
+    if (!id) return 0;
+    const n = this.Delete([id]);
+    if (n) this.Play(this.carpetClips[1] ?? null);
+    return n;
+  }
+
+  /** AttachToHand: the slot follows the hand until the grip is let go (XR's ForceSelect upstream). */
+  IntoHand(slot: HeldBrick, side: HandSide): void {
+    this.attached.set(side, slot);
+    slot.AttachTo(side);
+  }
+
+  private Play(clip: AudioClipRef | null): void {
+    if (clip && this.audio) this.audio.PlayOneShot(clip);
+  }
+
+  /** A placement made by this player: upstream's snap sound (PlacedBrickCreator.cs:323-335), carpet or brick. */
+  PlacedSound(onFloor: boolean): void {
+    const list = onFloor ? this.carpetClips : this.snapClips;
+    if (list.length) this.Play(list[Math.floor(this.Random.value * list.length) % list.length]!);
+  }
+
+  /** The ghost (ShowSnappableBrickPositions): where the held brick would snap, drawn see-through. */
+  private ShowGhost(): void {
+    const g = this.ghost;
+    const want = g && this.ghostObject && BRICKS[this.ghostType] ? this.ghostType : -1;
+    if (want !== this.shownGhost) {
+      if (this.shownGhost >= 0) this.Host.setActive(`@Ghost/${BRICKS[this.shownGhost]!.prefab}`, false);
+      if (want >= 0) this.Host.setActive(`@Ghost/${BRICKS[want]!.prefab}`, true);
+      this.shownGhost = want;
+    }
+    if (g && want >= 0 && this.ghostObject) {
+      const { position, rotation } = this.ToWorld(g.pos, ORIS[g.ori]!.q);
+      this.ghostObject.transform.SetPositionAndRotation(position, rotation);
+    }
+  }
+
+  private UpdateStatus(): void {
+    if (!this.status) return;
+    const def = BRICKS[this.selectedType];
+    const locked = this.Protected.Get("locked", false);
+    const text =
+      `${def ? def.display : ""}   ${this.ledger ? this.ledger.store.count : 0} bricks` +
+      (this.hammerMode ? "   HAMMER" : "") +
+      (locked ? (this.Protected.CanWrite ? "   locked (you may build)" : "   locked by the owner") : "");
+    if (text !== this.statusText) {
+      this.statusText = text;
+      this.status.text = text;
+    }
   }
 
   // ---- saving on the device ---------------------------------------------------------------------------------------

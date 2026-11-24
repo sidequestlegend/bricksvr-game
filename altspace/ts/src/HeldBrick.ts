@@ -10,7 +10,7 @@
 // is free again. If not, the brick lies where physics leaves it and the slot frees itself after 6 s untouched
 // (AutoDespawnPhysicsBricks.cs:25-48: "6 s stationary"), or when someone grabs it again.
 
-import { Behaviour, type DeserializationResult, Quaternion, Vector3 } from "../portkit/src/index.ts";
+import { Behaviour, Color, type DeserializationResult, type HandSide, Quaternion, Vector3 } from "../portkit/src/index.ts";
 import { BRICKS } from "./BrickData.ts";
 import type { BuildArea } from "./BuildArea.ts";
 
@@ -33,6 +33,9 @@ export class HeldBrick extends Behaviour {
   held = false;
   private looseSince = -1;
   private shown = -1;
+  private shownColor = -1;
+  /** The hand this client attached it to (AttachToHand), or -1. */
+  private attachedSide = -1;
 
   private get area(): BuildArea {
     return this.FindBehavioursOfType<BuildArea>("BuildArea")[0]!;
@@ -75,10 +78,30 @@ export class HeldBrick extends Behaviour {
     this.RequestSerialization();
   }
 
+  /**
+   * The local hand holds it through AttachToHand (BS.AttachedObject: the brick follows the hand, no grab), as upstream
+   * puts a brick taken from the build or the picker straight into the gripping hand (XR ForceSelect).
+   */
+  AttachTo(side: HandSide): void {
+    if (this.t < 0) return;
+    this.OnPickup();
+    this.attachedSide = side;
+    this.gameObject.AttachToHand(side as 0 | 1);
+  }
+
+  /** The grip that holds an attached brick was let go: it is released where it is (snaps, or lies loose). */
+  LetGoOfHand(): void {
+    if (this.attachedSide < 0) return;
+    this.attachedSide = -1;
+    this.gameObject.Detach();
+    void this.transform.Refresh().then(() => this.OnDrop());
+  }
+
   /** BrickAttachDetector.BrickReleased. */
   override OnDrop(): void {
     if (!this.held || this.t < 0) return;
     this.held = false;
+    this.area.HeldGone();
     const snapped = this.area.Release(this.t, this.c, this.transform.position, this.transform.rotation);
     if (snapped) {
       this.Free();
@@ -105,8 +128,13 @@ export class HeldBrick extends Behaviour {
 
   /** The slot's object is on while it is a brick, and shows that brick's mesh. */
   private Show(): void {
-    if (this.shown === this.t) return;
     const path = this.gameObject.key ? `@Pool/Held${this.index}` : "";
+    if (this.t >= 0 && path && (this.shown !== this.t || this.shownColor !== this.c)) {
+      const rgb = this.c & 0xffffff;
+      this.Host.setColor(`${path}/${BRICKS[this.t]!.prefab}`, "_BaseColor", new Color(((rgb >> 16) & 255) / 255, ((rgb >> 8) & 255) / 255, (rgb & 255) / 255, 1));
+      this.shownColor = this.c;
+    }
+    if (this.shown === this.t) return;
     if (this.shown >= 0 && path) this.Host.setActive(`${path}/${BRICKS[this.shown]!.prefab}`, false);
     if (this.t >= 0 && path) this.Host.setActive(`${path}/${BRICKS[this.t]!.prefab}`, true);
     this.gameObject.SetActive(this.t >= 0);

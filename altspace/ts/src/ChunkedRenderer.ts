@@ -27,6 +27,8 @@ export interface RenderBrick {
   /** Position (u) and rotation in the build area's space. */
   pos: V3;
   rot: Q;
+  /** Orientation number (Lattice.ORIS). */
+  ori: number;
   /** 0xRRGGBB. */
   rgb: number;
   /** `_TexOffset` of PerInstanceColor.shader (BrickAttach.cs:194). */
@@ -81,6 +83,7 @@ export function renderBrick(b: Lookable, performanceMode = false): RenderBrick {
     type: b.type,
     pos: [b.pos[0], b.pos[1], b.pos[2]],
     rot: ORIS[b.ori]!.q,
+    ori: b.ori,
     rgb: b.color & 0xffffff,
     texOffset: b.texOffset,
     studsCovered: performanceMode ? (1 << def.males.length) - 1 : studs,

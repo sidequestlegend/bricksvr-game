@@ -105,9 +105,12 @@ test("three players place 2,000 bricks: nothing lost, every client the same, wit
     if (s) snaps++;
   }
   measure(`snap test (the ghost) beside 2000 bricks: ${((performance.now() - t1) / 1000).toFixed(3)} ms per call (${snaps} of 1000 attach)`);
-  const chunks = area(world, d).RenderChunks();
-  measure(`renderer input after the rebuild: ${chunks.length} chunks, largest ${Math.max(...chunks.map((ch) => ch.bricks.length))} bricks`);
-  assert.equal(chunks.reduce((n, ch) => n + ch.bricks.length, 0), 2000);
+  // the renderer (BrickRenderer: records to the kit's relay graph, which reports each chunk built)
+  const renderer = area(world, d).renderer!;
+  const counts = Object.values(renderer.counts());
+  measure(`renderer after the rebuild: ${counts.length} chunks, largest ${Math.max(...counts)} bricks; ${renderer.sent.ops} ops, ${renderer.sent.records} records, ${renderer.sent.bytes} bytes sent; idle ${renderer.idle}`);
+  assert.equal(counts.reduce((n, c) => n + c, 0), 2000);
+  assert.ok(renderer.idle, "every record sent was reported built");
 });
 
 test("concurrent place and delete converge to the same bricks everywhere", async () => {

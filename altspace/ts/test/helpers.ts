@@ -15,7 +15,16 @@ export const bindings = JSON.parse(readFileSync(fileURLToPath(new URL("../bindin
 export const SLUG = game.slug;
 
 export function newWorld(seed = 1, options: Record<string, unknown> = {}): TestWorld {
-  return new TestWorld(game, bindings, { seed, ...options });
+  const world = new TestWorld(game, bindings, { seed, ...options });
+  // The kit's own relay ops (BrickKitBuilder.RelayOps): the chunk renderer reports each build back as Unity's does.
+  world.room.defineRelayOp("bricks", (record, client) => {
+    const name = record.target.slice(record.target.lastIndexOf("/") + 1);
+    const n = (record.args[0] ?? "").split(";").filter(Boolean).length;
+    client.graphEvent(SLUG, "0", "chunk", `${name}|0.5|${n}`);
+  });
+  world.room.defineRelayOp("bspawn");
+  world.room.defineRelayOp("tint");
+  return world;
 }
 
 export const area = (world: TestWorld, c: FakeClient, inst = "0") => world.behaviour<BuildArea>(c, "area", inst);
