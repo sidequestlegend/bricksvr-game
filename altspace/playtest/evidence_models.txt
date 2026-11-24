@@ -1,0 +1,33 @@
+PASS regenerated models import: 269 of 269 FBX give a mesh
+PASS the 18 meshes mapped through internalIDToNameTable resolve to their upstream fileIDs
+   ok Misc/Bob.fbx: mesh 'Bob', upstream fileID -2812107940972762080, imported -2812107940972762080
+   ok Plates/Plate_2x2_Corner/Plate_2x2_Corner_Complete.fbx: mesh 'Plate_2x2_Corner_Complete', upstream fileID -3240734288270418986, imported -3240734288270418986
+   ok Pyramids/Brick_1x1_Pyramid/Brick_1x1_Pyramid_Complete.fbx: mesh 'Brick_1x1_Pyramid_Complete', upstream fileID -4439177635779473790, imported -4439177635779473790
+   ok SideStudBricks/Brick_1x1_1FaceSideStud/Brick_1x1_1FaceSideStud_Complete.fbx: mesh 'Brick_1x1_1FaceSideStud_Complete', upstream fileID -5547226821776838944, imported -5547226821776838944
+   ok SideStudBricks/Brick_1x1_4FaceSideStud/Brick_1x1_4FaceSideStud_Complete.fbx: mesh 'Brick_1x1_4FaceSideStud_Complete', upstream fileID -7075533180959684982, imported -7075533180959684982
+   ok SideStudBricks/Brick_1x2_1FaceSideStud/Brick_1x2_1FaceSideStud_Complete.fbx: mesh 'Brick_1x2_1FaceSideStud_Complete', upstream fileID 2478642557212298803, imported 2478642557212298803
+   ok SideStudBricks/Brick_1x4_1FaceSideStud/Brick_1x4_1FaceSideStud_Complete.fbx: mesh 'Brick_1x4_1FaceSideStud_Complete', upstream fileID 6948634446427596978, imported 6948634446427596978
+   ok Slopes/Slope_1x1x2-3/Slope_1x1x2-3_Complete.fbx: mesh 'Slope_1x1x2-3_Complete', upstream fileID 8947455821484762293, imported 8947455821484762293
+   ok Slopes/Slope_1x4x2-3/Slope_1x4x2-3_Complete.fbx: mesh 'Slope_1x4x2-3_Complete', upstream fileID -5805454270036199996, imported -5805454270036199996
+   ok Tiles/Tile_1x8/Tile_1x8_Complete-HollowBody.fbx: mesh 'Tile_1x8_Complete-HollowBody', upstream fileID 5952950207144732928, imported 5952950207144732928
+   ok Tiles/Tile_2x2/Tile_2x2_Complete+HollowBody_NoBevel.fbx: mesh 'Tile_2x2_Complete+HollowBody_NoBevel', upstream fileID 2331013928504239841, imported 2331013928504239841
+   ok Tiles/Tile_2x2_Corner/Tile_2x2_Corner_Complete.fbx: mesh 'Tile_2x2_Corner_Complete', upstream fileID 1102457469446066216, imported 1102457469446066216
+   ok Tiles/Tile_2x3/Tile_2x3_Complete-HollowBody.fbx: mesh 'Tile_2x3_Complete-HollowBody', upstream fileID -7773910122194904890, imported -7773910122194904890
+   ok Tiles/Tile_2x4/Tile_2x4_Complete+HollowBody_NoBevel.fbx: mesh 'Tile_2x4_Complete+HollowBody_NoBevel', upstream fileID -549861845236167820, imported -549861845236167820
+   ok Tiles/Tile_2x6/Tile_2x6_Complete-HollowBody.fbx: mesh 'Tile_2x6_Complete-HollowBody', upstream fileID -1761507600644905062, imported -1761507600644905062
+   ok Tiles/Tile_2x8/Tile_2x8_Complete+HollowBody_NoBevel.fbx: mesh 'Tile_2x8_Complete+HollowBody_NoBevel', upstream fileID 3059775469784666474, imported 3059775469784666474
+   ok Tiles/Tile_2x8/Tile_2x8_Complete-HollowBody.fbx: mesh 'Tile_2x8_Complete-HollowBody', upstream fileID -4327259031156653939, imported -4327259031156653939
+   ok Tiles/Tile_Round_1x1/Tile_Round_1x1_Complete.fbx: mesh 'Tile_Round_1x1_Complete', upstream fileID 7725127515873793861, imported 7725127515873793861
+PASS every upstream fileID of every regenerated model resolves
+PASS mesh references in the imported upstream prefabs: 149 of 459 resolve; 310 point at GUIDs no file of the upstream repository has (in 1x4BrickBody.prefab, 2x2BrickBody.prefab, 4x2BrickBody.prefab, BrickStud.prefab, BrickTube.prefab, Hammer.prefab: the kit rebuilds those from bricks.json); broken references to upstream files: 0
+PASS slope 1x2Slope faces the way its studs say after import: top centre (0.004, 0), studs at x 0.004
+PASS slope 1x3Slope faces the way its studs say after import: top centre (0.008, 0), studs at x 0.008
+PASS slope 1x4Slope faces the way its studs say after import: top centre (0.012, 0), studs at x 0.012
+PASS slope 2x2Slope faces the way its studs say after import: top centre (0.004, 0), studs at x 0.004 0.004
+PASS slope 2x2CornerSlope faces the way its studs say after import: top centre (0.004, 0.004), studs at x 0.004
+PASS slope 3x3CornerSlope faces the way its studs say after import: top centre (0.008, 0.008), studs at x 0.008
+PASS slope 4x4CornerSlope faces the way its studs say after import: top centre (0.012, 0.012), studs at x 0.012
+PASS slope 1x2SlopeInverted faces the way its studs say after import: underside centre x 0.004, studs x 0
+PASS slope 1x1-2_3Slope faces the way its studs say after import: top centre (0.004, 0), the held prefab's upright wall collider at x 0.025
+PASS slope 1x4-2_3Slope faces the way its studs say after import: top centre (0.004, 0), the held prefab's upright wall collider at x 0.025 (runs along Z)
+DONE

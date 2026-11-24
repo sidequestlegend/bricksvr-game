@@ -1,0 +1,62 @@
+local: script and bundles from the test server http://localhost:43500
+[main] INFO main in Play, page port 43400
+[main] PASS the kit loads from a hand-written bs-snippet and the instance starts: at 5930 ms after the page opened
+[main] PASS two players in the room: [{"id":1,"name":"Main Editor","sid":"rsess_fc7aff7e-1912-4b80-856e-9d89e99ab491"},{"id":2,"name":"Player 2","sid":"rsess_dbea95de-575c-448e-b813-5d5adf9b3e62"}]
+[main] INFO B is rsess_fc7aff7e-1912-4b80-856e-9d89e99ab491
+[main] CMD b1_140286 look -0.5600 0.0000 -0.2800
+[main] REPLY b1_140286 ok camera at 0.00,1.60,0.00
+[main] CMD b2_210745 click -0.5600 0.0000 -0.2800
+[main] REPLY b2_210745 ok screen 585,512 of 1169x1024
+[main] CMD b3_601890 look -0.2240 0.0000 -0.2800
+[main] REPLY b3_601890 ok camera at 0.00,1.60,0.00
+[main] CMD b4_360279 click -0.2240 0.0000 -0.2800
+[main] REPLY b4_360279 ok screen 585,512 of 1169x1024
+[main] CMD b5_284061 look 0.1120 0.0000 -0.2800
+[main] REPLY b5_284061 ok camera at 0.00,1.60,0.00
+[main] CMD b6_515240 click 0.1120 0.0000 -0.2800
+[main] REPLY b6_515240 ok screen 585,512 of 1169x1024
+[main] PASS this player placed three bricks by clicking the carpet: 3
+[main] CMD b7_739322 renderstats pk1:brick-builder:0
+[main] REPLY b7_739322 batches 47 drawCalls 47 setPass 27 triangles 25880 vertices 27436 instancedBatches 0 chunks 8 drawn 6 emptySlots 2004 chunkVertices 6516 spikeObjects 0
+[main] PASS both players' bricks arrive on this page and are drawn: 6 bricks, 6 drawn
+[main] PASS both pages show identical builds (digests): 6:64229b95 / 6:64229b95
+[main] INFO B reloads its page
+[main] PASS the kit loads from a hand-written bs-snippet and the instance starts: at 4839 ms after the page opened
+[main] PASS two players in the room: [{"id":2,"name":"Player 2","sid":"rsess_dbea95de-575c-448e-b813-5d5adf9b3e62"},{"id":3,"name":"Main Editor","sid":"rsess_b24b9e2e-4a30-49a9-a211-117f6321f720"}]
+[main] CMD b1_162663 renderstats pk1:brick-builder:0
+[main] REPLY b1_162663 batches 41 drawCalls 41 setPass 27 triangles 24948 vertices 23540 instancedBatches 0 chunks 2 drawn 7 emptySlots 0 chunkVertices 588 spikeObjects 0
+[main] PASS late join by reload: the build is rebuilt and drawn: 7 bricks (had 6), drawn 7
+[main] DONE
+[vp-mppm3fdcd393] INFO vp-mppm3fdcd393 in Play, page port 43400
+[vp-mppm3fdcd393] PASS the kit loads from a hand-written bs-snippet and the instance starts: at 5801 ms after the page opened
+[vp-mppm3fdcd393] PASS two players in the room: [{"id":1,"name":"Main Editor","sid":"rsess_fc7aff7e-1912-4b80-856e-9d89e99ab491"},{"id":2,"name":"Player 2","sid":"rsess_dbea95de-575c-448e-b813-5d5adf9b3e62"}]
+[vp-mppm3fdcd393] INFO cleared what an earlier session left in the room: 2010 bricks
+[vp-mppm3fdcd393] INFO A is rsess_dbea95de-575c-448e-b813-5d5adf9b3e62
+[vp-mppm3fdcd393] CMD b1_703713 look -0.5600 0.0000 -0.8400
+[vp-mppm3fdcd393] REPLY b1_703713 ok camera at 0.00,1.60,0.00
+[vp-mppm3fdcd393] CMD b2_816911 click -0.5600 0.0000 -0.8400
+[vp-mppm3fdcd393] REPLY b2_816911 ok screen 1280,351 of 2560x702
+[vp-mppm3fdcd393] CMD b3_818281 look -0.2240 0.0000 -0.8400
+[vp-mppm3fdcd393] REPLY b3_818281 ok camera at 0.00,1.60,0.00
+[vp-mppm3fdcd393] CMD b4_555375 click -0.2240 0.0000 -0.8400
+[vp-mppm3fdcd393] REPLY b4_555375 ok screen 1280,351 of 2560x702
+[vp-mppm3fdcd393] CMD b5_586616 look 0.1120 0.0000 -0.8400
+[vp-mppm3fdcd393] REPLY b5_586616 ok camera at 0.00,1.60,0.00
+[vp-mppm3fdcd393] CMD b6_448031 click 0.1120 0.0000 -0.8400
+[vp-mppm3fdcd393] REPLY b6_448031 ok screen 1280,351 of 2560x702
+[vp-mppm3fdcd393] PASS this player placed three bricks by clicking the carpet: 3
+[vp-mppm3fdcd393] CMD b7_744306 renderstats pk1:brick-builder:0
+[vp-mppm3fdcd393] REPLY b7_744306 batches 35 drawCalls 35 setPass 19 triangles 16520 vertices 20040 instancedBatches 0 chunks 8 drawn 6 emptySlots 2004 chunkVertices 6516 spikeObjects 0
+[vp-mppm3fdcd393] PASS both players' bricks arrive on this page and are drawn: 6 bricks, 6 drawn
+[vp-mppm3fdcd393] PASS both pages show identical builds (digests): 6:64229b95 / 6:64229b95
+[vp-mppm3fdcd393] CMD b8_669363 look 0.4480 0.0000 -0.8400
+[vp-mppm3fdcd393] REPLY b8_669363 ok camera at 0.00,1.60,0.00
+[vp-mppm3fdcd393] CMD b9_494474 click 0.4480 0.0000 -0.8400
+[vp-mppm3fdcd393] REPLY b9_494474 ok screen 1280,351 of 2560x702
+[vp-mppm3fdcd393] PASS the reloaded page rebuilds everything, the brick placed while it was away too (digests): 7 bricks, 7:1a27ca4 / 7 bricks, 7:1a27ca4
+[vp-mppm3fdcd393] DONE
+served: /web/pk-brick-builder.js x3, /web/playtest/brick-playtest.js x3, /web/playtest/brick-rungs.js x3, HEAD /kits/windows/brick-builder x3
+console (main editor): 1 error lines
+   [Exception] ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection. | System.Collections.Generic.List`1[T].get_Item (System.Int32 index) (at <41d29b352f6a475ab1bf7c6628b82790>:0)
+RESULT 14 passed, 0 failed
+DONE

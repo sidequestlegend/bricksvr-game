@@ -92,7 +92,7 @@
     await until(() => debug().render().idle, 4000, 50);
     const s = await stats();
     check(s.drawn === debug().bricks() && s.chunks >= 1, "every placed brick is drawn by the chunk renderer", `${s.drawn} drawn of ${debug().bricks()}; ${s.text}`);
-    await cmd("shot built 0 1.8 -3.2 0 0.2 -0.5 50");
+    await cmd("shot built 1.2 0.9 -1.5 -0.2 0.05 -0.6 50");
 
     // a held brick from the pool: grab it, let go just above the carpet, it snaps
     const slotIndex = debug().spawn("1x4", 800, 60, -400);

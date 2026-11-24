@@ -141,6 +141,7 @@
     check(s.drawn === 2000 && brickBatches > 0 && brickBatches <= 100, "draw batches for the bricks at most 100 (plan's pass rule)", `${s.batches} batches with the bricks, ${before.batches} without: ${brickBatches} for 2,000 bricks; draw calls ${s.drawCalls - before.drawCalls}, SetPass ${s.setPassCalls}, triangles ${s.triangles}, merged vertices ${s.chunkVertices}`);
     say("INFO", "renderstats with 2,000 bricks", s.text);
     say("INFO", "frame time with 2,000 bricks", await cmd("framems 120"));
+    await cmd("shot bricks2000 2.6 2.2 0.6 0 0.3 -0.8 55");
 
     // single placements: one brick on a column's top, the chunk rebuilt from the records that changed
     const merges = [];

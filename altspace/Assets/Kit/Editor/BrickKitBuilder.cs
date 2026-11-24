@@ -239,6 +239,22 @@ namespace BrickBuilder
             status.transform.localPosition = new Vector3(0f, 0.66f, -0.012f);
             stage.Ref(status);
 
+            // the credits line (the plan: every game shows its credits in the world)
+            var credits = stage.Create("Credits", picker.transform);
+            var creditsText = credits.AddComponent<TextMeshPro>();
+            Text(creditsText, CreditsText, 0.32f, TextAlignmentOptions.TopLeft);
+            creditsText.textWrappingMode = TextWrappingModes.Normal;
+            creditsText.overflowMode = TextOverflowModes.Truncate;
+            creditsText.color = new Color(0.8f, 0.82f, 0.85f);
+            creditsText.rectTransform.sizeDelta = new Vector2(1.58f, 0.12f);
+            credits.transform.localPosition = new Vector3(0f, 0.53f, -0.012f);
+            var creditsBack = stage.Primitive(PrimitiveType.Cube, "CreditsPanel", picker.transform);
+            Object.DestroyImmediate(creditsBack.GetComponent<Collider>());
+            creditsBack.transform.localPosition = new Vector3(0f, 0.53f, 0.02f);
+            creditsBack.transform.localScale = new Vector3(1.62f, 0.14f, 0.02f);
+            creditsBack.GetComponent<MeshRenderer>().sharedMaterial = materials["Panel"];
+            Quiet(creditsBack);
+
             // ---- the tools ----
             var tools = stage.Create("Tools");
             tools.transform.localPosition = new Vector3(0.45f, 0f, -2.15f);
@@ -703,6 +719,11 @@ namespace BrickBuilder
             }
             return go;
         }
+
+        const string CreditsText =
+            "Brick Builder: a port of BricksVR by BricksVR Studios (github.com/d12/bricksvr-game, MIT; the BricksVR name and logos are " +
+            "not used). The script holds the portkit runtime (MIT). Brick models regenerated as plain shapes. Sounds: Kenney (kenney.nl), " +
+            "CC0. Text: Liberation Sans (SIL OFL 1.1). Not affiliated with BricksVR or any toy maker.";
 
         static Vector3 V3(JToken a) => new Vector3((float)a[0], (float)a[1], (float)a[2]);
         static string Key(string prefab) => new string(prefab.Select(c => char.IsLetterOrDigit(c) ? c : '_').ToArray());

@@ -2,16 +2,18 @@
 
 Analysis and the TypeScript port of the rules and data model. Everything here comes from reading the clone at
 `C:\workspace\AltspaceGames\brick-builder` (upstream commit `990255b`), the port kit contract (`portkit/README.md`),
-the approved plan and its amendments, and `C:\workspace\SideQuest.Ora\Protocol\RELAY.md`. No Unity was opened. The
-prefab and scene YAML were read with plain Python (`altspace/tools/bricks/extract_catalogue.py`); the snapping code
-was compiled and run with dotnet 8 against stubs (section 9.1). Statements about what Unity or Normcore do at run
-time are marked as such; they were not observed.
+the approved plan and its amendments, and `C:\workspace\SideQuest.Ora\Protocol\RELAY.md`. The analysis (sections
+1 to 10) was done without Unity: the prefab and scene YAML were read with plain Python
+(`altspace/tools/bricks/extract_catalogue.py`); the snapping code was compiled and run with dotnet 8 against stubs
+(section 9.1). The Unity phase (the kit, the rendering spike, rungs 2 to 4) is section 11, with its evidence in
+`altspace/TESTS.md`; where it changed an earlier statement, the statement is updated and says so.
 
 Path shorthand: `S/` = `Assets/Scripts/` (a bare `BrickAttach.cs:200` means `S/BrickAttach.cs` line 200), `R/` =
 `Assets/Resources/`, `MS` = `Assets/Scenes/Main Scene.unity`.
 
 Contents: 1 Upstream at a glance, 2 Feature checklist, 3 State and messages, 4 Platform-call census, 5 Object model,
-6 Assets, 7 Translation map, 8 Snippet design, 9 Test plan and results, 10 Changed or left out, risks, questions.
+6 Assets, 7 Translation map, 8 Snippet design, 9 Test plan and results, 10 Changed or left out, risks, questions,
+11 The Unity kit (editor-verified).
 
 ---
 
@@ -40,7 +42,7 @@ Contents: 1 Upstream at a glance, 2 Feature checklist, 3 State and messages, 4 P
 | 269 brick FBX files, 10 sounds, textures, fonts, icons (634 Git LFS pointers) | MIT, but the **objects are gone** (HTTP 410) | `altspace/tools/bricks/README.md` | Brick models regenerated (section 6); the rest replaced or dropped |
 
 The port's script (`pk-brick-builder.js`) is MIT: `altspace/ts/script-header.txt` carries the upstream notice and the
-portkit runtime's MIT notice. A `THIRD-PARTY-NOTICES.md` for the kit is still to be written with the kit (10.4).
+portkit runtime's MIT notice. `altspace/THIRD-PARTY-NOTICES.md` (also in the bundles) lists the sounds.
 
 ---
 
@@ -54,10 +56,10 @@ kit, its graphs and its renderer (not part of this job), or "left out" (section 
 | # | Statement | Upstream | Port |
 |---|---|---|---|
 | F1 | 65 bricks in six categories: bricks, plates, tiles, slopes, side_studs, misc. Each has a prefab name, display name, mesh, UI scale, spawn rotation and hand-spawner offset | `BrickData.cs:9-75,117-139`; categories `MS:54545,84842,115788,158139,184675,220277` | `BrickData.ts` from `catalogue.json` (66 types: the 65 plus `1x1_4FaceSideStud`, which has prefabs but is commented out of the picker, `BrickData.cs:78`) |
-| F2 | Pulling either index trigger opens the brick menu in front of that hand; it closes when the trigger is let go | `BrickPickerManager.cs:100-145,243-297` | Unity side |
-| F3 | A category slider picks the tab; bricks of the tab are shown as tiles | `SelectedCategoryManager.cs:76-83`; `BrickPickerManager.cs:299-335` | `BricksForCategory`, `CATEGORIES`; tabs Unity side |
-| F4 | Gripping a tile while the menu is fully open spawns that brick at the hand with the menu's colour, scaled up from nothing | `BrickPickerBrick.cs:65-93`; `IsMenuFullyOpen` `BrickPickerManager.cs:71` | `BuildArea.Spawn` (a held-pool slot); the scale-in is Unity side |
-| F5 | The tile closest to the hand is highlighted | `BrickPickerManager.cs:147-169` | Unity side |
+| F2 | Pulling either index trigger opens the brick menu in front of that hand; it closes when the trigger is let go | `BrickPickerManager.cs:100-145,243-297` | **Changed** (11): the picker is a standing panel beside the area, used with clicks (VR laser or desktop mouse); a snippet cannot take the triggers from the world |
+| F3 | A category slider picks the tab; bricks of the tab are shown as tiles | `SelectedCategoryManager.cs:76-83`; `BrickPickerManager.cs:299-335` | Done: six tab buttons (`PickerTab`), `BuildArea.ShowCategory`; rung 3 |
+| F4 | Gripping a tile while the menu is fully open spawns that brick at the hand with the menu's colour, scaled up from nothing | `BrickPickerBrick.cs:65-93`; `IsMenuFullyOpen` `BrickPickerManager.cs:71` | Changed: a click on a tile selects the brick (`PickerTile`, `BuildArea.TileClicked`; rung 3); in VR it also spawns it into the clicking hand (`Spawn` + `AttachToHand`; unverified: no controllers in Play mode). No scale-in |
+| F5 | The tile closest to the hand is highlighted | `BrickPickerManager.cs:147-169` | Left out (no hand-proximity events; tiles are clicked) |
 | F6 | `AllBricks` sorts by category name with `List.Sort` (not stable) | `BrickData.cs:82-115` | Stable sort by category then catalogue order (deterministic) |
 
 ### 2.2 Colours
@@ -65,10 +67,10 @@ kit, its graphs and its renderer (not part of this job), or "left out" (section 
 | # | Statement | Upstream | Port |
 |---|---|---|---|
 | F7 | A colour is an ARGB int; bricks keep it in `BuildingBrickModel.color` with `usingNewColors` | `ColorInt.cs:19,53-76`; `BuildingBrickSync.cs:27-31` | `ColorInt.ts` (checked against the C#, 9.1); records keep RGB (alpha is always 255) |
-| F8 | Three HSV sliders set the picker colour; every tile shows it | `BrickPickerManager.cs:176-184,201-207` | `HSVToRGB`, `RGBToHSV`, `colorFromSliders`; sliders Unity side |
-| F9 | Colour save spots: touching one selects it; slider changes go into the selected spot; not saved between sessions | `ColorPickerSaveSpot.cs:21-46`; `BrickPickerManager.cs:186-199` | Unity side (could use PlayerData later) |
-| F10 | Poking a slider with a held brick copies that brick's colour into the picker | `PalletteBrickCollider.cs:11-21` | Unity side (needs the held slot's colour: `HeldBrick.c`) |
-| F11 | Hover: a brick under a hand is drawn 20 lighter (or darker when r+g+b > 300); held bricks too | `BrickAttach.cs:27-41,167-198`; `BrickHover.cs:37-60` | `HoverColor`; drawing Unity side |
+| F8 | Three HSV sliders set the picker colour; every tile shows it | `BrickPickerManager.cs:176-184,201-207` | Done: three uGUI sliders (relayed `uiSlider`, `BuildArea.SetHsv`); every tile and the preview show the colour through the game's relay op `tint` (rung 3 checks the tint; the sliders were not moved in a test) |
+| F9 | Colour save spots: touching one selects it; slider changes go into the selected spot; not saved between sessions | `ColorPickerSaveSpot.cs:21-46`; `BrickPickerManager.cs:186-199` | Changed: 12 fixed swatches (`Swatch`) set the colour; they do not store slider colours (rung 3) |
+| F10 | Poking a slider with a held brick copies that brick's colour into the picker | `PalletteBrickCollider.cs:11-21` | Left out (no trigger events between a held brick and the panel in the kit) |
+| F11 | Hover: a brick under a hand is drawn 20 lighter (or darker when r+g+b > 300); held bricks too | `BrickAttach.cs:27-41,167-198`; `BrickHover.cs:37-60` | `HoverColor` ported; drawing it left out (a placed brick is part of a merged chunk mesh) |
 | F12 | Legacy palette of 15 colours (`matId`) for old data | `BrickColorMap.cs:32-49` | Left out: there is no old data |
 
 ### 2.3 Holding and placing
@@ -77,7 +79,7 @@ kit, its graphs and its renderer (not part of this job), or "left out" (section 
 |---|---|---|---|
 | F13 | A brick in the hand or falling is a networked physics object; it becomes a "placed" brick (no physics, no network object) when it snaps | `BrickSwapper.cs:138-178`; `PlacedBrickCreator.cs:281-341` | Held bricks are a pool of 12 synced kit objects per area (`HeldBrick.ts`); placed bricks are records (section 3) |
 | F14 | Grabbing makes its colliders triggers and starts the snap preview | `BrickAttachDetector.cs:78-103` | `HeldBrick.OnPickup` |
-| F15 | While held, a ghost shows where it would snap, every frame | `ShowSnappableBrickPositions.cs:44-62`; `BrickGhosts.cs:29` | `BuildArea.HeldMoved` keeps `ghost` (a `Snap`) every tick; drawing it is Unity side. Measured 0.08 to 0.15 ms per test beside 2,000 bricks |
+| F15 | While held, a ghost shows where it would snap, every frame | `ShowSnappableBrickPositions.cs:44-62`; `BrickGhosts.cs:29` | `BuildArea.HeldMoved` keeps `ghost` every tick (0.08 to 0.15 ms beside 2,000 bricks); `ShowGhost` puts the kit's see-through `Ghost/<prefab>` there. Built; not observed in a test (a desktop grab does not move the brick) |
 | F16 | On release the brick snaps if a connector of it touches a free connector of the other kind on a placed brick or the carpet | `BrickAttachDetector.cs:105-149,177-250`; `LegoConnectorScript.cs:49-85` | `CheckIfCanConnect` in `BrickAttachDetector.ts`; `BrickStore.touching` |
 | F17 | Each held connector takes the closest touching partner; connectors competing for one partner keep the closest; the side with more pairs wins, sockets only when strictly more | `BrickAttachDetector.cs:182-192,281-335` | same, `ValidConnections` |
 | F18 | The brick turns to the partner's frame plus the quarter turn about the stud axis nearest to how it is held (computed as "farthest, plus 180") | `:337-375,244` | `GetNewRot`, same tie order |
@@ -88,8 +90,8 @@ kit, its graphs and its renderer (not part of this job), or "left out" (section 
 | F23 | Not attaching: the brick falls with gravity | `:132-136,151-173` | The slot's object is left to Unity physics |
 | F24 | A loose brick despawns after about 6 s still; at most 10 loose bricks per owner, oldest destroyed | `AutoDespawnPhysicsBricks.cs:25-48`; `OwnedPhysicsBricksStore.cs:19,31-69` | `HeldBrick` frees its slot 6 s after a drop; the pool of 12 is the cap |
 | F25 | Snapping onto a loose brick freezes that one too | `BrickAttach.cs:220-241` | Left out: only placed bricks and the carpet are targets |
-| F26 | Haptic tick on a successful snap | `BrickAttachDetector.cs:117-121` | Unity side (`Input.Haptic` exists) |
-| F27 | Snap and carpet sounds (3 each), not while loading, switchable | `PlacedBrickCreator.cs:323-335`; `BrickSounds.cs:30-39` | Unity side; `PlacedBrick.onFloor` says which |
+| F26 | Haptic tick on a successful snap | `BrickAttachDetector.cs:117-121` | Left out for the snap (the drop names no hand); the hand spawner's "set" buzzes (`Input.Haptic`) |
+| F27 | Snap and carpet sounds (3 each), not while loading, switchable | `PlacedBrickCreator.cs:323-335`; `BrickSounds.cs:30-39` | Done for the player who places (`BuildArea.PlacedSound`, CC0 replacements, 6); not for remote placements; no switch |
 | F28 | Bricks attached to a player's head follow that head | `BrickSwapper.cs:156-162`; `PlacedBrickCreator.cs:293-307` | Left out (no remote head transforms to parent to) |
 
 ### 2.4 The carpet, grid and limits
@@ -97,7 +99,7 @@ kit, its graphs and its renderer (not part of this job), or "left out" (section 
 | # | Statement | Upstream | Port |
 |---|---|---|---|
 | F29 | The carpet has studs every 0.0560751 under each hand, so the first brick snaps anywhere on the world grid | `PositionFloorConnectorsUnderHand.cs:5-25` | `BrickStore.touching` makes floor studs every 80 u inside the area |
-| F30 | A brick on the carpet draws its flat bottom | `BrickAttach.cs:371-374,333-344` | `PlacedBrick.onFloor`, `RenderBrick.bottomClosed` |
+| F30 | A brick on the carpet draws its flat bottom | `BrickAttach.cs:371-374,333-344` | Done: `RenderBrick.bottomClosed` picks the solid-body mesh (11) |
 | F31 | No limit on bricks per room or per player in the client | agent census | none either; the archive holds about 16,000 records per area (24 segments) |
 | F32 | Bricks can hang below the carpet from the underside of another brick | follows from F21 (the carpet is not a collider layer) | Changed: nothing below the carpet or outside the build area (10.1 C3) |
 
@@ -137,7 +139,7 @@ kit, its graphs and its renderer (not part of this job), or "left out" (section 
 | F47 | Lock: anyone can lock, only the owner unlocks; locked, non-owners can neither place nor grab placed bricks | `RoomOwnershipSync.cs:34-38,147-158` | `SetLocked` through protected state: only owner and moderators can lock or unlock (10.1 C8); `CanBuild` gates every action |
 | F48 | Low gravity, "prevent moving through bricks" (owner only) | `RoomOwnershipSync.cs:91-102,160-182` | Left out: world-wide physics and movement belong to the world, and a snippet must not call `SetSettings` |
 | F49 | 23 user settings in PlayerPrefs (voice, music, turn, speed, vignette, nickname, avatar, render distance, player scale, shininess, performance mode, ...) | `UserSettings.cs:63-366` | Only "super ultra performance mode" maps (snippet setting `performance`, `RenderBrick`); the rest are the app's own settings or left out |
-| F50 | Render distance in chunks of 1 world unit; connector colliders only near the player | `ChunkedRenderer.cs:42-122` | Chunks of 16 x 16 studs x 48 plates (`ChunkedRenderer.ts`); distance culling is Unity side |
+| F50 | Render distance in chunks of 1 world unit; connector colliders only near the player | `ChunkedRenderer.cs:42-122` | Chunks of 16 x 16 studs x 48 plates, one merged mesh each (11); no render distance (Unity's frustum culling per chunk) |
 
 ### 2.9 Everything else
 
@@ -152,10 +154,11 @@ kit, its graphs and its renderer (not part of this job), or "left out" (section 
 | F57 | Entitlement checks (Oculus, Steam), analytics, exception reporting | `EntitlementChecks/*`; `ExceptionManager.cs:7-43` | Left out |
 | F58 | Nickname and room-name keyboards with a profanity filter | `NameKeyboardManager.cs:56,70`; `CreateKeyboardManager.cs:24-41` | Left out: no free text remains in the port, so no filter is needed |
 
-58 features: 33 ported in the TypeScript, two of them changed on purpose (F1, F3, F4, F6-F8, F11, F13-F24, F29-F34,
-F36, F37, F41-F43, F46, F47, F50); 6 left to the Unity side (F2, F5, F9, F10, F26, F27; the drawing halves of F11,
-F15 and F30 too); 1 with nothing to port (F35, no undo upstream); 18 left out or replaced by the platform (F12, F25,
-F28, F38-F40, F44, F45, F48, F49 except performance mode, F51-F58). Changes are in 10.1, omissions in 10.2.
+58 features, after the Unity phase: 35 done (F1, F3, F6-F8, F13-F24, F27, F29-F34, F36, F37, F41-F43, F46, F47, F50;
+F15's ghost built but not observed in a test), 4 changed on purpose (F2 panel instead of a trigger menu, F4 click to
+select, F9 fixed swatches, F11 hover colour without drawing), 1 with nothing to port (F35), 18 left out or replaced by
+the platform as before (F12, F25, F28, F38-F40, F44, F45, F48, F49 except performance mode, F51-F58), and 3 more left
+out in the Unity phase (F5, F10, F26 for the snap). Changes are in 10.1, omissions in 10.2.
 
 ---
 
@@ -286,13 +289,14 @@ switches the right one on with the relay op `active` on `@Pool/Held<n>/<prefab>`
 | What | State | Replacement |
 |---|---|---|
 | 269 brick FBX (`R/BrickModels/**`) | Git LFS objects gone | **Regenerated** in `altspace/GeneratedBrickModels/` by `altspace/tools/bricks/generate_bricks.py` (headless Blender) from `bricks.json` (92 bricks, 269 files), same GUIDs and fileIDs; verified against all 548 connectors of the 68 held prefabs (`verify_bricks.py`). Variants: `*_Complete` (held, picker, ghost), `*_HollowBody[_NoBevel]` (placed body, open underside), `*_SolidBody[_NoBevel]` (placed body when every socket is covered or on the carpet), `z_Extras/Stud.fbx` (one uncovered stud). See `altspace/tools/bricks/README.md` |
-| 10 sounds (`Resources/Sounds`) | lost | needed: 3 snap, 3 carpet, menu click, spawn, success; replace with CC0 sounds when the kit is built |
-| `Textures/unknown.png` (scratch overlay of every brick) | lost | a neutral texture or `_ScratchWeighting` 0 |
+| 10 sounds (`Resources/Sounds`) | lost | **Replaced** by 9 Kenney CC0 sounds (Casino Audio: `chips-collide-1..3` for the snaps, `chip-lay-1..3` for the carpet; Interface Sounds: `click_001`, `pluck_001`, `confirmation_001`), downloaded from OpenGameArt (Kenney's account), licence texts beside them in `Assets/Kit/Sounds`; `THIRD-PARTY-NOTICES.md`. `spawnset.wav` was unreferenced: not replaced |
+| `Textures/unknown.png` (scratch overlay of every brick) | lost | **Dropped**: the port's brick shader has no scratch texture (upstream's `_ScratchWeighting` 0) |
 | Carpet textures, floor night mode, skybox, reflection probes | lost | URP defaults / the world's own floor |
 | Brick-category icons (6 of 19 used), UI icons | lost | renders of the generated models, or the kit's own UI |
 | Avatar faces (27), Bob | lost | not needed |
 | Fonts (8 TTF) | lost; the TMP SDF assets survive | the kit's TextMesh Pro font |
-| `Prefabs/BrickComponents/*` reference model GUIDs that exist nowhere | broken upstream | the renderer builds from `catalogue.json` meshes instead |
+| `Prefabs/BrickComponents/*` and `Prefabs/Hammer.prefab` reference model GUIDs that exist nowhere | broken upstream | **Rebuilt**: the kit builder makes the placed-brick meshes (body + `z_Extras/Stud.fbx` per stud) from `ts/render.json` (from `catalogue.json`); the hammer is two primitives |
+| The import | 634 LFS pointers | `altspace/tools/import_upstream_bricks.py`: portkit's importer, then every LFS pointer it copied deleted (69 FBX, 3 WAV, 1 PNG reached by the start prefabs) and `GeneratedBrickModels/**` laid in with the upstream `.meta` files |
 
 `altspace/ts/src/catalogue.json` (66 bricks, 543 connectors) is generated by `altspace/tools/bricks/extract_catalogue.py`
 from `BrickData.cs`, the prefabs and `bricks.json`; its order is the wire format's type number (append only).
@@ -320,9 +324,10 @@ from `BrickData.cs`, the prefabs and `bricks.json`; its order is the wire format
 ## 8. Snippet design
 
 ```html
-<bs-snippet name="brick-builder" room="" width="64" depth="64" height="480" scale="7" performance="false"
+<bs-snippet name="brick-builder" room="" width="64" depth="64" height="480" performance="false"
             position="0 0 0" rotation="0 0 0">
-  <bs-gizmo ...>   <!-- a box gizmo showing width x depth x height; the kit builder maps it to the three settings -->
+  <bs-gizmo type="position" attribute="position"/>
+  <bs-gizmo type="box" attribute="position" size="3.6 0.2 4.6"/>   <!-- the kit's footprint at the default 64 x 64 studs (a gizmo cannot follow width / depth) -->
 </bs-snippet>
 ```
 
@@ -331,7 +336,7 @@ from `BrickData.cs`, the prefabs and `bricks.json`; its order is the wire format
 | `room` | "" | instance key: two elements with different `room` values are two separate build areas (tested) |
 | `width`, `depth` | 64 studs (max 800) | the area's footprint, centred on the element; the carpet's studs and every brick stay inside |
 | `height` | 480 plates (max 1000) | how high bricks may go |
-| `scale` | 7 | metres per mesh metre: 7 is upstream's size (a stud is 5.6 cm). Lattice positions are independent of it |
+| `scale` | (none) | **Changed in the Unity phase**: `scale` is portkit's holder scale (the snippet's own attribute), so it cannot also be a game setting. The kit is built at upstream's size (meshes at 7x, a stud 5.6 cm), and `BuildArea` multiplies its 7 by the attribute (default 1). Lattice positions are independent of it |
 | `performance` | false | upstream's "super ultra performance mode": flat bodies, no studs (per client) |
 
 `single`: false (a build area does not take over a world; several fit). Space-state keys per area: one `v.` and one
@@ -394,11 +399,9 @@ trigger cubes.
 | N10 | hammer 75 of 400, author leaves | the 75 deleted bricks leave the archive (repacked by the referee while the author was still there); the 75 tombstones stay until they are a quarter of the archive; a joiner rebuilds the 325 |
 | N11 | a non-referee loads a 2,000-brick save at once | the other player has all 2,000 after 2.8 s (virtual): **3 space-state batches and 4 user-state writes**, largest log leaf 11,708 bytes, no rate limiting (plan's spike: at most 100 batches) |
 
-### 9.3 Not run here (needs Unity)
+### 9.3 Unity (rungs 2 to 4)
 
-Kit loading, the pool objects' physics and grabbing, the ghost and chunk meshes, the relay ops, sounds: rungs 2 to 4
-of the plan, with the kit builder. The renderer target from the plan (chunk rebuild within 8 ms) is a Unity-side
-measurement.
+Run in the Unity phase: `altspace/TESTS.md` (rung 2 PASS, rendering spike PASS with option (b), rung 3 17/0, rung 4 14/0).
 
 ---
 
@@ -418,7 +421,13 @@ measurement.
 | C8 | Lock and unlock by the world's owner and moderators (protected state); upstream let anyone lock | a public key could be written by anyone |
 | C9 | Held and loose bricks are a pool of 12 per area; snapping onto a loose brick is gone | pool instead of instantiating network objects |
 | C10 | Hammer deletes instead of exploding into physics bricks | no physics bricks to spare |
-| C11 | `texOffset` from the brick id (same on every client) instead of `Random` per client | deterministic look |
+| C11 | `texOffset` from the brick id (same on every client) instead of `Random` per client | deterministic look (unused while there is no scratch texture) |
+| C12 | Placed bricks are drawn as one merged mesh per chunk, built by the kit's relay graph from brick records (`bricks` op); colour per brick in UV1 | the relay cannot carry meshes, MaterialPropertyBlock is not on the allow list; 8 draws for 2,000 bricks (11, TESTS.md) |
+| C13 | Studs are all or nothing per brick (4 meshes per type), not one per uncovered stud | a mesh per look without a mesh cache; covered studs are hidden inside the brick above |
+| C14 | Desktop: click a tile to select, click the carpet or a brick's top to place (snapped as a brick let go there), hammer mode to remove; Rotate turns what a click places | the desktop grab cannot carry a brick far (it follows the mouse, not a pointer), and placing must work without controllers |
+| C15 | The picker is a standing panel with tabs, 12 swatches and HSV sliders, not a menu opened with the trigger | a snippet cannot take the triggers from the world's own controls |
+| C16 | The snippet's `scale` is portkit's holder scale; the kit is built at upstream's size | portkit already reads `scale` for the holder (8) |
+| C17 | A build survives an empty room (runtime option `whenEmpty: "keep"`) | found in Play mode: the default resets an instance nobody is in (TESTS.md, rung 1 test 18) |
 
 ### 10.2 Left out
 
@@ -427,15 +436,17 @@ Cloud saves, rooms by code, recent rooms and room names (the snippet's `room` re
 could replace it); Oculus avatars, entitlement, haptics manager details; voice controls, push to talk, mute (the app's
 voice); Steam; music; locomotion, flying, player scale, low gravity, keeping players out of bricks (world-wide or the
 app's); analytics and exception reporting; the profanity filter (no free text remains); bricks on players' heads;
-the legacy 15-colour palette.
+the legacy 15-colour palette. In the Unity phase: the nearest-tile highlight (F5), copying a held brick's colour by
+poking the sliders (F10), the snap haptic (F26), the hover colour drawn on placed bricks (F11), sounds of other players'
+placements, render distance.
 
 ### 10.3 Open risks
 
 | # | Risk |
 |---|---|
-| R1 | The renderer (merging chunks into meshes, ghost, studs) and its transport are not built. The relay has no op that carries mesh data: chunks must be meshed by a graph or a new relay op (a portkit change, which this job must not make) |
+| R1 | Resolved in the Unity phase: a game relay op `bricks` carries records, the graph merges (11). Left: its speed on the Quest (IL2CPP visual scripting; the first build of a 384-brick chunk took 23-46 ms in the editor, a frame hitch at late join) |
 | R2 | Scale: upstream players shrink or grow (0.15-5x) and fly; Altspace players do neither, so `scale` decides what is reachable. 7 keeps upstream's brick size |
-| R3 | No `ForceSelect`: a brick picked up from the build appears in place and must be grabbed again. portkit now has `GameObject.AttachToHand` (`BS.AttachedObject`, not verified in Play mode); it may let the slot follow the hand until the grip is let go |
+| R3 | No `ForceSelect`. `GameObject.AttachToHand` was tried in Play mode (TESTS.md, rung 3): the slot moved to the desktop player's hand anchor and was let go again. The kit uses it for a brick gripped from the build and a tile clicked in VR, released on grip up; with controllers it is unverified |
 | R4 | A record queued but not yet sent when its author's page closes (under 0.2 s) is lost; the archive catches everything sent |
 | R5 | Two players placing overlapping bricks at once both keep them (upstream did the same) |
 | R6 | 24 segments hold about 16,000 records per area; a full archive refuses to archive more (an error is logged) |
@@ -443,5 +454,73 @@ the legacy 15-colour palette.
 
 ### 10.4 Next steps
 
-Kit builder (pool objects, ghost, area gizmo, chunk renderer graph), `THIRD-PARTY-NOTICES.md` with the kit's sounds and
-textures, picker and colour UI, rungs 2 to 4.
+Rung 5 (app and Quest) once Shane opens the world: Quest frame time with a big build, the late-join merge on IL2CPP, the
+VR paths (grip pick-up into the hand, hand spawner, laser tile, swinging the hammer, the ghost), and the snippet's
+gizmo. Possible improvements: spread a late join's chunk merges over frames; cook chunk colliders only when idle.
+
+---
+
+## 11. The Unity kit (editor-verified)
+
+Unity project `altspace/` (portkit template, Creator SDK 4.0.29, Play-mode port 43400). Builder
+`Assets/Kit/Editor/BrickKitBuilder.cs`; checks and test commands `Assets/Kit/Editor/BrickChecks.cs`; shader
+`Assets/Kit/Shaders/BrickColor.shader`; sounds `Assets/Kit/Sounds`; page tests `Assets/WebRoot/playtest/`.
+Evidence: `altspace/TESTS.md`.
+
+### 11.1 Import
+
+`python altspace/tools/import_upstream_bricks.py` runs portkit's importer with `upstream_import.json` (start files: the
+66 types' held and placed prefabs, `Prefabs/BrickComponents/*`, `Prefabs/Hammer.prefab`; 170 data-only stand-ins from
+`Assets/Scripts`, which compile), then deletes the LFS pointers it copied and lays `GeneratedBrickModels/**` in at
+`Assets/Upstream/Assets/Resources/BrickModels` with the upstream `.meta` files. In Unity (`PortKit/Bricks/Check Models`):
+269 of 269 models import, the 18 `internalIDToNameTable` meshes resolve to their upstream fileIDs, every upstream
+fileID resolves, and every slope faces the way its studs (or wall collider) say. The kit itself is built from
+`ts/render.json` (written from the catalogue by `npm run render-info`) and the imported meshes, not from the upstream
+prefabs, which are Normcore and XR Interaction Toolkit objects.
+
+### 11.2 The kit
+
+| Object | What it is | Script side |
+|---|---|---|
+| `Area` (`area`) | the build area's origin; `BuildArea`, `BrickLog`, 24 `BrickSegment`; the area's AudioSource with the 9 sounds | |
+| `Area/Carpet` (`carpet`, click) | the floor, scaled to `width` x `depth` by the script (relay `scale`); a click places | `SurfaceClicked` |
+| `Area/Chunks` (`chunks`, click) | the chunk renderer: `Template` (MeshFilter, MeshRenderer with `BrickChunk`), spawned per chunk; the chunks' MeshColliders live on `Chunks` itself, so a click on the build reaches the page | `BrickRenderer`, `SurfaceClicked` |
+| `Ghost` (`ghost`) | one see-through child per brick type | `ShowGhost` |
+| `Pool/Held0..11` (`held0..11`, grab, transform-synced) | the 12 held-brick slots: Rigidbody, BS Grababble, one child per type (Complete mesh, the held prefab's box colliders on the Grabbable layer) | `HeldBrick` (colour by relay `color`) |
+| `Picker` | panel: 6 tabs, 65 tiles in 6 groups (`tile_<prefab>`), 12 swatches, preview, 3 HSV sliders (uGUI), status line | `PickerTab`, `PickerTile`, `Swatch`, `BuildArea.SetHsv` |
+| `Tools` | Hammer (mode), Rotate, Lock, Save, Load buttons | `ToolButton` |
+| `Hammer` (`hammer`, grab, transform-synced, kinematic) | handle and head; trigger while held removes the brick under the head; swung (0.6 m/s) it removes what it hits | `Hammer` |
+| `Area/Spike` | the spike's option (a) templates (kept for re-running the spike; off) | |
+
+Game relay ops (portkit README op table extension): `bricks` (records to a chunk, 11.3), `tint` (the picker's colour on
+one material of this kit copy's own), `bspawn` (spike only).
+
+### 11.3 Rendering (the spike's result)
+
+Option (b) was chosen: chunks of 16 x 16 studs x 48 plates, one merged mesh each, built by the relay graph from brick
+records. 2,000 bricks: 8 draw batches, merge after a placement median about 1 ms (worst 1.6 ms) plus 3 to 5 ms for the
+chunk's collider, a late join drawn 0.21 s after the instance starts, no lost bricks. One object per brick (option (a))
+needed 1,004 to 1,133 batches. Numbers, method and the rejected options: TESTS.md.
+
+### 11.4 Controls
+
+| | VR (unverified: no controllers in Play mode) | Desktop (rung 3, real input) |
+|---|---|---|
+| Choose a brick | laser click on a tile: selected, and spawned into that hand (AttachToHand), released when the grip is let go | click a tile |
+| Colour | click a swatch, drag the sliders | the same |
+| Place | let go of a held brick near studs (snap, ghost while held) | click the carpet or a brick's top; Rotate turns it |
+| Take a brick off the build | grip with the hand inside it: it comes into the hand | Hammer mode and click it (removes it) |
+| Remove | swing the hammer into it, or pull the trigger while holding the hammer | Hammer mode and click |
+| Hand spawner | hold A/B/X/Y 0.4 s inside a brick to set, press to spawn | (none) |
+| Lock, save, load | buttons | buttons |
+
+### 11.5 Kit gaps found (portkit, not edited here)
+
+| Gap | Where | Proposed fix |
+|---|---|---|
+| The importer copies Git LFS pointer files as if they were assets (Unity then fails to import them) | `portkit/tools/importer/import_upstream.py` (`main`, the copy loop) | skip a file whose first bytes are `version https://git-lfs.github.com/spec/v1` (and its `.meta`) and report the count; this game works around it in `altspace/tools/import_upstream_bricks.py` |
+| `remote.sh compile` said "no compile errors" while the editor log had `error CS0102` (the menu then was missing) | `portkit/tools/remote.sh` / `unity/Editor/Remote/PortKitRemote.cs` compile command | read the compiler messages of the last compilation (`CompilationPipeline.assemblyCompilationFinished`) rather than the console; this game's `tools/rebuild_kit.sh` greps the editor log |
+| No graph helpers for struct values: `CreateStruct`, Set Member on a struct with `chainable` (its `targetOutput`), Set List Item, Create List with no inputs | `portkit/unity/Editor/Graphs/GraphWriterExtras.cs` | add `Struct(type)`, `SetField(owner, name, target, value)` (chainable), `SetListItem(list, index, item)`, `NewList()`; this game has them as private helpers in `BrickKitBuilder.cs` |
+| The runtime resets an empty room's instance by default (`whenEmpty: "reset"`); a game whose state should outlive the visitors must know to opt out | `portkit/README.md` (Runtime shape) | say it in the README next to `GameDefinition.options`; this game sets `whenEmpty: "keep"` |
+| The snippet markup's box gizmo is the kit's footprint; a game whose size is a setting (width, depth) cannot make it follow | `portkit/unity/Editor/Kit/KitArtifacts.cs` `Markup` | let a builder override the gizmo size (or skip the box) |
+| The kit photo frames the whole footprint from far away; for a flat kit it shows mostly floor | `KitArtifacts.Photos` | let a builder give the photo's camera |
