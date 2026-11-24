@@ -424,7 +424,13 @@ trigger cubes.
 
 ### 9.3 Unity (rungs 2 to 4)
 
-Run in the Unity phase: `altspace/TESTS.md` (rung 2 PASS, rendering spike PASS with option (b), rung 3 17/0, rung 4 14/0).
+Run in the Unity phase: `altspace/TESTS.md` (rung 2 PASS, rendering spike PASS with option (b), rung 3 17/0, rung 4 14/0);
+again after the review on the rebuilt bundles (2026-11-25): rung 2 PASS, rung 3 20/0 twice (3 new checks: an arch over a
+plate, a full area and its notice, room again after removing), rung 4 14/0 twice.
+
+Known issue (minor, left for the next kit rebuild): the kit's description and in-world credits say the brick models are
+"regenerated plain shapes"; since this pass the two plants and the pyramid are upstream's own meshes (section 6). The
+wording is in `BrickKitBuilder.cs` (Description, credits); changing it means another bundle build and rung 3/4 run.
 
 ---
 
