@@ -2,11 +2,13 @@
 // against BrickStubs.cs, driven over generated situations; the results go to ../vectors/upstream.json and
 // test/golden.test.ts plays the same inputs through the TypeScript.
 //
-// Bricks are built from src/catalogue.json exactly as their prefabs are (connector children under MaleConnectors /
-// FemaleConnectors at localScale 0.04, colliders, layers 12 "lego" / 15 "connector" / 16 "placed connector" /
-// 17 "placed lego"). Positions are lattice units (u) times 7e-4 upstream world units. What Unity's trigger callbacks
-// would have put in LegoConnectorScript.connectorsCollidingWith is filled in by the same oriented-box overlap the
-// stubs use for CheckBox, over the connectors whose colliders are enabled (not covered).
+// Bricks are built from the upstream prefabs themselves (PrefabYaml.cs: Assets/Resources/<name>.prefab held,
+// "<name> - Placed.prefab" placed), not from the port's catalogue: the held brick's _maleConnectors /
+// _femaleConnectors are the prefab's serialized lists, colliders keep m_Enabled, transforms keep Unity's child order.
+// src/catalogue.json only chooses the situations (which type, near which connector). Positions are lattice units (u)
+// times 7e-4 upstream world units. What Unity's trigger callbacks would have put in
+// LegoConnectorScript.connectorsCollidingWith is filled in by the same oriented-box overlap the stubs use for CheckBox,
+// over the connectors whose colliders are enabled (not covered).
 
 using System;
 using System.Collections.Generic;
@@ -71,57 +73,23 @@ public static class Harness
         public List<LegoConnectorScript> female = new List<LegoConnectorScript>();
         public List<LegoConnectorScript> all = new List<LegoConnectorScript>();
         public List<BoxCollider> colliders = new List<BoxCollider>();
+        public PrefabYaml.Instance inst;
     }
 
     static void Call(object o, string method) =>
         o.GetType().GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Invoke(o, null);
 
+    static string Resources;
+
     static Built Make(Brick def, bool held, Vector3 pos, Quaternion rot, string id)
     {
-        var b = new Built();
-        var root = new GameObject(def.prefab) { layer = held ? 12 : 17, tag = "Lego" };
-        b.root = root;
-        root.transform.position = pos;
-        root.transform.rotation = rot;
-        if (!held) root.AddComponent<BrickAttach>().uuid = id;
-        var rb = def.rootBox ?? def.heldBoxes[0];
-        var rootCol = root.AddComponent<BoxCollider>();
-        rootCol.center = V(rb.c);
-        rootCol.size = V(rb.size);
-        rootCol.isTrigger = true; // only the boxes below count: held colliders are triggers while held, placed ones are the placed prefab's
-        foreach (var box in held ? def.heldBoxes : def.placedBoxes)
-        {
-            var g = new GameObject("Collider") { layer = root.layer };
-            g.transform.SetParentKeepLocal(root.transform);
-            g.transform.localPosition = V(box.c);
-            g.transform.localRotation = Q(box.q);
-            var c = g.AddComponent<BoxCollider>();
-            c.size = V(box.size);
-            c.isTrigger = held; // BrickAttachDetector.BrickGrabbed sets isTrigger on a held brick's colliders
-            b.colliders.Add(c);
-        }
-        var maleParent = new GameObject("MaleConnectors");
-        maleParent.transform.SetParentKeepLocal(root.transform);
-        var femaleParent = new GameObject("FemaleConnectors");
-        femaleParent.transform.SetParentKeepLocal(root.transform);
-        foreach (var c in def.connectors)
-        {
-            bool female = c.kind == "female";
-            var g = new GameObject(c.name) { layer = held ? 15 : 16, tag = female ? "Connector-Female" : "Connector-Male" };
-            g.transform.SetParentKeepLocal((female ? femaleParent : maleParent).transform);
-            g.transform.localPosition = V(c.p);
-            g.transform.localRotation = Q(c.q);
-            g.transform.localScale = new Vector3(0.04f, 0.04f, 0.04f);
-            var col = g.AddComponent<BoxCollider>();
-            col.isTrigger = held;
-            var s = g.AddComponent<LegoConnectorScript>();
-            s.female = female;
-            s.placed = !held;
-            s.connectorsCollidingWith = new List<GameObject>();
-            Call(s, "Awake");
-            (female ? b.female : b.male).Add(s);
-            b.all.Add(s);
-        }
+        var path = Path.Combine(Resources, def.prefab + (held ? "" : " - Placed") + ".prefab");
+        var inst = PrefabYaml.Instantiate(path, held, pos, rot, id);
+        var b = new Built { root = inst.root, inst = inst };
+        b.male.AddRange(inst.male);
+        b.female.AddRange(inst.female);
+        b.all.AddRange(inst.all);
+        b.colliders.AddRange(inst.colliders);
         return b;
     }
 
@@ -186,14 +154,15 @@ public static class Harness
         var held = Make(Catalogue[heldType], true, heldPosU * W, heldRot, "held");
         var det = held.root.AddComponent<BrickAttachDetector>();
         held.root.AddComponent<GrabShim>();
-        det.maleConnectorParent = held.root.transform.children.Select(t => t.gameObject).First(g => g.name == "MaleConnectors");
-        det.femaleConnectorParent = held.root.transform.children.Select(t => t.gameObject).First(g => g.name == "FemaleConnectors");
-        det._maleConnectors = held.male.Select(s => s.gameObject).ToList();
-        det._femaleConnectors = held.female.Select(s => s.gameObject).ToList();
-        det.colliders = held.colliders.ToArray();
-        det.tile = Catalogue[heldType].tile;
-        det.window = Catalogue[heldType].window;
-        det.heightOverride = Catalogue[heldType].heightOverride;
+        // The prefab's serialized fields, as Unity deserializes them (not recomputed by OnValidate).
+        det.maleConnectorParent = held.inst.maleParent;
+        det.femaleConnectorParent = held.inst.femaleParent;
+        det._maleConnectors = held.inst.maleList;
+        det._femaleConnectors = held.inst.femaleList;
+        det.colliders = held.inst.colliders.ToArray();
+        det.tile = held.inst.tile;
+        det.window = held.inst.window;
+        det.heightOverride = held.inst.heightOverride;
         Call(det, "Awake");
         Call(det, "Start");
 
@@ -214,7 +183,16 @@ public static class Harness
         if (can)
             sb.Append(",\"pos\":").Append(Arr(new[] { pos.x / W, pos.y / W, pos.z / W })).Append(",\"q\":").Append(Arr(new[] { rot.x, rot.y, rot.z, rot.w }))
               .Append(",\"down\":").Append(dir.y < 0 ? "true" : "false");
-        sb.Append(",\"covered\":[").Append(string.Join(",", bricks.Select(b => "[" + string.Join(",", b.all.Select(s => s.covered ? "true" : "false")) + "]"))).Append("]");
+        // Cover flags by connector: "m|f:x,y,z", the connector's position in its brick's space rounded to whole u, so the
+        // test matches them without sharing any order or name (the placed 2x4 plate names its connectors differently
+        // from the held one).
+        string Key(Built b, LegoConnectorScript s)
+        {
+            Vector3 l = b.root.transform.InverseTransformPoint(s.transform.position) / W;
+            int Rn(float v) => (int)Math.Round(v, MidpointRounding.AwayFromZero);
+            return $"{(s.female ? "f" : "m")}:{Rn(l.x)},{Rn(l.y)},{Rn(l.z)}";
+        }
+        sb.Append(",\"covered\":[").Append(string.Join(",", bricks.Select(b => "{" + string.Join(",", b.all.Select(s => $"\"{Key(b, s)}\":{(s.covered ? "true" : "false")}")) + "}"))).Append("]");
         sb.Append(",\"pairs\":").Append(held.female.Concat(held.male).Sum(s => s.connectorsCollidingWith.Count));
         sb.Append("}}");
         return sb.ToString();
@@ -252,6 +230,7 @@ public static class Harness
         string root = Path.GetFullPath(Path.Combine(here, "..", "..", "..", ".."));
         if (!File.Exists(Path.Combine(root, "src", "catalogue.json"))) root = Directory.GetCurrentDirectory();
         Catalogue = Load(Path.Combine(root, "src", "catalogue.json"));
+        Resources = Path.GetFullPath(Path.Combine(root, "..", "..", "Assets", "Resources"));
         Rng = new Random(20261124);
         var cases = new List<string>();
         var withFemales = Types(b => b.connectors.Any(c => c.kind == "female" && Upright(c)));

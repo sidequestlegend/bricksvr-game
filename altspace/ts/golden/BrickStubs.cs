@@ -8,7 +8,7 @@
 //     keeps the world pose (as Unity does); eulerAngles in Unity's Z-X-Y convention; RotateAround; TransformPoint.
 //   - Quaternion: Unity's Euler, multiplication, Angle (with its 1e-6 "same rotation" shortcut), AngleAxis.
 //   - Physics: CheckBox and OverlapBoxNonAlloc as exact oriented-box overlap (separating axes) against every enabled
-//     BoxCollider, honouring layers and QueryTriggerInteraction.Ignore.
+//     BoxCollider on an active object, honouring layers and QueryTriggerInteraction.Ignore.
 // Everything else (haptics, ownership, interactables) is an inert stub.
 
 using System;
@@ -76,6 +76,7 @@ namespace UnityEngine
         public bool CompareTag(string t) => tag == t;
         public static GameObject FindWithTag(string tag) => Tagged.TryGetValue(tag, out var g) ? g : null;
         public void SetActive(bool v) { activeSelf = v; }
+        public bool activeInHierarchy { get { for (Transform t = transform; t != null; t = t.parent) if (!t.gameObject.activeSelf) return false; return true; } }
     }
 
     public class Transform : Component, IEnumerable
@@ -311,7 +312,7 @@ namespace UnityEngine
             Queries++;
             foreach (var c in All)
             {
-                if (!(c is BoxCollider b) || !b.enabled || !c.gameObject.activeSelf || !c.gameObject.alive) continue;
+                if (!(c is BoxCollider b) || !b.enabled || !c.gameObject.activeInHierarchy || !c.gameObject.alive) continue;
                 if ((mask & (1 << c.gameObject.layer)) == 0) continue;
                 if (c.isTrigger && q == QueryTriggerInteraction.Ignore) continue;
                 Vector3 cc = b.transform.TransformPoint(b.center);

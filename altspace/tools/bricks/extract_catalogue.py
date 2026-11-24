@@ -73,7 +73,8 @@ def parse_prefab(path):
         elif t == 4:
             g = re.search(r"m_GameObject: \{fileID: (-?\d+)\}", b).group(1)
             trs[k] = dict(go=g, p=vec(re.search(r"m_LocalPosition: (\{.*\})", b).group(1)), q=vec(re.search(r"m_LocalRotation: (\{.*\})", b).group(1)),
-                          s=vec(re.search(r"m_LocalScale: (\{.*\})", b).group(1)), father=re.search(r"m_Father: \{fileID: (-?\d+)\}", b).group(1))
+                          s=vec(re.search(r"m_LocalScale: (\{.*\})", b).group(1)), father=re.search(r"m_Father: \{fileID: (-?\d+)\}", b).group(1),
+                          children=re.findall(r"- \{fileID: (-?\d+)\}", b.split("m_Children:")[1].split("m_Father:")[0]))
             go_tr[g] = k
         else:
             g = re.search(r"m_GameObject: \{fileID: (-?\d+)\}", b)
@@ -99,14 +100,34 @@ def parse_prefab(path):
         f = trs[go_tr[g]]["father"]
         return gos[trs[f]["go"]]["name"] if f != "0" else None
 
-    root_go = next(trs[k]["go"] for k in trs if trs[k]["father"] == "0")
+    root_tr = next(k for k in trs if trs[k]["father"] == "0")
+    root_go = trs[root_tr]["go"]
+
+    def walk(tk):
+        """Every transform under tk, depth first, each parent's children in m_Children order (Unity's child order)."""
+        yield tk
+        for c in trs[tk]["children"]:
+            yield from walk(c)
+
+    # Connectors in child order: BrickAttachDetector.OnValidate fills _maleConnectors / _femaleConnectors by walking
+    # the connector parents' children (BrickAttachDetector.cs:446-456), and connectorsToUse[0] (:188-221, :392-397)
+    # depends on that order. Not the YAML's document (fileID) order.
     connectors = []
-    for g, info in gos.items():
+    for tk in walk(root_tr):
+        g = trs[tk]["go"]
+        info = gos[g]
         if info["tag"] not in ("Connector-Male", "Connector-Female"):
             continue
         p, q, s = root_space(go_tr[g])
         connectors.append(dict(kind="male" if info["tag"] == "Connector-Male" else "female", name=info["name"], parent=parent_name(g),
                                p=rnd(p), q=rnd(q), scale=round(s[0], 6)))
+
+    def active_in_hierarchy(tk):
+        while tk in trs:
+            if not gos[trs[tk]["go"]]["active"]:
+                return False
+            tk = trs[tk]["father"]
+        return True
 
     def box(ck, b):
         g = re.search(r"m_GameObject: \{fileID: (-?\d+)\}", b).group(1)
@@ -115,7 +136,8 @@ def parse_prefab(path):
         size = vec(re.search(r"m_Size: (\{.*\})", b).group(1))
         cw = qrot(q, [c[i] * s[i] for i in range(3)])
         return dict(object=gos[g]["name"], c=rnd([p[i] + cw[i] for i in range(3)]), size=rnd([size[i] * s[i] for i in range(3)]), q=rnd(q),
-                    trigger=re.search(r"m_IsTrigger: (\d)", b).group(1) == "1", layer=gos[g]["layer"])
+                    trigger=re.search(r"m_IsTrigger: (\d)", b).group(1) == "1", layer=gos[g]["layer"],
+                    enabled=re.search(r"m_Enabled: (\d)", b).group(1) == "1" and active_in_hierarchy(go_tr[g]))
 
     boxes = {ck: box(ck, b) for g, lst in comps.items() for (ck, t, b) in lst if t == 65}
     detector = None
@@ -132,8 +154,28 @@ def parse_prefab(path):
                                 rootBox=next((boxes[c2] for (c2, t2, _b) in comps.get(root_go, []) if t2 == 65 and c2 in boxes), None))
             if "swapPrefab:" in b and "normalPrefabName:" in b:
                 attach = dict(swapPrefab=re.search(r"swapPrefab: ?(.*)", b).group(1).strip(), normalPrefabName=re.search(r"normalPrefabName: ?(.*)", b).group(1).strip())
-    solid = [bx for bx in boxes.values() if not bx["trigger"]]
-    return dict(connectors=connectors, detector=detector, attach=attach, solidBoxes=solid)
+    # Only colliders Unity's physics sees are obstacles: a disabled BoxCollider (m_Enabled: 0, e.g. the root box of
+    # placed arches, slopes and the pyramid) or one on an inactive object is not hit by Physics.CheckBox /
+    # OverlapBoxNonAlloc (BrickAttachDetector.cs:263-279, LegoConnectorScript.cs:131-156).
+    solid = [bx for bx in boxes.values() if not bx["trigger"] and bx["enabled"]]
+    disabled = [bx for bx in boxes.values() if not bx["trigger"] and not bx["enabled"]]
+    serialized = {}
+    for g, lst in comps.items():
+        for ck, t, b in lst:
+            if t == 114 and "_maleConnectors:" in b:
+                for kind, field in (("male", "_maleConnectors"), ("female", "_femaleConnectors")):
+                    lines = b.split("\n  " + field + ":", 1)[1].split("\n")[1:]
+                    ids = re.findall(r"- \{fileID: (-?\d+)\}", "\n".join(iter_list(lines)))
+                    serialized[kind] = [gos[f]["name"] for f in ids if f in gos]
+    return dict(connectors=connectors, detector=detector, attach=attach, solidBoxes=solid, disabledBoxes=disabled, serialized=serialized)
+
+
+def iter_list(lines):
+    """The YAML list items ("  - ...") at the start of `lines`."""
+    for l in lines:
+        if not l.startswith("  - "):
+            return
+        yield l
 
 
 def parse_brickdata():
@@ -176,6 +218,8 @@ def main():
     bd_path = os.path.join(REPO, "Assets", "Scripts", "BrickData.cs")
     bricks = []
     placed_connectors = []
+    order_mismatch = []
+    dropped_disabled = 0
     for e in entries:
         held = parse_prefab(os.path.join(RES, e["prefab"] + ".prefab"))
         placed = parse_prefab(os.path.join(RES, e["prefab"] + " - Placed.prefab"))
@@ -198,6 +242,11 @@ def main():
             placedBoxes=[dict(c=b["c"], size=b["size"], q=b["q"]) for b in placed["solidBoxes"] if b["layer"] == PLACED_LEGO],
         ))
         placed_connectors.append(placed["connectors"])
+        for kind in ("male", "female"):
+            mine = [c["name"] for c in held["connectors"] if c["kind"] == kind]
+            if held["serialized"].get(kind) != mine:
+                order_mismatch.append(f"{e['prefab']} {kind}: child order {mine}, serialized {held['serialized'].get(kind)}")
+        dropped_disabled += sum(1 for b in placed["disabledBoxes"] if b["layer"] == PLACED_LEGO)
     doc = {
         "_doc": "Generated by altspace/tools/bricks/extract_catalogue.py from BrickData.cs, the held and placed prefabs in "
                 "Assets/Resources and bricks.json. Poses are in the brick root's space in upstream world units (1 unit = 1/7 "
@@ -213,7 +262,11 @@ def main():
         diffs = [c["name"] for c, d in zip(sorted(b["connectors"], key=lambda c: (c["kind"], c["name"])), sorted(pc, key=lambda c: (c["kind"], c["name"]))) if c["p"] != d["p"]]
         if len(b["connectors"]) != len(pc) or diffs:
             print(f"  note: {b['prefab']}: placed prefab's connectors differ from the held one's ({len(b['connectors'])} vs {len(pc)}) {diffs}")
-    return 0
+    print(f"  disabled placed colliders left out: {dropped_disabled}")
+    print(f"  connector lists whose child order differs from the serialized _maleConnectors / _femaleConnectors: {len(order_mismatch)}")
+    for m in order_mismatch:
+        print("    " + m)
+    return 1 if order_mismatch else 0
 
 
 if __name__ == "__main__":

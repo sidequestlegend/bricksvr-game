@@ -23,7 +23,8 @@ interface SnapCase {
   kind: string;
   placed: Array<{ type: number; ori: number; pos: V3 }>;
   held: { type: number; pos: V3; q: Q };
-  upstream: { can: boolean; pos?: V3; q?: Q; down?: boolean; covered: boolean[][] };
+  /** Cover flags per placed brick, by connector: "m|f:x,y,z", its position in the brick's space in whole u (no shared order). */
+  upstream: { can: boolean; pos?: V3; q?: Q; down?: boolean; covered: Array<Record<string, boolean>> };
   pairs: number;
 }
 
@@ -46,8 +47,14 @@ test(`snapping: ${vectors.snap.length} situations agree with the upstream C#`, (
     c.placed.forEach((p, i) => store.add({ id: `b${i}`, type: p.type, ori: p.ori, pos: p.pos, color: -1 }));
     // cover flags
     c.placed.forEach((_p, i) => {
-      const got = store.bricks.get(`b${i}`)!.covered;
-      if (JSON.stringify(got) !== JSON.stringify(c.upstream.covered[i])) problems.push(`#${n} ${c.kind}: brick ${i} covered ${JSON.stringify(got)} upstream ${JSON.stringify(c.upstream.covered[i])}`);
+      const b = store.bricks.get(`b${i}`)!;
+      const got: Record<string, boolean> = {};
+      const r = (v: number) => Math.sign(v) * Math.round(Math.abs(v));
+      b.def.connectors.forEach((k) => (got[`${k.male ? "m" : "f"}:${k.probe.map(r).join(",")}`] = b.covered[k.index]!));
+      const want = c.upstream.covered[i]!;
+      const keys = [...new Set([...Object.keys(got), ...Object.keys(want)])].sort();
+      const bad = keys.filter((k) => got[k] !== want[k]);
+      if (bad.length) problems.push(`#${n} ${c.kind}: brick ${i} covered differs at ${bad.map((k) => `${k} port ${got[k]} upstream ${want[k]}`).join(", ")}`);
     });
     const snap = CheckIfCanConnect(store, c.held, true);
     const t = (tally[c.kind] ??= { n: 0, attach: 0 });
