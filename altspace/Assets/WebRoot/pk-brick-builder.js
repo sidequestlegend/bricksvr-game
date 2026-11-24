@@ -22,6 +22,29 @@
  * altspace/ts; build with npm run build). It bundles the portkit runtime (MIT License, Copyright (c) 2026 the portkit
  * authors).
  */
+/*! The portkit runtime in this file:
+ * MIT License
+ *
+ * Copyright (c) 2026 the portkit authors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 /* pk-brick-builder.js: portkit runtime with the rules of 'brick-builder' (protocol pk1, bindings c3c20bbbc4a96e83bdb0e5952d06da4038cde1d9). Built file: do not edit. */
 (() => {
   var __defProp = Object.defineProperty;
@@ -1463,6 +1486,9 @@
       __publicField(this, "received", 0);
       /** Requests naming a method that may not be called from the network, for tests and diagnostics. */
       __publicField(this, "refusedCount", 0);
+      /** Events asked for in this turn, sent after it (with the state the whole turn wrote). */
+      __publicField(this, "outbox", []);
+      __publicField(this, "draining", false);
       __publicField(this, "refusedNames", /* @__PURE__ */ new Set());
       this.core = core;
       this.sync = sync;
@@ -1483,16 +1509,14 @@
       if (args.length) fields.a = args.map(encodeValue);
       const me = this.core.me.sid;
       let ownerSid;
+      let outSlot = null;
       if (address.playerSid !== null) {
         fields.ps = address.playerSid;
         ownerSid = address.playerSid;
       } else {
         const slot = this.sync.slotOf(behaviour);
         ownerSid = slot ? this.sync.ownerSid(slot) : null;
-        if (slot && ownerSid === me) {
-          const mark = this.sync.flushOne(slot);
-          if (mark && mark.w === me) fields.s = [mark.g, mark.n];
-        }
+        if (slot && ownerSid === me) outSlot = slot;
       }
       if (target === "Owner") {
         if (ownerSid === me) {
@@ -1505,7 +1529,34 @@
         }
         fields.o = ownerSid;
       } else this.invoke(behaviour, name, args, me);
-      this.post(behaviour, name, fields);
+      this.outbox.push({ behaviour, name, fields, slot: outSlot });
+      if (!this.draining) {
+        this.draining = true;
+        Promise.resolve().then(() => this.drain());
+      }
+    }
+    /**
+     * After the turn that asked for them: the state every handler of the turn changed is written (one write per slot),
+     * then the events go, in the order they were asked for.
+     */
+    drain() {
+      this.draining = false;
+      if (this.core.disposed) {
+        this.outbox = [];
+        return;
+      }
+      const out = this.outbox;
+      this.outbox = [];
+      if (!out.length) return;
+      this.sync.flushDirty();
+      const me = this.core.me.sid;
+      for (const item of out) {
+        if (item.slot) {
+          const mark = this.sync.flushOne(item.slot);
+          if (mark && mark.w === me) item.fields.s = [mark.g, mark.n];
+        }
+        this.post(item.behaviour, item.name, item.fields);
+      }
     }
     post(behaviour, name, fields) {
       const text = asciiJson(makeEnvelope(this.core.slug, this.core.inst, "ev", fields));
@@ -1710,6 +1761,8 @@
       __publicField(this, "queue", []);
       __publicField(this, "nextNumber", 0);
       __publicField(this, "acks");
+      __publicField(this, "reviewing", false);
+      __publicField(this, "reviewAgain", false);
       /** False until behaviours have started: the referee runs nothing before then. */
       __publicField(this, "started", false);
       __publicField(this, "run", 0);
@@ -1742,9 +1795,30 @@
       this.review();
       return n;
     }
-    /** Publishes, runs and acknowledges whatever is due. Also called about once a second. */
+    /**
+     * Publishes, runs and acknowledges whatever is due. Also called about once a second. Not re-entrant: a command
+     * handler that publishes a user-state record (Secrets.beginDeal, presence.setExtra) tells every record listener at
+     * once, which calls this again; that call is held and run after the current pass, so no command runs inside another.
+     */
     review() {
       if (this.core.disposed || !this.started) return;
+      if (this.reviewing) {
+        this.reviewAgain = true;
+        return;
+      }
+      this.reviewing = true;
+      try {
+        let passes = 0;
+        do {
+          this.reviewAgain = false;
+          this.reviewOnce();
+        } while (this.reviewAgain && !this.core.disposed && ++passes < 16);
+      } finally {
+        this.reviewing = false;
+        this.reviewAgain = false;
+      }
+    }
+    reviewOnce() {
       const me = this.core.me.sid;
       const acked = this.table()[me] ?? 0;
       while (this.queue.length && this.queue[0].n <= acked) {
@@ -1785,7 +1859,8 @@
           if (q[0] <= acked) continue;
           if (acked > 0 && q[0] !== acked + 1) break;
           table[who.sid] = q[0];
-          changed = true;
+          this.acks.write(table);
+          changed = false;
           const behaviour = this.routes.resolve(q[1], typeof q[2] === "string" && q[2] ? q[2] : null);
           const args = Array.isArray(q[4]) ? q[4].map(decodeValue) : [];
           this.run++;
@@ -1956,8 +2031,12 @@
       /** Payloads and records handed to the bridge, for tests and diagnostics. */
       __publicField(this, "payloadsSent", 0);
       __publicField(this, "recordsSent", 0);
-      /** Used instead of the relay for an object that is not in refs but that the page can reach. */
-      __publicField(this, "fallbackActive", () => false);
+      /**
+       * The path under the kit root of a bound object (bindings.objects), or undefined. `setActive` on a bound object
+       * outside refs goes by the relay as `@<path>`: one road for the object's whole life, in order with every other
+       * relay op, and one that can switch an object the page cannot see (an inactive one) back on.
+       */
+      __publicField(this, "pathOf", () => void 0);
       /** Plays a clip of the object's own list through the page when the page can reach the object. */
       __publicField(this, "fallbackClip", () => false);
       this.platform = platform;
@@ -2008,7 +2087,10 @@
       this.value("uiColor", target, "uiColor", [relayNumber(color.r), relayNumber(color.g), relayNumber(color.b), relayNumber(color.a)]);
     }
     setActive(target, active) {
-      if (!target.startsWith("@") && this.refs.indexOf(target) < 0 && this.fallbackActive(target, active)) return;
+      if (!target.startsWith("@") && this.refs.indexOf(target) < 0) {
+        const path = this.pathOf(target);
+        if (path !== void 0) target = "@" + path;
+      }
       this.value("active", target, "active", [active ? "1" : "0"]);
     }
     playClip(target, clipIndex, clipsOn, volumeScale) {
@@ -2044,6 +2126,11 @@
     }
     rbVelocity(target, velocity) {
       this.event("rbVelocity", target, [relayNumber(velocity.x), relayNumber(velocity.y), relayNumber(velocity.z)]);
+    }
+    rbLaunch(target, velocity) {
+      this.event("rbLaunch", target, [relayNumber(velocity.x), relayNumber(velocity.y), relayNumber(velocity.z)]);
+      const wire = this.resolve("rbLaunch", target);
+      if (wire !== null) this.last.delete(`${wire}/rbKinematic`);
     }
     rbKinematic(target, kinematic) {
       this.value("rbKinematic", target, "rbKinematic", [kinematic ? "1" : "0"]);
@@ -2299,7 +2386,16 @@
     AttachToHand(side, position = new Vector3(), rotation = new Quaternion()) {
       this.host?.attachToHand(side, position, rotation);
     }
-    /** Lets go of what AttachToHand attached. */
+    /**
+     * Attaches this object to the local player's head, at an offset from it (BS.AttachedObject, attachment point Head;
+     * UNVERIFIED in Play mode): a label over the player's avatar. With `autoSync` the app shows the attachment to the
+     * other players too (the object gets its per-instance network id if it has none), so each player attaches their
+     * own object (one per player: a per-player behaviour's object, or a pool) and everyone sees every label.
+     */
+    AttachToHead(position = new Vector3(), rotation = new Quaternion(), autoSync = false) {
+      this.host?.attachToHead?.(position, rotation, autoSync);
+    }
+    /** Lets go of what AttachToHand or AttachToHead attached. */
     Detach() {
       this.host?.detach();
     }
@@ -2331,10 +2427,11 @@
   var TextRef = class extends ComponentRef {
     constructor() {
       super(...arguments);
-      __publicField(this, "value", "");
+      /** Null until the script first sets it: the kit's own text (a prefab placeholder) is unknown, so the first value is always sent, "" included. */
+      __publicField(this, "value", null);
     }
     get text() {
-      return this.value;
+      return this.value ?? "";
     }
     set text(value) {
       const next = value === null || value === void 0 ? "" : String(value);
@@ -3385,9 +3482,10 @@ ${index}`));
     }
   };
   var DRAW_KEEP_MS = 12e4;
+  var ANSWERED_MAX = 1024;
   function parseDrawEntry(e) {
     if (!Array.isArray(e) || typeof e[0] !== "string" || typeof e[1] !== "string" || typeof e[2] !== "string") return null;
-    return [e[0], e[1], e[2], typeof e[3] === "number" ? e[3] : 0, e[4] === 1 ? 1 : 0, typeof e[5] === "string" ? e[5] : ""];
+    return [e[0], e[1], e[2], typeof e[3] === "number" ? e[3] : 0, e[4] === 1 ? 1 : 0, typeof e[5] === "string" ? e[5] : "", typeof e[6] === "string" ? e[6] : "", typeof e[7] === "string" ? e[7] : ""];
   }
   var CURVE = { name: "ECDH", namedCurve: "P-256" };
   function parseDeal(raw) {
@@ -3414,13 +3512,27 @@ ${index}`));
       __publicField(this, "lastStates", /* @__PURE__ */ new Map());
       /** The referee's numbers and judgements, read from the referee's own user state. */
       __publicField(this, "numbers");
+      /** Per `<uid>\n<label>`: the hash and number first seen, and whether the entry checked out when it appeared. */
       __publicField(this, "pins", /* @__PURE__ */ new Map());
+      /** Witness answers seen this epoch: `<witness sid>\n<drawer uid>\n<label>\n<hash>` -> number (the first one stays). */
+      __publicField(this, "answers", /* @__PURE__ */ new Map());
+      /** The first commitment seen per `<uid>\n<label>` this epoch (a referee may not re-commit after its witness answered). */
+      __publicField(this, "firstCommit", /* @__PURE__ */ new Map());
+      /** Entries already in the first table this client read this epoch: numbered before it was here, so taken as found. */
+      __publicField(this, "baseline", null);
       __publicField(this, "pinsEpoch", -1);
       __publicField(this, "warnedPins", /* @__PURE__ */ new Set());
       __publicField(this, "goneSince", /* @__PURE__ */ new Map());
+      /** Witness only: the commitment answered per `<epoch>\n<referee uid>\n<label>`. */
+      __publicField(this, "witnessed", /* @__PURE__ */ new Map());
+      /** Referee only: the first entry answered per `<uid>\n<label>` in `answeredEpoch` (see officiate). */
+      __publicField(this, "answered", /* @__PURE__ */ new Map());
+      __publicField(this, "answeredEpoch", -1);
       __publicField(this, "drawStore", null);
       __publicField(this, "drawKey", "");
       __publicField(this, "restoring", null);
+      /** The draw the restore brought back, until the game's first beginDraw (which keeps it under the same label). */
+      __publicField(this, "restored", null);
       /** The referee's own seed for its current deal. */
       __publicField(this, "dealSeed", null);
       /** This player's contribution to a deal. */
@@ -3430,6 +3542,7 @@ ${index}`));
       /** Told when a player's draw changes state. */
       __publicField(this, "onDrawChanged", () => {
       });
+      __publicField(this, "warnedDeals", /* @__PURE__ */ new Set());
       this.core = core;
       this.presence = presence;
       this.referee = referee;
@@ -3491,16 +3604,35 @@ ${index}`));
     //   x.fr  [label, secret]        the player's reveal, in the player's own user state
     //   x.fn  {e, m: {sid: entry}}   the referee's numbers and judgements, in the referee's own user state
     //                                (refrecord.ts); entry = [label, hash, number, deadline, forfeit, uid]
+    //   x.fw  [drawer uid, label, hash, number]   a witness's answer to the referee's own commitment, in the witness's
+    //                                user state: the referee never supplies the number of its own draw (it knows its secret,
+    //                                and could search secrets or numbers until it liked the outcome)
     // Each client also keeps the first hash and number it saw for a player's label in this epoch (`pins`): a later
-    // table that changes them (a referee seat taken over by a modified client) is not believed.
+    // table that changes them (a referee seat taken over by a modified client) is not believed. An entry that appears
+    // while this client is here is checked when it appears: numbered by the referee publishing it ("r", for another
+    // player), or by that player's witness ("w": the number is the witness's published answer to the first commitment
+    // seen), or "s" (solo: believed only while nobody else takes part). Entries already there when this client first read
+    // the table were numbered before it came, and are taken as found.
     /** Starts a draw for the local player under `label` (a round name). It replaces their previous draw. */
     beginDraw(label) {
-      const secret = toBase64(this.crypto.getRandomValues(new Uint8Array(16)));
+      const pending = this.restoring && this.restoring.l === label ? this.restoring : null;
+      const restored = !pending && this.restored && this.restored.l === label && this.mySecret?.label === label ? this.restored : null;
+      const saved = pending ?? restored;
+      this.restored = null;
+      const secret = saved ? saved.s : toBase64(this.crypto.getRandomValues(new Uint8Array(16)));
       this.mySecret = { label, secret };
       this.restoring = null;
-      this.saveDraw(false);
-      this.presence.setExtra("fr", void 0);
+      this.saveDraw(!!saved && saved.r === 1);
+      this.presence.setExtra("fr", saved && saved.r === 1 ? [label, secret] : void 0);
       this.presence.setExtra("fd", [label, sha256Text(secret)]);
+      if (pending) this.core.log("info", `the draw '${label}' came back after a reload`);
+    }
+    /**
+     * True while a draw this device saved before a page reload may still come back (under `label`, or any label
+     * when none is given): the restore waits for the referee's table. `beginDraw` with the same label takes it over.
+     */
+    hasSavedDraw(label) {
+      return !!this.restoring && (label === void 0 || this.restoring.l === label);
     }
     /** Publishes the local player's secret for `label`, so everyone can compute and check the draw. */
     revealDraw(label) {
@@ -3525,10 +3657,13 @@ ${index}`));
     }
     /** Where a participant's draw under `label` stands, and the draw itself once this client may know it. */
     drawOf(sid, label) {
-      const entry = this.entryOf(sid);
+      const checked = this.entryOf(sid);
       const committed = this.presence.extra(sid, "fd");
       const hasCommit = Array.isArray(committed) && committed[0] === label && typeof committed[1] === "string";
-      if (!entry || entry[0] !== label) return { state: hasCommit ? "committed" : "none", draw: null };
+      if (!checked || checked.entry[0] !== label) return { state: hasCommit ? "committed" : "none", draw: null };
+      if (checked.verdict === "bad") return { state: "rejected", draw: null };
+      if (checked.verdict === "pending") return { state: "committed", draw: null };
+      const entry = checked.entry;
       const [, hash, number, , forfeit] = entry;
       if (hasCommit && committed[1] !== hash) return { state: "rejected", draw: null };
       const revealed = this.presence.extra(sid, "fr");
@@ -3547,41 +3682,129 @@ ${index}`));
     myDraw(label) {
       return this.drawOf(this.core.me.sid, label).draw;
     }
-    /** A participant's entry in the referee's table, with the hash and number this client saw first. */
+    /** A participant's entry in the referee's table, with the hash and number this client saw first, and whether it checks out. */
     entryOf(sid) {
-      const entry = this.numbers.read()[sid];
+      const table = this.numbers.read();
+      this.newEpoch(table);
+      this.collect();
+      const entry = table[sid];
       if (!entry) return null;
-      const epoch = this.referee.epoch;
-      if (this.pinsEpoch !== epoch) {
-        this.pins.clear();
-        this.pinsEpoch = epoch;
-      }
       const key = `${entry[5]}
 ${entry[0]}`;
-      const pin = this.pins.get(key);
+      let pin = this.pins.get(key);
       if (!pin) {
-        this.pins.set(key, [entry[1], entry[2]]);
-        return entry;
+        const publisher = this.referee.current()?.sid ?? "";
+        pin = { h: entry[1], n: entry[2], verdict: "pending", live: !(this.baseline?.has(key) ?? false), publisher };
+        this.pins.set(key, pin);
       }
-      if (pin[0] !== entry[1] || pin[1] !== entry[2]) {
+      if (pin.h !== entry[1] || pin.n !== entry[2]) {
         if (!this.warnedPins.has(key)) {
           this.warnedPins.add(key);
           this.core.log("warn", `the referee's table changed the pinned commitment or number of a draw (${entry[0]}); keeping the first one seen`);
         }
-        return [entry[0], pin[0], pin[1], entry[3], entry[4], entry[5]];
       }
-      return entry;
+      const kept = [entry[0], pin.h, pin.n, entry[3], entry[4], entry[5], entry[6], entry[7]];
+      if (pin.verdict !== "ok" && pin.verdict !== "bad") {
+        pin.verdict = this.judge(sid, kept, pin.live, pin.publisher);
+        if (pin.verdict === "bad") this.core.log("warn", `a draw (${entry[0]}) whose number its own player could have chosen is not believed (${kept[7] || "?"} by ${kept[6] || "?"})`);
+      }
+      const verdict = kept[7] === "s" && pin.verdict === "ok" && this.presence.list().length > 1 ? "bad" : pin.verdict;
+      if (verdict === "bad" && pin.verdict === "ok" && !this.warnedPins.has("solo:" + key)) {
+        this.warnedPins.add("solo:" + key);
+        this.core.log("warn", `a draw (${entry[0]}) whose number its own player could have chosen is not believed (solo, while others take part)`);
+      }
+      return { entry: kept, verdict };
+    }
+    /** Clears what this client keeps per epoch, and takes the first table it reads as the baseline. */
+    newEpoch(table) {
+      const epoch = this.referee.epoch;
+      if (this.pinsEpoch !== epoch) {
+        this.pins.clear();
+        this.answers.clear();
+        this.firstCommit.clear();
+        this.baseline = null;
+        this.pinsEpoch = epoch;
+      }
+      if (this.baseline === null && epoch !== 0) {
+        const ref = this.referee.current();
+        if (!ref) return;
+        this.baseline = new Set(Object.keys(table).map((sid) => `${table[sid][5]}
+${table[sid][0]}`));
+      }
+    }
+    /** Records every witness answer and first commitment in view (they outlive their writer's visit in this memory). */
+    collect() {
+      for (const who of this.presence.list()) {
+        const fw = this.presence.extra(who.sid, "fw");
+        if (Array.isArray(fw) && fw.length >= 4 && fw.slice(0, 4).every((x) => typeof x === "string")) {
+          const key = `${who.sid}
+${fw[0]}
+${fw[1]}
+${fw[2]}`;
+          if (!this.answers.has(key)) this.answers.set(key, fw[3]);
+        }
+        const fd = this.presence.extra(who.sid, "fd");
+        if (Array.isArray(fd) && typeof fd[0] === "string" && typeof fd[1] === "string") {
+          const key = `${who.uid}
+${fd[0]}`;
+          if (!this.firstCommit.has(key)) this.firstCommit.set(key, fd[1]);
+        }
+      }
+    }
+    /** Whether an entry that appeared while this client was here was numbered by somebody other than its own player. */
+    judge(sid, entry, live, publisher) {
+      if (!live) return "ok";
+      const [label, hash, number, , , uid, by, how] = entry;
+      if (how === "r") return by !== "" && by === publisher && by !== sid ? "ok" : "bad";
+      if (how === "s") return "ok";
+      if (how === "w") {
+        if (by === "" || by === sid || by === publisher) return "bad";
+        const first = this.firstCommit.get(`${uid}
+${label}`);
+        if (first !== void 0 && first !== hash) return "bad";
+        const answer = this.answers.get(`${by}
+${uid}
+${label}
+${hash}`);
+        if (answer !== void 0) return answer === number ? "ok" : "bad";
+        return this.presence.has(by) ? "pending" : "bad";
+      }
+      return "bad";
+    }
+    /**
+     * The witness's part: the lowest-ranked participant other than the referee answers the referee's commitment with a
+     * number of its own, once per label (a referee that re-commits after seeing the answer gets no second one).
+     */
+    witness() {
+      const ref = this.referee.current();
+      const me = this.core.me;
+      if (!ref || ref.sid === me.sid) return;
+      const others = this.presence.list().filter((p) => p.sid !== ref.sid);
+      if (!others.length || others[0].sid !== me.sid) return;
+      const fd = this.presence.extra(ref.sid, "fd");
+      if (!Array.isArray(fd) || typeof fd[0] !== "string" || typeof fd[1] !== "string") return;
+      const key = `${this.referee.epoch}
+${ref.uid}
+${fd[0]}`;
+      const first = this.witnessed.get(key);
+      if (first !== void 0) return;
+      const entry = this.numbers.read()[ref.sid];
+      if (entry && entry[0] === fd[0] && entry[5] === ref.uid) return;
+      this.witnessed.set(key, fd[1]);
+      while (this.witnessed.size > ANSWERED_MAX) this.witnessed.delete(this.witnessed.keys().next().value);
+      this.presence.setExtra("fw", [ref.uid, fd[0], fd[1], toBase64(this.crypto.getRandomValues(new Uint8Array(16)))]);
     }
     /** Looks at every participant's draw: the referee answers and judges, and everyone reports changes. */
     review() {
       if (this.core.disposed) return;
       this.reviewDeal();
       this.restoreDraw();
+      this.witness();
       if (this.referee.isMe()) this.officiate();
       for (const who of this.presence.list()) {
         const committed = this.presence.extra(who.sid, "fd");
-        const entry = this.entryOf(who.sid);
-        const label = entry ? entry[0] : Array.isArray(committed) && typeof committed[0] === "string" ? committed[0] : null;
+        const checked = this.entryOf(who.sid);
+        const label = checked ? checked.entry[0] : Array.isArray(committed) && typeof committed[0] === "string" ? committed[0] : null;
         if (label === null) continue;
         const status = this.drawOf(who.sid, label);
         const mark = `${label}
@@ -3609,20 +3832,42 @@ ${status.state}`;
           changed = true;
         }
       }
+      if (this.answeredEpoch !== this.referee.epoch) {
+        this.answered.clear();
+        this.answeredEpoch = this.referee.epoch;
+      }
+      for (const sid of Object.keys(table)) this.remember(table[sid]);
       for (const who of this.presence.list()) {
         const committed = this.presence.extra(who.sid, "fd");
         const entry = table[who.sid];
         if (Array.isArray(committed) && typeof committed[0] === "string" && typeof committed[1] === "string") {
           if (!entry || entry[0] !== committed[0]) {
-            const before = Object.keys(table).find((sid) => {
-              const e = table[sid];
-              return !this.presence.has(sid) && e[5] === who.uid && e[0] === committed[0] && e[1] === committed[1];
-            });
-            if (before !== void 0) {
-              table[who.sid] = table[before];
-              delete table[before];
-              this.goneSince.delete(before);
-            } else table[who.sid] = [committed[0], committed[1], toBase64(this.crypto.getRandomValues(new Uint8Array(16))), 0, 0, who.uid];
+            const label = committed[0];
+            const holders = Object.keys(table).filter((sid) => sid !== who.sid && table[sid][5] === who.uid && table[sid][0] === label);
+            const departed = holders.find((sid) => !this.presence.has(sid) && table[sid][1] === committed[1]) ?? holders.find((sid) => !this.presence.has(sid));
+            const holder = departed ?? holders[0];
+            const first = holder !== void 0 ? table[holder] : this.answered.get(`${who.uid}
+${label}`);
+            if (first) {
+              table[who.sid] = [label, first[1], first[2], first[3], first[4], who.uid, first[6], first[7]];
+              if (departed !== void 0) {
+                delete table[departed];
+                this.goneSince.delete(departed);
+              }
+              if (first[1] !== committed[1]) {
+                this.core.log("warn", `a new session of a player committed a different secret for the draw '${label}' they already hold (a re-roll by reloading?): refused, the first commitment stands`);
+              }
+            } else if (who.sid !== this.core.me.sid) {
+              table[who.sid] = [label, committed[1], toBase64(this.crypto.getRandomValues(new Uint8Array(16))), 0, 0, who.uid, this.core.me.sid, "r"];
+              this.remember(table[who.sid]);
+            } else {
+              const others = this.presence.list().filter((p) => p.sid !== who.sid);
+              const answer = others.map((p) => ({ sid: p.sid, fw: this.presence.extra(p.sid, "fw") })).find((a) => Array.isArray(a.fw) && a.fw[0] === who.uid && a.fw[1] === label && a.fw[2] === committed[1] && typeof a.fw[3] === "string");
+              if (answer) table[who.sid] = [label, committed[1], answer.fw[3], 0, 0, who.uid, answer.sid, "w"];
+              else if (!others.length) table[who.sid] = [label, committed[1], toBase64(this.crypto.getRandomValues(new Uint8Array(16))), 0, 0, who.uid, who.sid, "s"];
+              else continue;
+              this.remember(table[who.sid]);
+            }
             changed = true;
             continue;
           }
@@ -3637,6 +3882,14 @@ ${status.state}`;
         }
       }
       if (changed) this.numbers.write(table);
+    }
+    /** The referee keeps the first entry it answered per user and label for the epoch (bounded). */
+    remember(entry) {
+      const key = `${entry[5]}
+${entry[0]}`;
+      if (this.answered.has(key)) return;
+      this.answered.set(key, [entry[0], entry[1], entry[2], 0, 0, entry[5], entry[6], entry[7]]);
+      while (this.answered.size > ANSWERED_MAX) this.answered.delete(this.answered.keys().next().value);
     }
     saveDraw(revealed) {
       if (!this.drawStore || !this.mySecret) return;
@@ -3664,6 +3917,7 @@ ${status.state}`;
       const mine = Object.keys(table).map((sid) => table[sid]).filter((e) => e[5] === this.core.me.uid);
       if (mine.some((e) => e[0] === saved.l && e[1] === hash)) {
         this.restoring = null;
+        this.restored = saved;
         this.mySecret = { label: saved.l, secret: saved.s };
         this.presence.setExtra("fd", [saved.l, hash]);
         if (saved.r) this.presence.setExtra("fr", [saved.l, saved.s]);
@@ -3681,6 +3935,9 @@ ${status.state}`;
     /** The referee starts a deal under `label` for the players with these session ids. Replaces its previous deal. */
     beginDeal(label, sids) {
       if (!this.referee.isMe()) return;
+      if (!sids.some((sid) => sid !== this.core.me.sid)) {
+        this.core.log("warn", `beginDeal('${label}') lists no player but the referee: the deal is the referee's own choice, not a fair one`);
+      }
       const seed = toBase64(this.crypto.getRandomValues(new Uint8Array(16)));
       this.dealSeed = { label, seed };
       this.presence.setExtra("dl", { l: label, h: sha256Text(seed), s: sids.slice(), p: 0 });
@@ -3711,14 +3968,43 @@ ${status.state}`;
       if (!this.referee.isMe() || !deal || deal.l !== label || !this.dealSeed || this.dealSeed.label !== label) return;
       this.presence.setExtra("dl", { ...deal, r: this.dealSeed.seed });
     }
-    /** After revealDeal: the deal, recomputed here from the referee's seed and the contributions this client saw; null if it does not check out. */
-    verifyDeal(label) {
+    /** The session ids the current referee listed as contributors to the deal under `label`, or null (no such deal). */
+    dealContributors(label) {
+      const deal = this.currentDeal();
+      return deal && deal.l === label ? deal.s.slice() : null;
+    }
+    /**
+     * After revealDeal: the deal, recomputed here from the referee's seed and the contributions this client saw; null if it
+     * does not check out. A deal with no contributor but the referee is never fair (the referee could have searched seeds
+     * before committing): null, and a warning. With `expected` (the session ids the game says must contribute: the seated
+     * players), the referee's list must be exactly those, or the deal is null too (a referee that leaves players out of
+     * the list, or lists only accomplices).
+     */
+    verifyDeal(label, expected) {
       const deal = this.currentDeal();
       if (!deal || deal.l !== label || deal.r === void 0) return null;
+      const ref = this.referee.current();
+      if (!deal.s.some((sid) => sid !== ref?.sid)) {
+        this.warnDeal(label, "lists no contributor but the referee: its outcome was the referee's own choice");
+        return null;
+      }
+      if (expected) {
+        const want = [...new Set(expected)].sort();
+        const listed = [...new Set(deal.s)].sort();
+        if (want.length !== listed.length || want.some((sid, i) => sid !== listed[i])) {
+          this.warnDeal(label, `lists ${listed.length} contributors, not the ${want.length} the game expects`);
+          return null;
+        }
+      }
       const seen = this.dealSeen.get(label);
       if (!seen || sha256Text(deal.r) !== seen.h) return null;
       const parts = this.contributions(deal);
       return parts ? new Draw(dealSeedOf(deal.r, label, parts)) : null;
+    }
+    warnDeal(label, why) {
+      if (this.warnedDeals.has(label)) return;
+      this.warnedDeals.add(label);
+      this.core.log("warn", `the deal '${label}' ${why}`);
     }
     currentDeal() {
       const ref = this.referee.current();
@@ -4312,6 +4598,16 @@ ${label}`)));
       this.stats.reverted++;
       this.deserialized(slot, changed, true);
     }
+    /** Writes every slot the local player owns and has changed (RequestSerialization), now: the end of one action. */
+    flushDirty() {
+      if (this.core.disposed || !this.started) return;
+      for (const slot of this.slots.values()) {
+        if (slot.mode === "none" || !slot.dirty) continue;
+        slot.dirty = false;
+        if (this.isOwner(slot)) this.write(slot);
+        else this.revert(slot);
+      }
+    }
     /** Serialises one slot now (used when an event must follow its state). Returns the marker of what it holds. */
     flushOne(slot) {
       if (slot.dirty && this.started && this.isOwner(slot)) {
@@ -4540,6 +4836,7 @@ ${label}`)));
       this.sync = new Sync(this.core, this.presence, this.referee, this.players);
       this.clockSync = new ClockSync(platform.clock);
       this.host = new RelayHost(platform, game2.slug, inst, bindings.refs);
+      this.host.pathOf = (key) => bindings.objects[key]?.path;
       this.storage = new Persistence(platform.storage, game2.slug, inst, platform.local().uid);
       this.secrets = new Secrets(this.core, this.presence, this.referee, () => this.clockSync.seconds());
       this.protectedValues = new ProtectedValues(this.core);
@@ -4606,7 +4903,7 @@ ${label}`)));
         },
         InReach: (point, metres) => !(metres > 0) || this.nearestDistance(point) <= metres,
         TeleportTo: (position, yDegrees, stopMovement = true) => {
-          this.position = position.clone();
+          this.moved(position);
           platform.teleport(position, yDegrees, stopMovement);
         },
         SetAbility: (ability, allowed) => {
@@ -4637,6 +4934,10 @@ ${label}`)));
           })
         );
         core.own(platform.onPose((poses) => this.onPose(poses)));
+        core.own(platform.onTeleported((position) => this.moved(position)));
+        void platform.localPosition().then((position) => {
+          if (position && !this.poses && !this.position && !core.disposed) this.position = position;
+        }, () => void 0);
         void platform.isVR().then((vr) => this.vr = vr, () => this.vr = false);
         core.own(platform.onInput((event) => this.onInput(event)));
         core.own(platform.onStateError(core.prefix + ".", (path, code, final) => this.onRefusedPath(path.slice(core.prefix.length + 1), code, final)));
@@ -4712,7 +5013,7 @@ ${label}`)));
           objects: keys.map((key) => {
             const o = bindings.objects[key];
             const synced = o.sync === "transform" || o.seat;
-            return { key, path: o.path, networkId: synced ? networkId(core.slug, core.inst, key) : "", sync: o.sync, grab: o.grab, click: o.click, seat: o.seat };
+            return { key, path: o.path, networkId: synced ? networkId(core.slug, core.inst, key) : "", attachNetworkId: networkId(core.slug, core.inst, key), sync: o.sync, grab: o.grab, click: o.click, seat: o.seat };
           })
         };
         try {
@@ -4732,12 +5033,6 @@ ${label}`)));
         const subscribe2 = (kind, handler) => this.addObjectHandler(key, kind, handler);
         this.objects.set(key, new GameObject(key, path.slice(path.lastIndexOf("/") + 1), this.kit?.objects.get(key) ?? null, this.host, subscribe2));
       }
-      this.host.fallbackActive = (key, active) => {
-        const object = this.kit?.objects.get(key);
-        if (!object) return false;
-        object.setActive(active);
-        return true;
-      };
       let hidden = 0;
       for (const key of keys) {
         if (bindings.objects[key].active !== false) continue;
@@ -4813,6 +5108,8 @@ ${label}`)));
       this.platform.expose(relayKey(core.slug, core.inst), {
         ...extra,
         digest: () => this.digest(),
+        version: () => this.version(),
+        stamp: () => ({ version: this.version(), digest: this.digest() }),
         state: () => JSON.parse(this.sync.snapshotText()),
         referee: () => this.referee.current(),
         players: () => this.players.list().map((p) => ({ id: p.playerId, name: p.displayName, sid: p.sid }))
@@ -5287,6 +5584,11 @@ ${label}`)));
       if (/^\d+$/.test(target)) return this.bindings.refs[Number(target)] ?? null;
       return target in this.bindings.objects ? target : null;
     }
+    /** The local player was moved (teleported): the last poses no longer say where they are, until the next one. */
+    moved(position) {
+      this.position = position.clone();
+      this.poses = null;
+    }
     onPose(poses) {
       this.poses = poses;
       this.position = poses.head.position;
@@ -5378,6 +5680,23 @@ ${label}`)));
     /** A short hash of every synced field: equal on clients that agree. */
     digest() {
       return fnv1a(this.sync.snapshotText());
+    }
+    /**
+     * Which writes this client's synced state is made of: "<writes>:<hash>", where writes is the sum of the sequence
+     * numbers applied per leaf and the hash covers each leaf's (generation, sequence, writer). Two pages with the same
+     * version hold the same writes, so their digests can be compared; a field that ticks on its own (a referee's timer)
+     * moves the version, and a test waits until both pages report the same one. `stamp()` reads both at once.
+     */
+    version() {
+      const parts = [];
+      let writes = 0;
+      for (const id of [...this.sync.slots.keys()].sort()) {
+        const marker = this.sync.slots.get(id).applied;
+        if (!marker) continue;
+        writes += marker.n;
+        parts.push(`${id}:${marker.g}.${marker.n}.${marker.w}`);
+      }
+      return `${writes}:${fnv1a(parts.join("|"))}`;
     }
     dispose() {
       const { core } = this;
@@ -5546,11 +5865,11 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
+            kind: "male",
             name: "1",
             p: [
               0,
-              -0.0362,
+              0.0484,
               0
             ],
             q: [
@@ -5562,11 +5881,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
+            kind: "female",
             name: "1",
             p: [
               0,
-              0.0484,
+              -0.0362,
               0
             ],
             q: [
@@ -5705,11 +6024,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
+            kind: "male",
             name: "5",
             p: [
               -0.0280376,
-              -0.0362,
+              0.0484,
               0
             ],
             q: [
@@ -5737,11 +6056,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
+            kind: "female",
             name: "5",
             p: [
               -0.0280376,
-              0.0484,
+              -0.0362,
               0
             ],
             q: [
@@ -5880,38 +6199,6 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
-            name: "2",
-            p: [
-              0,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "3",
-            p: [
-              0.0560751,
-              0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
             kind: "male",
             name: "2",
             p: [
@@ -5928,11 +6215,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
+            kind: "male",
             name: "3",
             p: [
               0.0560751,
-              -0.0362,
+              0.0484,
               0
             ],
             q: [
@@ -5948,6 +6235,38 @@ ${label}`)));
             name: "1",
             p: [
               -0.0560751,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "2",
+            p: [
+              0,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3",
+            p: [
+              0.0560751,
               -0.0362,
               0
             ],
@@ -6087,22 +6406,6 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
-            name: "6",
-            p: [
-              -0.0841127,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
             kind: "male",
             name: "4",
             p: [
@@ -6119,11 +6422,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
+            kind: "male",
             name: "5",
             p: [
               -0.0280376,
-              -0.0362,
+              0.0484,
               0
             ],
             q: [
@@ -6136,9 +6439,9 @@ ${label}`)));
           },
           {
             kind: "male",
-            name: "5",
+            name: "6",
             p: [
-              -0.0280376,
+              -0.0841127,
               0.0484,
               0
             ],
@@ -6183,11 +6486,27 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
+            kind: "female",
+            name: "5",
+            p: [
+              -0.0280376,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
             name: "6",
             p: [
               -0.0841127,
-              0.0484,
+              -0.0362,
               0
             ],
             q: [
@@ -6305,6 +6624,54 @@ ${label}`)));
         connectors: [
           {
             kind: "male",
+            name: "2",
+            p: [
+              -0.1401878,
+              0.0484,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "3",
+            p: [
+              -0.0841127,
+              0.0484,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "4",
+            p: [
+              -0.0280376,
+              0.0484,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
             name: "5",
             p: [
               0.0280376,
@@ -6336,106 +6703,58 @@ ${label}`)));
             scale: 0.04
           },
           {
+            kind: "male",
+            name: "7",
+            p: [
+              0.1401878,
+              0.0484,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "2",
+            p: [
+              -0.1401878,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3",
+            p: [
+              -0.0841127,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
             kind: "female",
             name: "4",
             p: [
               -0.0280376,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3",
-            p: [
-              -0.0841127,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "7",
-            p: [
-              0.1401878,
-              0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "2",
-            p: [
-              -0.1401878,
-              0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "7",
-            p: [
-              0.1401878,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "3",
-            p: [
-              -0.0841127,
-              0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "2",
-            p: [
-              -0.1401878,
               -0.0362,
               0
             ],
@@ -6464,11 +6783,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "4",
+            kind: "female",
+            name: "6",
             p: [
-              -0.0280376,
-              0.0484,
+              0.0280376,
+              -0.0362,
               0
             ],
             q: [
@@ -6481,9 +6800,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "6",
+            name: "7",
             p: [
-              0.0280376,
+              0.1401878,
               -0.0362,
               0
             ],
@@ -6601,26 +6920,10 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
-            name: "7",
-            p: [
-              0.1401878,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
             kind: "male",
-            name: "8",
+            name: "1",
             p: [
-              0.1962629,
+              -0.1962629,
               0.0484,
               0
             ],
@@ -6650,6 +6953,70 @@ ${label}`)));
           },
           {
             kind: "male",
+            name: "3",
+            p: [
+              -0.0841127,
+              0.0484,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "4",
+            p: [
+              -0.0280376,
+              0.0484,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "5",
+            p: [
+              0.0280376,
+              0.0484,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "6",
+            p: [
+              0.0841127,
+              0.0484,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
             name: "7",
             p: [
               0.1401878,
@@ -6666,121 +7033,9 @@ ${label}`)));
           },
           {
             kind: "male",
-            name: "5",
-            p: [
-              0.0280376,
-              0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3",
-            p: [
-              -0.0841127,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "1",
-            p: [
-              -0.1962629,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "4",
-            p: [
-              -0.0280376,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "6",
-            p: [
-              0.0841127,
-              0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "1",
-            p: [
-              -0.1962629,
-              0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
             name: "8",
             p: [
               0.1962629,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "4",
-            p: [
-              -0.0280376,
               0.0484,
               0
             ],
@@ -6794,25 +7049,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "6",
+            name: "1",
             p: [
-              0.0280376,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5",
-            p: [
-              0.0841127,
+              -0.1962629,
               -0.0362,
               0
             ],
@@ -6841,11 +7080,91 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
+            kind: "female",
             name: "3",
             p: [
               -0.0841127,
-              0.0484,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "4",
+            p: [
+              -0.0280376,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5",
+            p: [
+              0.0841127,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "6",
+            p: [
+              0.0280376,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "7",
+            p: [
+              0.1401878,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "8",
+            p: [
+              0.1962629,
+              -0.0362,
               0
             ],
             q: [
@@ -6984,27 +7303,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
-            name: "6",
+            kind: "male",
+            name: "4",
             p: [
-              -0.0841127,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5",
-            p: [
-              -0.0280376,
-              -0.0362,
+              0.0841127,
+              0.0484,
               0
             ],
             q: [
@@ -7017,9 +7320,57 @@ ${label}`)));
           },
           {
             kind: "male",
-            name: "4",
+            name: "5",
             p: [
-              0.0841127,
+              -0.0280376,
+              0.0484,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "6",
+            p: [
+              -0.0841127,
+              0.0484,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "6 (1)",
+            p: [
+              -0.1401878,
+              0.0484,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "6 (2)",
+            p: [
+              -0.1962629,
               0.0484,
               0
             ],
@@ -7048,11 +7399,27 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
-            name: "6 (2)",
+            kind: "male",
+            name: "4 (1)",
             p: [
-              -0.1962629,
-              -0.0362,
+              0.1401878,
+              0.0484,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "4 (2)",
+            p: [
+              0.1962629,
+              0.0484,
               0
             ],
             q: [
@@ -7068,182 +7435,6 @@ ${label}`)));
             name: "4 (3)",
             p: [
               0.252338,
-              0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "4 (1)",
-            p: [
-              0.1401878,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "6",
-            p: [
-              -0.0841127,
-              0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "6 (1)",
-            p: [
-              -0.1401878,
-              0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "4 (3)",
-            p: [
-              0.2523381,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "6 (3)",
-            p: [
-              -0.2523381,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "4 (2)",
-            p: [
-              0.1962629,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "4 (2)",
-            p: [
-              0.1962629,
-              0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "6 (2)",
-            p: [
-              -0.1962629,
-              0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "6 (1)",
-            p: [
-              -0.1401878,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "4 (1)",
-            p: [
-              0.1401878,
-              0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "5",
-            p: [
-              -0.0280376,
               0.0484,
               0
             ],
@@ -7276,6 +7467,134 @@ ${label}`)));
             name: "4",
             p: [
               0.0841127,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5",
+            p: [
+              -0.0280376,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "6",
+            p: [
+              -0.0841127,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "6 (1)",
+            p: [
+              -0.1401878,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "6 (2)",
+            p: [
+              -0.1962629,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "6 (3)",
+            p: [
+              -0.2523381,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "4 (1)",
+            p: [
+              0.1401878,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "4 (2)",
+            p: [
+              0.1962629,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "4 (3)",
+            p: [
+              0.2523381,
               -0.0362,
               0
             ],
@@ -7399,11 +7718,11 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
-            name: "5",
+            kind: "male",
+            name: "3",
             p: [
-              -0.0280376,
-              -0.0362,
+              0.0280376,
+              0.0484,
               0.0279747
             ],
             q: [
@@ -7431,26 +7750,10 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
-            name: "6",
+            kind: "male",
+            name: "5",
             p: [
               -0.0280376,
-              -0.0362,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "3",
-            p: [
-              0.0280376,
               0.0484,
               0.0279747
             ],
@@ -7480,6 +7783,22 @@ ${label}`)));
           },
           {
             kind: "female",
+            name: "3",
+            p: [
+              0.0280376,
+              -0.0362,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
             name: "4",
             p: [
               0.0280376,
@@ -7496,9 +7815,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3",
+            name: "5",
             p: [
-              0.0280376,
+              -0.0280376,
               -0.0362,
               0.0279747
             ],
@@ -7511,12 +7830,12 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "5",
+            kind: "female",
+            name: "6",
             p: [
               -0.0280376,
-              0.0484,
-              0.0279747
+              -0.0362,
+              -0.0279747
             ],
             q: [
               0,
@@ -7632,70 +7951,6 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
-            name: "5",
-            p: [
-              0,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "8",
-            p: [
-              -0.0560751,
-              -0.0362,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "4",
-            p: [
-              0.0560751,
-              0.0484,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "6",
-            p: [
-              0,
-              -0.0362,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
             kind: "male",
             name: "3",
             p: [
@@ -7712,59 +7967,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
-            name: "7",
-            p: [
-              -0.0560751,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
             kind: "male",
-            name: "8",
-            p: [
-              -0.0560751,
-              0.0484,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "6",
-            p: [
-              0,
-              0.0484,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
             name: "4",
             p: [
               0.0560751,
-              -0.0362,
+              0.0484,
               -0.0279747
             ],
             q: [
@@ -7792,12 +7999,12 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
-            name: "3",
+            kind: "male",
+            name: "6",
             p: [
-              0.0560751,
-              -0.0362,
-              0.0279747
+              0,
+              0.0484,
+              -0.0279747
             ],
             q: [
               0,
@@ -7814,6 +8021,118 @@ ${label}`)));
               -0.0560751,
               0.0484,
               0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "8",
+            p: [
+              -0.0560751,
+              0.0484,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3",
+            p: [
+              0.0560751,
+              -0.0362,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "4",
+            p: [
+              0.0560751,
+              -0.0362,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5",
+            p: [
+              0,
+              -0.0362,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "6",
+            p: [
+              0,
+              -0.0362,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "7",
+            p: [
+              -0.0560751,
+              -0.0362,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "8",
+            p: [
+              -0.0560751,
+              -0.0362,
+              -0.0279747
             ],
             q: [
               0,
@@ -7936,11 +8255,75 @@ ${label}`)));
         connectors: [
           {
             kind: "male",
+            name: "1",
+            p: [
+              0.0840124,
+              0.0484,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
             name: "2",
             p: [
               0.0840124,
               0.0484,
               -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "3",
+            p: [
+              0.0280376,
+              0.0484,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "4",
+            p: [
+              0.0280376,
+              0.0484,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "5",
+            p: [
+              -0.0280376,
+              0.0484,
+              0.0279747
             ],
             q: [
               0,
@@ -7968,10 +8351,42 @@ ${label}`)));
           },
           {
             kind: "male",
+            name: "7",
+            p: [
+              -0.0840124,
+              0.0484,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "8",
+            p: [
+              -0.0840124,
+              0.0484,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
             name: "1",
             p: [
               0.0840124,
-              0.0484,
+              -0.0362,
               0.0279747
             ],
             q: [
@@ -7989,22 +8404,6 @@ ${label}`)));
               0.0840124,
               -0.0362,
               -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "5",
-            p: [
-              -0.0280376,
-              0.0484,
-              0.0279747
             ],
             q: [
               0,
@@ -8048,11 +8447,11 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "8",
+            name: "5",
             p: [
-              -0.0840124,
+              -0.0280376,
               -0.0362,
-              -0.0279747
+              0.0279747
             ],
             q: [
               0,
@@ -8079,26 +8478,10 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
+            kind: "female",
             name: "7",
             p: [
               -0.0840124,
-              0.0484,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5",
-            p: [
-              -0.0280376,
               -0.0362,
               0.0279747
             ],
@@ -8111,76 +8494,12 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "4",
-            p: [
-              0.0280376,
-              0.0484,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "3",
-            p: [
-              0.0280376,
-              0.0484,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
             kind: "female",
-            name: "1",
-            p: [
-              0.0840124,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
             name: "8",
             p: [
               -0.0840124,
-              0.0484,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "7",
-            p: [
-              -0.0840124,
               -0.0362,
-              0.0279747
+              -0.0279747
             ],
             q: [
               0,
@@ -8296,59 +8615,11 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
+            kind: "male",
             name: "1",
             p: [
-              0.0840124,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "7 (1)",
-            p: [
-              -0.1399872,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "10",
-            p: [
-              -0.0840124,
+              0.1399872,
               0.0484,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "7",
-            p: [
-              -0.0840124,
-              -0.0362,
               0.0279747
             ],
             q: [
@@ -8364,6 +8635,102 @@ ${label}`)));
             name: "2",
             p: [
               0.1399872,
+              0.0484,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "3",
+            p: [
+              0.0840124,
+              0.0484,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "4",
+            p: [
+              0.0840124,
+              0.0484,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "5",
+            p: [
+              0.0280376,
+              0.0484,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "6",
+            p: [
+              0.0280376,
+              0.0484,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "7",
+            p: [
+              -0.0280376,
+              0.0484,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "8",
+            p: [
+              -0.0280376,
               0.0484,
               -0.0279747
             ],
@@ -8393,9 +8760,9 @@ ${label}`)));
           },
           {
             kind: "male",
-            name: "6",
+            name: "10",
             p: [
-              0.0280376,
+              -0.0840124,
               0.0484,
               -0.0279747
             ],
@@ -8408,122 +8775,10 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
-            name: "5",
-            p: [
-              -0.0280376,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "2 (1)",
-            p: [
-              0.1399872,
-              -0.0362,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "6",
-            p: [
-              -0.0280376,
-              -0.0362,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
             kind: "male",
-            name: "5",
+            name: "11",
             p: [
-              0.0280376,
-              0.0484,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "1 (1)",
-            p: [
-              0.1399872,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "4",
-            p: [
-              0.0280376,
-              -0.0362,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3",
-            p: [
-              0.0280376,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "7",
-            p: [
-              -0.0280376,
+              -0.1399872,
               0.0484,
               0.0279747
             ],
@@ -8553,106 +8808,10 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "8",
-            p: [
-              -0.0840124,
-              -0.0362,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
             name: "1",
             p: [
-              0.1399872,
-              0.0484,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "8",
-            p: [
-              -0.0280376,
-              0.0484,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "4",
-            p: [
               0.0840124,
-              0.0484,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "8 (1)",
-            p: [
-              -0.1399872,
               -0.0362,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "3",
-            p: [
-              0.0840124,
-              0.0484,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "11",
-            p: [
-              -0.1399872,
-              0.0484,
               0.0279747
             ],
             q: [
@@ -8668,6 +8827,166 @@ ${label}`)));
             name: "2",
             p: [
               0.0840124,
+              -0.0362,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3",
+            p: [
+              0.0280376,
+              -0.0362,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "4",
+            p: [
+              0.0280376,
+              -0.0362,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5",
+            p: [
+              -0.0280376,
+              -0.0362,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "6",
+            p: [
+              -0.0280376,
+              -0.0362,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "7",
+            p: [
+              -0.0840124,
+              -0.0362,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "8",
+            p: [
+              -0.0840124,
+              -0.0362,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "1 (1)",
+            p: [
+              0.1399872,
+              -0.0362,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "2 (1)",
+            p: [
+              0.1399872,
+              -0.0362,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "7 (1)",
+            p: [
+              -0.1399872,
+              -0.0362,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "8 (1)",
+            p: [
+              -0.1399872,
               -0.0362,
               -0.0279747
             ],
@@ -8792,425 +9111,9 @@ ${label}`)));
         connectors: [
           {
             kind: "male",
-            name: "8",
-            p: [
-              -0.0840124,
-              0.0484,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "2 (1)",
-            p: [
-              0.1399872,
-              0.0484,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "7 (2)",
-            p: [
-              -0.195962,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "7",
-            p: [
-              -0.0840124,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "8 (2)",
-            p: [
-              -0.195962,
-              0.0484,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "7 (1)",
-            p: [
-              -0.1399872,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
             name: "1",
             p: [
               0.0840124,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "1 (1)",
-            p: [
-              0.1399872,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "3",
-            p: [
-              0.0280376,
-              0.0484,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "8 (2)",
-            p: [
-              -0.195962,
-              -0.0362,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "2 (1)",
-            p: [
-              0.1399872,
-              -0.0362,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "6",
-            p: [
-              -0.0280376,
-              -0.0362,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "7",
-            p: [
-              -0.0840124,
-              0.0484,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5",
-            p: [
-              -0.0280376,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "4",
-            p: [
-              0.0280376,
-              0.0484,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "8 (1)",
-            p: [
-              -0.1399872,
-              0.0484,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "8",
-            p: [
-              -0.0840124,
-              -0.0362,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3",
-            p: [
-              0.0280376,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "5",
-            p: [
-              -0.0280376,
-              0.0484,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "4",
-            p: [
-              0.0280376,
-              -0.0362,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "2 (2)",
-            p: [
-              0.195962,
-              -0.0362,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "2 (2)",
-            p: [
-              0.195962,
-              0.0484,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "1 (2)",
-            p: [
-              0.195962,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "1 (2)",
-            p: [
-              0.195962,
-              0.0484,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "2",
-            p: [
-              0.0840124,
-              -0.0362,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "7 (2)",
-            p: [
-              -0.195962,
-              0.0484,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "7 (1)",
-            p: [
-              -0.1399872,
               0.0484,
               0.0279747
             ],
@@ -9240,6 +9143,54 @@ ${label}`)));
           },
           {
             kind: "male",
+            name: "3",
+            p: [
+              0.0280376,
+              0.0484,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "4",
+            p: [
+              0.0280376,
+              0.0484,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "5",
+            p: [
+              -0.0280376,
+              0.0484,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
             name: "6",
             p: [
               -0.0280376,
@@ -9256,10 +9207,362 @@ ${label}`)));
           },
           {
             kind: "male",
+            name: "7",
+            p: [
+              -0.0840124,
+              0.0484,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "8",
+            p: [
+              -0.0840124,
+              0.0484,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "1 (1)",
+            p: [
+              0.1399872,
+              0.0484,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "2 (1)",
+            p: [
+              0.1399872,
+              0.0484,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "1 (2)",
+            p: [
+              0.195962,
+              0.0484,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "2 (2)",
+            p: [
+              0.195962,
+              0.0484,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "7 (1)",
+            p: [
+              -0.1399872,
+              0.0484,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "8 (1)",
+            p: [
+              -0.1399872,
+              0.0484,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "7 (2)",
+            p: [
+              -0.195962,
+              0.0484,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "8 (2)",
+            p: [
+              -0.195962,
+              0.0484,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
             name: "1",
             p: [
               0.0840124,
-              0.0484,
+              -0.0362,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "2",
+            p: [
+              0.0840124,
+              -0.0362,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3",
+            p: [
+              0.0280376,
+              -0.0362,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "4",
+            p: [
+              0.0280376,
+              -0.0362,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5",
+            p: [
+              -0.0280376,
+              -0.0362,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "6",
+            p: [
+              -0.0280376,
+              -0.0362,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "7",
+            p: [
+              -0.0840124,
+              -0.0362,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "8",
+            p: [
+              -0.0840124,
+              -0.0362,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "1 (1)",
+            p: [
+              0.1399872,
+              -0.0362,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "2 (1)",
+            p: [
+              0.1399872,
+              -0.0362,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "1 (2)",
+            p: [
+              0.195962,
+              -0.0362,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "2 (2)",
+            p: [
+              0.195962,
+              -0.0362,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "7 (1)",
+            p: [
+              -0.1399872,
+              -0.0362,
               0.0279747
             ],
             q: [
@@ -9287,12 +9590,28 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "1 (1)",
+            kind: "female",
+            name: "7 (2)",
             p: [
-              0.1399872,
-              0.0484,
+              -0.195962,
+              -0.0362,
               0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "8 (2)",
+            p: [
+              -0.195962,
+              -0.0362,
+              -0.0279747
             ],
             q: [
               0,
@@ -9408,60 +9727,12 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
-            name: "4",
-            p: [
-              0.0280376,
-              -0.0362,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3",
-            p: [
-              0.0280376,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
             kind: "male",
             name: "3",
             p: [
               0.0280376,
               0.0484,
               0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "6",
-            p: [
-              -0.0280376,
-              -0.0362,
-              -0.0279747
             ],
             q: [
               0,
@@ -9493,6 +9764,54 @@ ${label}`)));
             p: [
               -0.0280376,
               0.0484,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3",
+            p: [
+              0.0280376,
+              -0.0362,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "4",
+            p: [
+              0.0280376,
+              -0.0362,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "6",
+            p: [
+              -0.0280376,
+              -0.0362,
               -0.0279747
             ],
             q: [
@@ -9779,9 +10098,9 @@ ${label}`)));
         connectors: [
           {
             kind: "female",
-            name: "5",
+            name: "3",
             p: [
-              -0.0280376,
+              0.0280376,
               -0.014,
               0
             ],
@@ -9795,9 +10114,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3",
+            name: "5",
             p: [
-              0.0280376,
+              -0.0280376,
               -0.014,
               0
             ],
@@ -9922,6 +10241,22 @@ ${label}`)));
         connectors: [
           {
             kind: "female",
+            name: "1",
+            p: [
+              -0.0560751,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
             name: "1 (1)",
             p: [
               0,
@@ -9941,22 +10276,6 @@ ${label}`)));
             name: "1 (2)",
             p: [
               0.0560751,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "1",
-            p: [
-              -0.0560751,
               -0.014,
               0
             ],
@@ -10081,6 +10400,22 @@ ${label}`)));
         connectors: [
           {
             kind: "female",
+            name: "3",
+            p: [
+              0.0280376,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
             name: "5",
             p: [
               -0.0280376,
@@ -10100,22 +10435,6 @@ ${label}`)));
             name: "3 (1)",
             p: [
               0.0841127,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3",
-            p: [
-              0.0280376,
               -0.014,
               0
             ],
@@ -10250,25 +10569,9 @@ ${label}`)));
         connectors: [
           {
             kind: "female",
-            name: "3 (2)",
+            name: "3",
             p: [
-              0.1401878,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3 (1)",
-            p: [
-              0.0841127,
+              0.0280376,
               -0.014,
               0
             ],
@@ -10298,6 +10601,22 @@ ${label}`)));
           },
           {
             kind: "female",
+            name: "3 (1)",
+            p: [
+              0.0841127,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
             name: "5 (1)",
             p: [
               -0.0841127,
@@ -10314,9 +10633,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3",
+            name: "3 (2)",
             p: [
-              0.0280376,
+              0.1401878,
               -0.014,
               0
             ],
@@ -10465,9 +10784,57 @@ ${label}`)));
           },
           {
             kind: "female",
+            name: "5",
+            p: [
+              -0.0280376,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (1)",
+            p: [
+              0.0841127,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
             name: "5 (1)",
             p: [
               -0.0841127,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (2)",
+            p: [
+              0.1401878,
               -0.014,
               0
             ],
@@ -10513,57 +10880,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3 (2)",
-            p: [
-              0.1401878,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5",
-            p: [
-              -0.0280376,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
             name: "5 (3)",
             p: [
               -0.1962629,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3 (1)",
-            p: [
-              0.0841127,
               -0.014,
               0
             ],
@@ -10688,22 +11007,6 @@ ${label}`)));
         connectors: [
           {
             kind: "female",
-            name: "5 (4)",
-            p: [
-              -0.252338,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
             name: "3",
             p: [
               0.0280376,
@@ -10720,9 +11023,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "5 (3)",
+            name: "5",
             p: [
-              -0.1962629,
+              -0.0280376,
               -0.014,
               0
             ],
@@ -10736,9 +11039,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3 (3)",
+            name: "3 (1)",
             p: [
-              0.1962629,
+              0.0841127,
               -0.014,
               0
             ],
@@ -10784,9 +11087,25 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "5",
+            name: "5 (3)",
             p: [
-              -0.0280376,
+              -0.1962629,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5 (4)",
+            p: [
+              -0.252338,
               -0.014,
               0
             ],
@@ -10816,9 +11135,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3 (1)",
+            name: "3 (3)",
             p: [
-              0.0841127,
+              0.1962629,
               -0.014,
               0
             ],
@@ -10991,11 +11310,11 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "5 (1)",
+            name: "3 (1)",
             p: [
               0.0280376,
               -0.014,
-              -0.0280376
+              0.0280376
             ],
             q: [
               0,
@@ -11007,11 +11326,11 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3 (1)",
+            name: "5 (1)",
             p: [
               0.0280376,
               -0.014,
-              0.0280376
+              -0.0280376
             ],
             q: [
               0,
@@ -11126,22 +11445,6 @@ ${label}`)));
         connectors: [
           {
             kind: "female",
-            name: "3 (2)",
-            p: [
-              0,
-              -0.014,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
             name: "3",
             p: [
               -0.0560751,
@@ -11158,9 +11461,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "5 (1)",
+            name: "5",
             p: [
-              0.0560751,
+              -0.0560751,
               -0.014,
               -0.0280376
             ],
@@ -11190,9 +11493,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "5 (2)",
+            name: "5 (1)",
             p: [
-              0,
+              0.0560751,
               -0.014,
               -0.0280376
             ],
@@ -11206,9 +11509,25 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "5",
+            name: "3 (2)",
             p: [
-              -0.0560751,
+              0,
+              -0.014,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5 (2)",
+            p: [
+              0,
               -0.014,
               -0.0280376
             ],
@@ -11333,38 +11652,6 @@ ${label}`)));
         connectors: [
           {
             kind: "female",
-            name: "3 (3)",
-            p: [
-              -0.0841127,
-              -0.014,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3 (2)",
-            p: [
-              0.0841127,
-              -0.014,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
             name: "3",
             p: [
               -0.0280376,
@@ -11384,22 +11671,6 @@ ${label}`)));
             name: "5",
             p: [
               -0.0280376,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (3)",
-            p: [
-              -0.0841127,
               -0.014,
               -0.0280376
             ],
@@ -11445,9 +11716,57 @@ ${label}`)));
           },
           {
             kind: "female",
+            name: "3 (2)",
+            p: [
+              0.0841127,
+              -0.014,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
             name: "5 (2)",
             p: [
               0.0841127,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (3)",
+            p: [
+              -0.0841127,
+              -0.014,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5 (3)",
+            p: [
+              -0.0841127,
               -0.014,
               -0.0280376
             ],
@@ -11564,41 +11883,9 @@ ${label}`)));
         connectors: [
           {
             kind: "female",
-            name: "5 (2)",
+            name: "3",
             p: [
-              0.0841127,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (1)",
-            p: [
-              0.0280376,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3 (1)",
-            p: [
-              0.0280376,
+              -0.0280376,
               -0.014,
               0.0280376
             ],
@@ -11628,11 +11915,11 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "5 (3)",
+            name: "3 (1)",
             p: [
-              -0.0841127,
+              0.0280376,
               -0.014,
-              -0.0280376
+              0.0280376
             ],
             q: [
               0,
@@ -11644,11 +11931,11 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3",
+            name: "5 (1)",
             p: [
-              -0.0280376,
+              0.0280376,
               -0.014,
-              0.0280376
+              -0.0280376
             ],
             q: [
               0,
@@ -11676,11 +11963,43 @@ ${label}`)));
           },
           {
             kind: "female",
+            name: "5 (2)",
+            p: [
+              0.0841127,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
             name: "3 (3)",
             p: [
               -0.0841127,
               -0.014,
               0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5 (3)",
+            p: [
+              -0.0841127,
+              -0.014,
+              -0.0280376
             ],
             q: [
               0,
@@ -11801,171 +12120,11 @@ ${label}`)));
         connectors: [
           {
             kind: "female",
-            name: "3 (1)",
+            name: "3",
             p: [
-              0.0280376,
+              -0.0280376,
               -0.014,
               0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3 (5)",
-            p: [
-              0.1960623,
-              -0.014,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (7)",
-            p: [
-              -0.1960623,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (5)",
-            p: [
-              0.1960623,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (1)",
-            p: [
-              0.0280376,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (6)",
-            p: [
-              -0.1400875,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (2)",
-            p: [
-              0.0841127,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3 (4)",
-            p: [
-              0.1400875,
-              -0.014,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3 (6)",
-            p: [
-              -0.1400875,
-              -0.014,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3 (7)",
-            p: [
-              -0.1960623,
-              -0.014,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (3)",
-            p: [
-              -0.0841127,
-              -0.014,
-              -0.0280376
             ],
             q: [
               0,
@@ -11993,9 +12152,57 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "5 (4)",
+            name: "3 (1)",
             p: [
-              0.1400875,
+              0.0280376,
+              -0.014,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5 (1)",
+            p: [
+              0.0280376,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (2)",
+            p: [
+              0.0841127,
+              -0.014,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5 (2)",
+            p: [
+              0.0841127,
               -0.014,
               -0.0280376
             ],
@@ -12025,9 +12232,25 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3 (2)",
+            name: "5 (3)",
             p: [
-              0.0841127,
+              -0.0841127,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (4)",
+            p: [
+              0.1400875,
               -0.014,
               0.0280376
             ],
@@ -12041,11 +12264,107 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3",
+            name: "5 (4)",
             p: [
-              -0.0280376,
+              0.1400875,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (5)",
+            p: [
+              0.1960623,
               -0.014,
               0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5 (5)",
+            p: [
+              0.1960623,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (6)",
+            p: [
+              -0.1400875,
+              -0.014,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5 (6)",
+            p: [
+              -0.1400875,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (7)",
+            p: [
+              -0.1960623,
+              -0.014,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5 (7)",
+            p: [
+              -0.1960623,
+              -0.014,
+              -0.0280376
             ],
             q: [
               0,
@@ -12159,6 +12478,22 @@ ${label}`)));
         connectors: [
           {
             kind: "female",
+            name: "5",
+            p: [
+              -0.0280376,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
             name: "3 (1)",
             p: [
               0.0280376,
@@ -12178,22 +12513,6 @@ ${label}`)));
             name: "5 (1)",
             p: [
               0.0280376,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5",
-            p: [
-              -0.0280376,
               -0.014,
               -0.0280376
             ],
@@ -12471,11 +12790,11 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
+            kind: "male",
             name: "1",
             p: [
               0,
-              -0.014,
+              0.026,
               0
             ],
             q: [
@@ -12487,11 +12806,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
+            kind: "female",
             name: "1",
             p: [
               0,
-              0.026,
+              -0.014,
               0
             ],
             q: [
@@ -12615,6 +12934,22 @@ ${label}`)));
         connectors: [
           {
             kind: "male",
+            name: "1",
+            p: [
+              0.0280375,
+              0.026,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
             name: "2",
             p: [
               -0.0280375,
@@ -12631,9 +12966,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "2",
+            name: "1",
             p: [
-              -0.0280376,
+              0.0280376,
               -0.014,
               0
             ],
@@ -12646,26 +12981,10 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "1",
-            p: [
-              0.0280375,
-              0.026,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
             kind: "female",
-            name: "1",
+            name: "2",
             p: [
-              0.0280376,
+              -0.0280376,
               -0.014,
               0
             ],
@@ -12789,43 +13108,11 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
-            name: "3",
-            p: [
-              0.0560751,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "2",
-            p: [
-              0,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
+            kind: "male",
             name: "1",
             p: [
               -0.0560751,
-              -0.014,
+              0.026,
               0
             ],
             q: [
@@ -12869,11 +13156,43 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
+            kind: "female",
             name: "1",
             p: [
               -0.0560751,
-              0.026,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "2",
+            p: [
+              0,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3",
+            p: [
+              0.0560751,
+              -0.014,
               0
             ],
             q: [
@@ -12996,38 +13315,6 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
-            name: "4",
-            p: [
-              -0.0841127,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "2",
-            p: [
-              0.0280376,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
             kind: "male",
             name: "1",
             p: [
@@ -13044,11 +13331,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
-            name: "1",
+            kind: "male",
+            name: "2",
             p: [
-              0.0841127,
-              -0.014,
+              0.0280375,
+              0.026,
               0
             ],
             q: [
@@ -13061,9 +13348,9 @@ ${label}`)));
           },
           {
             kind: "male",
-            name: "2",
+            name: "3",
             p: [
-              0.0280375,
+              -0.0280375,
               0.026,
               0
             ],
@@ -13093,6 +13380,38 @@ ${label}`)));
           },
           {
             kind: "female",
+            name: "1",
+            p: [
+              0.0841127,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "2",
+            p: [
+              0.0280376,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
             name: "3",
             p: [
               -0.0280376,
@@ -13108,11 +13427,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "3",
+            kind: "female",
+            name: "4",
             p: [
-              -0.0280375,
-              0.026,
+              -0.0841127,
+              -0.014,
               0
             ],
             q: [
@@ -13230,26 +13549,10 @@ ${label}`)));
         connectors: [
           {
             kind: "male",
-            name: "5",
+            name: "2",
             p: [
-              -0.0280375,
+              0.1401878,
               0.026,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5",
-            p: [
-              -0.0280376,
-              -0.014,
               0
             ],
             q: [
@@ -13262,26 +13565,10 @@ ${label}`)));
           },
           {
             kind: "male",
-            name: "6",
-            p: [
-              -0.0841126,
-              0.026,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
             name: "3",
             p: [
-              0.0841127,
-              -0.014,
+              0.0841126,
+              0.026,
               0
             ],
             q: [
@@ -13309,6 +13596,86 @@ ${label}`)));
             scale: 0.04
           },
           {
+            kind: "male",
+            name: "5",
+            p: [
+              -0.0280375,
+              0.026,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "6",
+            p: [
+              -0.0841126,
+              0.026,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "7",
+            p: [
+              -0.1401878,
+              0.026,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "2",
+            p: [
+              0.1401878,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3",
+            p: [
+              0.0841127,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
             kind: "female",
             name: "4",
             p: [
@@ -13325,11 +13692,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "3",
+            kind: "female",
+            name: "5",
             p: [
-              0.0841126,
-              0.026,
+              -0.0280376,
+              -0.014,
               0
             ],
             q: [
@@ -13358,58 +13725,10 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "2",
-            p: [
-              0.1401878,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
             name: "7",
             p: [
               -0.1401878,
               -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "7",
-            p: [
-              -0.1401878,
-              0.026,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "2",
-            p: [
-              0.1401878,
-              0.026,
               0
             ],
             q: [
@@ -13527,9 +13846,89 @@ ${label}`)));
         connectors: [
           {
             kind: "male",
+            name: "1",
+            p: [
+              0.1962629,
+              0.026,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
             name: "2",
             p: [
               0.1401878,
+              0.026,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "3",
+            p: [
+              0.0841126,
+              0.026,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "4",
+            p: [
+              0.0280375,
+              0.026,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "5",
+            p: [
+              -0.0280375,
+              0.026,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "6",
+            p: [
+              -0.0841126,
               0.026,
               0
             ],
@@ -13547,38 +13946,6 @@ ${label}`)));
             p: [
               -0.1401878,
               0.026,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "7",
-            p: [
-              -0.1401878,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "1",
-            p: [
-              0.1962629,
-              -0.014,
               0
             ],
             q: [
@@ -13607,9 +13974,73 @@ ${label}`)));
           },
           {
             kind: "female",
+            name: "1",
+            p: [
+              0.1962629,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
             name: "2",
             p: [
               0.1401878,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3",
+            p: [
+              0.0841127,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "4",
+            p: [
+              0.0280376,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5",
+            p: [
+              -0.0280376,
               -0.014,
               0
             ],
@@ -13639,26 +14070,10 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "4",
+            name: "7",
             p: [
-              0.0280376,
+              -0.1401878,
               -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "3",
-            p: [
-              0.0841126,
-              0.026,
               0
             ],
             q: [
@@ -13675,102 +14090,6 @@ ${label}`)));
             p: [
               -0.1962629,
               -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "1",
-            p: [
-              0.1962629,
-              0.026,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3",
-            p: [
-              0.0841127,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "4",
-            p: [
-              0.0280375,
-              0.026,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "6",
-            p: [
-              -0.0841126,
-              0.026,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5",
-            p: [
-              -0.0280376,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "5",
-            p: [
-              -0.0280375,
-              0.026,
               0
             ],
             q: [
@@ -13893,246 +14212,6 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
-            name: "4 (2)",
-            p: [
-              -0.1962629,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "4 (1)",
-            p: [
-              -0.1401878,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "4",
-            p: [
-              -0.0841127,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "4 (3)",
-            p: [
-              -0.252338,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "1 (1)",
-            p: [
-              0.1401878,
-              0.026,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "1 (3)",
-            p: [
-              0.252338,
-              0.026,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "4 (3)",
-            p: [
-              -0.252338,
-              0.026,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "1 (3)",
-            p: [
-              0.252338,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3",
-            p: [
-              -0.0280376,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "4 (1)",
-            p: [
-              -0.1401878,
-              0.026,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "1 (2)",
-            p: [
-              0.1962629,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "4 (2)",
-            p: [
-              -0.1962629,
-              0.026,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "3",
-            p: [
-              -0.0280375,
-              0.026,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "1 (1)",
-            p: [
-              0.1401878,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "2",
-            p: [
-              0.0280376,
-              -0.014,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
             kind: "male",
             name: "1",
             p: [
@@ -14165,11 +14244,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
-            name: "1",
+            kind: "male",
+            name: "3",
             p: [
-              0.0841127,
-              -0.014,
+              -0.0280375,
+              0.026,
               0
             ],
             q: [
@@ -14198,10 +14277,250 @@ ${label}`)));
           },
           {
             kind: "male",
+            name: "4 (1)",
+            p: [
+              -0.1401878,
+              0.026,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "4 (2)",
+            p: [
+              -0.1962629,
+              0.026,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "4 (3)",
+            p: [
+              -0.252338,
+              0.026,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "1 (1)",
+            p: [
+              0.1401878,
+              0.026,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
             name: "1 (2)",
             p: [
               0.1962628,
               0.026,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "1 (3)",
+            p: [
+              0.252338,
+              0.026,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "1",
+            p: [
+              0.0841127,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "2",
+            p: [
+              0.0280376,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3",
+            p: [
+              -0.0280376,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "4",
+            p: [
+              -0.0841127,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "4 (1)",
+            p: [
+              -0.1401878,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "4 (2)",
+            p: [
+              -0.1962629,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "4 (3)",
+            p: [
+              -0.252338,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "1 (1)",
+            p: [
+              0.1401878,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "1 (2)",
+            p: [
+              0.1962629,
+              -0.014,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "1 (3)",
+            p: [
+              0.252338,
+              -0.014,
               0
             ],
             q: [
@@ -14340,6 +14659,54 @@ ${label}`)));
             scale: 0.04
           },
           {
+            kind: "male",
+            name: "2",
+            p: [
+              -0.0280375,
+              0.026,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "3",
+            p: [
+              0.0280375,
+              0.026,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "4",
+            p: [
+              0.0280375,
+              0.026,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
             kind: "female",
             name: "1",
             p: [
@@ -14357,70 +14724,6 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3",
-            p: [
-              0.0280376,
-              -0.014,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "4",
-            p: [
-              0.0280376,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "3",
-            p: [
-              0.0280375,
-              0.026,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "4",
-            p: [
-              0.0280375,
-              0.026,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
             name: "2",
             p: [
               -0.0280376,
@@ -14436,11 +14739,27 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "2",
+            kind: "female",
+            name: "3",
             p: [
-              -0.0280375,
-              0.026,
+              0.0280376,
+              -0.014,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "4",
+            p: [
+              0.0280376,
+              -0.014,
               -0.0280376
             ],
             q: [
@@ -14557,12 +14876,12 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
-            name: "2",
+            kind: "male",
+            name: "1",
             p: [
-              0,
-              -0.014,
-              -0.0280376
+              -0.0560751,
+              0.026,
+              0.0280376
             ],
             q: [
               0,
@@ -14578,22 +14897,6 @@ ${label}`)));
             p: [
               -0.0560751,
               0.026,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "2 (1)",
-            p: [
-              -0.0560751,
-              -0.014,
               -0.0280376
             ],
             q: [
@@ -14626,38 +14929,6 @@ ${label}`)));
             p: [
               0,
               0.026,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "1 (1)",
-            p: [
-              -0.0560751,
-              -0.014,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "4 (1)",
-            p: [
-              0.0560751,
-              -0.014,
               -0.0280376
             ],
             q: [
@@ -14718,6 +14989,54 @@ ${label}`)));
           },
           {
             kind: "female",
+            name: "2",
+            p: [
+              0,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "1 (1)",
+            p: [
+              -0.0560751,
+              -0.014,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "2 (1)",
+            p: [
+              -0.0560751,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
             name: "3 (1)",
             p: [
               0.0560751,
@@ -14733,12 +15052,12 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "1",
+            kind: "female",
+            name: "4 (1)",
             p: [
-              -0.0560751,
-              0.026,
-              0.0280376
+              0.0560751,
+              -0.014,
+              -0.0280376
             ],
             q: [
               0,
@@ -14877,6 +15196,86 @@ ${label}`)));
           },
           {
             kind: "male",
+            name: "5",
+            p: [
+              -0.0280375,
+              0.026,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "3 (1)",
+            p: [
+              0.0280375,
+              0.026,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "5 (1)",
+            p: [
+              0.0280375,
+              0.026,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "3 (2)",
+            p: [
+              0.0841128,
+              0.026,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "5 (2)",
+            p: [
+              0.0841128,
+              0.026,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
             name: "3 (3)",
             p: [
               -0.0841128,
@@ -14896,22 +15295,6 @@ ${label}`)));
             name: "5 (3)",
             p: [
               -0.0841128,
-              0.026,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "5 (2)",
-            p: [
-              0.0841128,
               0.026,
               -0.0280376
             ],
@@ -14941,91 +15324,59 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3 (2)",
-            p: [
-              0.0841127,
-              -0.014,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3 (3)",
-            p: [
-              -0.0841127,
-              -0.014,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "3 (2)",
-            p: [
-              0.0841128,
-              0.026,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (3)",
-            p: [
-              -0.0841127,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "5",
-            p: [
-              -0.0280375,
-              0.026,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
             name: "5",
             p: [
               -0.0280376,
               -0.014,
               -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (1)",
+            p: [
+              0.0280376,
+              -0.014,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5 (1)",
+            p: [
+              0.0280376,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (2)",
+            p: [
+              0.0841127,
+              -0.014,
+              0.0280376
             ],
             q: [
               0,
@@ -15053,11 +15404,11 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "5 (1)",
+            name: "3 (3)",
             p: [
-              0.0280376,
+              -0.0841127,
               -0.014,
-              -0.0280376
+              0.0280376
             ],
             q: [
               0,
@@ -15069,43 +15420,11 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3 (1)",
+            name: "5 (3)",
             p: [
-              0.0280376,
+              -0.0841127,
               -0.014,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "5 (1)",
-            p: [
-              0.0280375,
-              0.026,
               -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "3 (1)",
-            p: [
-              0.0280375,
-              0.026,
-              0.0280376
             ],
             q: [
               0,
@@ -15222,9 +15541,9 @@ ${label}`)));
         connectors: [
           {
             kind: "male",
-            name: "3",
+            name: "1",
             p: [
-              0.0841128,
+              0.1401879,
               0.026,
               0.0280376
             ],
@@ -15237,12 +15556,12 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
-            name: "3 (3)",
+            kind: "male",
+            name: "2",
             p: [
-              -0.0841127,
-              -0.014,
-              0.0280376
+              0.1401879,
+              0.026,
+              -0.0280376
             ],
             q: [
               0,
@@ -15253,27 +15572,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
-            name: "3 (2)",
-            p: [
-              0.0841127,
-              -0.014,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
+            kind: "male",
             name: "3",
             p: [
-              -0.0280376,
-              -0.014,
+              0.0841128,
+              0.026,
               0.0280376
             ],
             q: [
@@ -15291,118 +15594,6 @@ ${label}`)));
               0.0841128,
               0.026,
               -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (5)",
-            p: [
-              -0.1401878,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "10",
-            p: [
-              -0.0841128,
-              0.026,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "9",
-            p: [
-              -0.0841128,
-              0.026,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "1",
-            p: [
-              0.1401879,
-              0.026,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "7",
-            p: [
-              -0.0280375,
-              0.026,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "12",
-            p: [
-              -0.1401879,
-              0.026,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3 (4)",
-            p: [
-              0.1401878,
-              -0.014,
-              0.0280376
             ],
             q: [
               0,
@@ -15445,10 +15636,234 @@ ${label}`)));
             scale: 0.04
           },
           {
+            kind: "male",
+            name: "7",
+            p: [
+              -0.0280375,
+              0.026,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "8",
+            p: [
+              -0.0280375,
+              0.026,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "9",
+            p: [
+              -0.0841128,
+              0.026,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "10",
+            p: [
+              -0.0841128,
+              0.026,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "11",
+            p: [
+              -0.1401879,
+              0.026,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "12",
+            p: [
+              -0.1401879,
+              0.026,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3",
+            p: [
+              -0.0280376,
+              -0.014,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5",
+            p: [
+              -0.0280376,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
             kind: "female",
             name: "3 (1)",
             p: [
               0.0280376,
+              -0.014,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5 (1)",
+            p: [
+              0.0280376,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (2)",
+            p: [
+              0.0841127,
+              -0.014,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5 (2)",
+            p: [
+              0.0841127,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (3)",
+            p: [
+              -0.0841127,
+              -0.014,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5 (3)",
+            p: [
+              -0.0841127,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (4)",
+            p: [
+              0.1401878,
               -0.014,
               0.0280376
             ],
@@ -15478,70 +15893,6 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "5 (1)",
-            p: [
-              0.0280376,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "2",
-            p: [
-              0.1401879,
-              0.026,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (2)",
-            p: [
-              0.0841127,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5",
-            p: [
-              -0.0280376,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
             name: "3 (5)",
             p: [
               -0.1401878,
@@ -15557,44 +15908,12 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "8",
-            p: [
-              -0.0280375,
-              0.026,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
             kind: "female",
-            name: "5 (3)",
+            name: "5 (5)",
             p: [
-              -0.0841127,
+              -0.1401878,
               -0.014,
               -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "11",
-            p: [
-              -0.1401879,
-              0.026,
-              0.0280376
             ],
             q: [
               0,
@@ -15717,9 +16036,25 @@ ${label}`)));
         connectors: [
           {
             kind: "male",
-            name: "2 (1)",
+            name: "5",
             p: [
-              -0.1400876,
+              0.0280375,
+              0.026,
+              -0.0280375
+            ],
+            q: [
+              0,
+              -1,
+              0,
+              0
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "6",
+            p: [
+              0.0280375,
               0.026,
               0.0280375
             ],
@@ -15733,11 +16068,59 @@ ${label}`)));
           },
           {
             kind: "male",
-            name: "5",
+            name: "3",
             p: [
-              0.0280375,
+              -0.0280375,
               0.026,
               -0.0280375
+            ],
+            q: [
+              0,
+              -1,
+              0,
+              0
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "4",
+            p: [
+              -0.0280375,
+              0.026,
+              0.0280375
+            ],
+            q: [
+              0,
+              -1,
+              0,
+              0
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "1",
+            p: [
+              -0.0841128,
+              0.026,
+              -0.0280375
+            ],
+            q: [
+              0,
+              -1,
+              0,
+              0
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "2",
+            p: [
+              -0.0841128,
+              0.026,
+              0.0280375
             ],
             q: [
               0,
@@ -15764,18 +16147,114 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
-            name: "5 (4)",
+            kind: "male",
+            name: "8",
             p: [
-              0.1400875,
-              -0.014,
-              -0.0280376
+              0.0841128,
+              0.026,
+              0.0280375
             ],
             q: [
               0,
+              -1,
               0,
+              0
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "1 (1)",
+            p: [
+              -0.1400876,
+              0.026,
+              -0.0280375
+            ],
+            q: [
               0,
-              1
+              -1,
+              0,
+              0
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "2 (1)",
+            p: [
+              -0.1400876,
+              0.026,
+              0.0280375
+            ],
+            q: [
+              0,
+              -1,
+              0,
+              0
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "1 (2)",
+            p: [
+              -0.1960624,
+              0.026,
+              -0.0280375
+            ],
+            q: [
+              0,
+              -1,
+              0,
+              0
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "2 (2)",
+            p: [
+              -0.1960624,
+              0.026,
+              0.0280375
+            ],
+            q: [
+              0,
+              -1,
+              0,
+              0
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "7 (1)",
+            p: [
+              0.1400876,
+              0.026,
+              -0.0280375
+            ],
+            q: [
+              0,
+              -1,
+              0,
+              0
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "8 (1)",
+            p: [
+              0.1400876,
+              0.026,
+              0.0280375
+            ],
+            q: [
+              0,
+              -1,
+              0,
+              0
             ],
             scale: 0.04
           },
@@ -15812,22 +16291,6 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "3",
-            p: [
-              -0.0280375,
-              0.026,
-              -0.0280375
-            ],
-            q: [
-              0,
-              -1,
-              0,
-              0
-            ],
-            scale: 0.04
-          },
-          {
             kind: "female",
             name: "3",
             p: [
@@ -15840,134 +16303,6 @@ ${label}`)));
               0,
               0,
               1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "2 (2)",
-            p: [
-              -0.1960624,
-              0.026,
-              0.0280375
-            ],
-            q: [
-              0,
-              -1,
-              0,
-              0
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3 (2)",
-            p: [
-              0.0841127,
-              -0.014,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3 (3)",
-            p: [
-              -0.0841127,
-              -0.014,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "1 (2)",
-            p: [
-              -0.1960624,
-              0.026,
-              -0.0280375
-            ],
-            q: [
-              0,
-              -1,
-              0,
-              0
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "2",
-            p: [
-              -0.0841128,
-              0.026,
-              0.0280375
-            ],
-            q: [
-              0,
-              -1,
-              0,
-              0
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "4",
-            p: [
-              -0.0280375,
-              0.026,
-              0.0280375
-            ],
-            q: [
-              0,
-              -1,
-              0,
-              0
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (3)",
-            p: [
-              -0.0841127,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "8 (1)",
-            p: [
-              0.1400876,
-              0.026,
-              0.0280375
-            ],
-            q: [
-              0,
-              -1,
-              0,
-              0
             ],
             scale: 0.04
           },
@@ -15976,118 +16311,6 @@ ${label}`)));
             name: "5",
             p: [
               -0.0280376,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (2)",
-            p: [
-              0.0841127,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (6)",
-            p: [
-              -0.1400875,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (5)",
-            p: [
-              0.1960623,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "1 (1)",
-            p: [
-              -0.1400876,
-              0.026,
-              -0.0280375
-            ],
-            q: [
-              0,
-              -1,
-              0,
-              0
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (1)",
-            p: [
-              0.0280376,
-              -0.014,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3 (5)",
-            p: [
-              0.1960623,
-              -0.014,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (7)",
-            p: [
-              -0.1960623,
               -0.014,
               -0.0280376
             ],
@@ -16117,9 +16340,25 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3 (7)",
+            name: "5 (1)",
             p: [
-              -0.1960623,
+              0.0280376,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (2)",
+            p: [
+              0.0841127,
               -0.014,
               0.0280376
             ],
@@ -16132,66 +16371,114 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "1",
+            kind: "female",
+            name: "5 (2)",
             p: [
-              -0.0841128,
-              0.026,
-              -0.0280375
+              0.0841127,
+              -0.014,
+              -0.0280376
             ],
             q: [
               0,
-              -1,
               0,
-              0
+              0,
+              1
             ],
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "8",
+            kind: "female",
+            name: "3 (3)",
             p: [
-              0.0841128,
-              0.026,
-              0.0280375
+              -0.0841127,
+              -0.014,
+              0.0280376
             ],
             q: [
               0,
-              -1,
               0,
-              0
+              0,
+              1
             ],
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "7 (1)",
+            kind: "female",
+            name: "5 (3)",
             p: [
-              0.1400876,
-              0.026,
-              -0.0280375
+              -0.0841127,
+              -0.014,
+              -0.0280376
             ],
             q: [
               0,
-              -1,
               0,
-              0
+              0,
+              1
             ],
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "6",
+            kind: "female",
+            name: "3 (4)",
             p: [
-              0.0280375,
-              0.026,
-              0.0280375
+              0.1400875,
+              -0.014,
+              0.0280376
             ],
             q: [
               0,
-              -1,
               0,
-              0
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5 (4)",
+            p: [
+              0.1400875,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (5)",
+            p: [
+              0.1960623,
+              -0.014,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5 (5)",
+            p: [
+              0.1960623,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
             ],
             scale: 0.04
           },
@@ -16213,11 +16500,43 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3 (4)",
+            name: "5 (6)",
             p: [
-              0.1400875,
+              -0.1400875,
+              -0.014,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (7)",
+            p: [
+              -0.1960623,
               -0.014,
               0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5 (7)",
+            p: [
+              -0.1960623,
+              -0.014,
+              -0.0280376
             ],
             q: [
               0,
@@ -16349,6 +16668,38 @@ ${label}`)));
             scale: 0.04
           },
           {
+            kind: "male",
+            name: "3",
+            p: [
+              0.0280375,
+              0.026,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "4",
+            p: [
+              0.0280375,
+              0.026,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
             kind: "female",
             name: "2",
             p: [
@@ -16365,27 +16716,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "4",
-            p: [
-              0.0280375,
-              0.026,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
+            kind: "female",
             name: "3",
             p: [
-              0.0280375,
-              0.026,
+              0.0280376,
+              -0.014,
               0.0280376
             ],
             q: [
@@ -16403,22 +16738,6 @@ ${label}`)));
               0.0280376,
               -0.014,
               -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3",
-            p: [
-              0.0280376,
-              -0.014,
-              0.0280376
             ],
             q: [
               0,
@@ -16575,11 +16894,11 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
+            kind: "male",
             name: "1",
             p: [
-              0.0280376,
-              -0.014,
+              0,
+              0.026,
               0
             ],
             q: [
@@ -16591,11 +16910,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
+            kind: "female",
             name: "1",
             p: [
-              0,
-              0.026,
+              0.0280376,
+              -0.014,
               0
             ],
             q: [
@@ -16766,9 +17085,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "4",
+            name: "2",
             p: [
-              0.0280376,
+              -0.0280376,
               -0.014,
               -0.0280376
             ],
@@ -16798,9 +17117,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "2",
+            name: "4",
             p: [
-              -0.0280376,
+              0.0280376,
               -0.014,
               -0.0280376
             ],
@@ -17083,9 +17402,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "5",
+            name: "3",
             p: [
-              -0.0280376,
+              0.0280376,
               -0.0362,
               0
             ],
@@ -17099,9 +17418,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3",
+            name: "5",
             p: [
-              0.0280376,
+              -0.0280376,
               -0.0362,
               0
             ],
@@ -17209,24 +17528,6 @@ ${label}`)));
           },
           {
             c: [
-              -5459e-7,
-              4942e-7,
-              0
-            ],
-            size: [
-              0.1077949,
-              0.0639786,
-              0.0530404
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ]
-          },
-          {
-            c: [
               -11973e-7,
               -0.0272387,
               0
@@ -17320,22 +17621,6 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
-            name: "2",
-            p: [
-              0,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
             kind: "male",
             name: "3",
             p: [
@@ -17356,6 +17641,22 @@ ${label}`)));
             name: "1",
             p: [
               -0.0560751,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "2",
+            p: [
+              0,
               -0.0362,
               0
             ],
@@ -17479,24 +17780,6 @@ ${label}`)));
           },
           {
             c: [
-              -885e-7,
-              -8015e-7,
-              0
-            ],
-            size: [
-              0.1637112,
-              0.0613872,
-              0.0530404
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ]
-          },
-          {
-            c: [
               0.054992,
               -12534e-7,
               0
@@ -17590,11 +17873,11 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
-            name: "3 (1)",
+            kind: "male",
+            name: "3",
             p: [
               0.0841127,
-              -0.0362,
+              0.0484,
               0
             ],
             q: [
@@ -17638,11 +17921,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "3",
+            kind: "female",
+            name: "3 (1)",
             p: [
               0.0841127,
-              0.0484,
+              -0.0362,
               0
             ],
             q: [
@@ -17765,24 +18048,6 @@ ${label}`)));
           },
           {
             c: [
-              5466e-7,
-              -8015e-7,
-              0
-            ],
-            size: [
-              0.2208669,
-              0.0613872,
-              0.0530404
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ]
-          },
-          {
-            c: [
               -0.0243052,
               -7501e-7,
               0
@@ -17880,6 +18145,70 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
+            kind: "male",
+            name: "3",
+            p: [
+              0.0280376,
+              0.0484,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "4",
+            p: [
+              0.0280376,
+              0.0484,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3",
+            p: [
+              0.0280376,
+              -0.0362,
+              0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "4",
+            p: [
+              0.0280376,
+              -0.0362,
+              -0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
             kind: "female",
             name: "5",
             p: [
@@ -17896,74 +18225,10 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "4",
-            p: [
-              0.0280376,
-              0.0484,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "3",
-            p: [
-              0.0280376,
-              0.0484,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
             kind: "female",
             name: "6",
             p: [
               -0.0280376,
-              -0.0362,
-              -0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3",
-            p: [
-              0.0280376,
-              -0.0362,
-              0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "4",
-            p: [
-              0.0280376,
               -0.0362,
               -0.0279747
             ],
@@ -18175,27 +18440,11 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "5",
+            name: "3",
             p: [
-              -0.0280376,
+              0.0280376,
               -0.0362,
               0.0279747
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "6",
-            p: [
-              -0.0280376,
-              -0.0362,
-              -0.0279747
             ],
             q: [
               0,
@@ -18223,11 +18472,27 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3",
+            name: "5",
             p: [
-              0.0280376,
+              -0.0280376,
               -0.0362,
               0.0279747
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "6",
+            p: [
+              -0.0280376,
+              -0.0362,
+              -0.0279747
             ],
             q: [
               0,
@@ -18528,12 +18793,28 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
-            name: "3 (1)",
+            kind: "male",
+            name: "1",
             p: [
               0.0560751,
+              0.0484,
+              0.0560751
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "1",
+            p: [
+              -0.0560751,
               -0.0362,
-              -0.0560751
+              0
             ],
             q: [
               0,
@@ -18561,91 +18842,11 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "2 (1)",
+            name: "3",
             p: [
-              0,
-              -0.0362,
-              -0.0560751
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "2 (2)",
-            p: [
-              0,
-              -0.0362,
-              0.0560751
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "1",
-            p: [
-              -0.0560751,
+              0.0560751,
               -0.0362,
               0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "1 (2)",
-            p: [
-              -0.0560751,
-              -0.0362,
-              0.0560751
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3 (2)",
-            p: [
-              0.0560751,
-              -0.0362,
-              0.0560751
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "1",
-            p: [
-              0.0560751,
-              0.0484,
-              0.0560751
             ],
             q: [
               0,
@@ -18673,11 +18874,75 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3",
+            name: "2 (1)",
+            p: [
+              0,
+              -0.0362,
+              -0.0560751
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (1)",
             p: [
               0.0560751,
               -0.0362,
-              0
+              -0.0560751
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "1 (2)",
+            p: [
+              -0.0560751,
+              -0.0362,
+              0.0560751
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "2 (2)",
+            p: [
+              0,
+              -0.0362,
+              0.0560751
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (2)",
+            p: [
+              0.0560751,
+              -0.0362,
+              0.0560751
             ],
             q: [
               0,
@@ -18978,44 +19243,28 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
-            name: "5 (3)",
+            kind: "male",
+            name: "1",
             p: [
-              -0.0280376,
-              -0.0362,
-              -0.0841127
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5 (1)",
-            p: [
-              -0.0280376,
-              -0.0362,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "6 (2)",
-            p: [
-              -0.0841127,
-              -0.0362,
+              0.0841127,
+              0.0484,
               0.0841127
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3",
+            p: [
+              0.0280376,
+              -0.0362,
+              -0.0280376
             ],
             q: [
               0,
@@ -19043,11 +19292,11 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3 (3)",
+            name: "5",
             p: [
-              0.0280376,
+              -0.0280376,
               -0.0362,
-              -0.0841127
+              -0.0280376
             ],
             q: [
               0,
@@ -19059,9 +19308,25 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "6 (1)",
+            name: "6",
             p: [
               -0.0841127,
+              -0.0362,
+              -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (1)",
+            p: [
+              0.0280376,
               -0.0362,
               0.0280376
             ],
@@ -19091,11 +19356,27 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "6 (3)",
+            name: "5 (1)",
+            p: [
+              -0.0280376,
+              -0.0362,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "6 (1)",
             p: [
               -0.0841127,
               -0.0362,
-              -0.0841127
+              0.0280376
             ],
             q: [
               0,
@@ -19107,27 +19388,11 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3",
+            name: "3 (2)",
             p: [
               0.0280376,
               -0.0362,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "4 (3)",
-            p: [
-              0.0841127,
-              -0.0362,
-              -0.0841127
+              0.0841127
             ],
             q: [
               0,
@@ -19171,75 +19436,75 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3 (1)",
-            p: [
-              0.0280376,
-              -0.0362,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3 (2)",
-            p: [
-              0.0280376,
-              -0.0362,
-              0.0841127
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "1",
-            p: [
-              0.0841127,
-              0.0484,
-              0.0841127
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "5",
-            p: [
-              -0.0280376,
-              -0.0362,
-              -0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "6",
+            name: "6 (2)",
             p: [
               -0.0841127,
               -0.0362,
-              -0.0280376
+              0.0841127
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "3 (3)",
+            p: [
+              0.0280376,
+              -0.0362,
+              -0.0841127
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "4 (3)",
+            p: [
+              0.0841127,
+              -0.0362,
+              -0.0841127
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5 (3)",
+            p: [
+              -0.0280376,
+              -0.0362,
+              -0.0841127
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "6 (3)",
+            p: [
+              -0.0841127,
+              -0.0362,
+              -0.0841127
             ],
             q: [
               0,
@@ -19608,9 +19873,9 @@ ${label}`)));
         connectors: [
           {
             kind: "male",
-            name: "5",
+            name: "3",
             p: [
-              -0.0280376,
+              0.0280376,
               0.0484,
               0
             ],
@@ -19624,9 +19889,9 @@ ${label}`)));
           },
           {
             kind: "male",
-            name: "3",
+            name: "5",
             p: [
-              0.0280376,
+              -0.0280376,
               0.0484,
               0
             ],
@@ -19739,24 +20004,6 @@ ${label}`)));
             size: [
               0.1080677,
               0.0101977,
-              0.0530404
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ]
-          },
-          {
-            c: [
-              -5459e-7,
-              -8015e-7,
-              0
-            ],
-            size: [
-              0.1077949,
-              0.0613872,
               0.0530404
             ],
             q: [
@@ -19940,24 +20187,6 @@ ${label}`)));
         placedBoxes: [
           {
             c: [
-              0,
-              29e-7,
-              0
-            ],
-            size: [
-              0.053169,
-              0.063807,
-              0.0530404
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ]
-          },
-          {
-            c: [
               -2718e-7,
               -0.0304913,
               0
@@ -20056,38 +20285,6 @@ ${label}`)));
         connectors: [
           {
             kind: "female",
-            name: "2",
-            p: [
-              0,
-              -0.0362,
-              0.0280376
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "4",
-            p: [
-              0,
-              -0.0362,
-              -0.0841127
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
             name: "1",
             p: [
               0,
@@ -20104,11 +20301,43 @@ ${label}`)));
           },
           {
             kind: "female",
+            name: "2",
+            p: [
+              0,
+              -0.0362,
+              0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
             name: "3",
             p: [
               0,
               -0.0362,
               -0.0280376
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "4",
+            p: [
+              0,
+              -0.0362,
+              -0.0841127
             ],
             q: [
               0,
@@ -20214,24 +20443,6 @@ ${label}`)));
           },
           {
             c: [
-              0,
-              -0.0112094,
-              -4992e-7
-            ],
-            size: [
-              0.053169,
-              0.0413825,
-              0.2164594
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ]
-          },
-          {
-            c: [
               7237e-7,
               -0.0131317,
               -714e-7
@@ -20320,22 +20531,6 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
-            name: "5",
-            p: [
-              -0.0280376,
-              -0.0695,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
             kind: "male",
             name: "3",
             p: [
@@ -20352,6 +20547,22 @@ ${label}`)));
             scale: 0.04
           },
           {
+            kind: "male",
+            name: "5",
+            p: [
+              -0.0280376,
+              0.0813,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
             kind: "female",
             name: "3",
             p: [
@@ -20368,11 +20579,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
+            kind: "female",
             name: "5",
             p: [
               -0.0280376,
-              0.0813,
+              -0.0695,
               0
             ],
             q: [
@@ -20714,6 +20925,22 @@ ${label}`)));
         connectors: [
           {
             kind: "male",
+            name: "1",
+            p: [
+              0,
+              43681e-7,
+              0.043689
+            ],
+            q: [
+              0.7071068,
+              0,
+              0,
+              0.7071068
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
             name: "2",
             p: [
               0,
@@ -20741,22 +20968,6 @@ ${label}`)));
               0,
               0,
               1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "1",
-            p: [
-              0,
-              43681e-7,
-              0.043689
-            ],
-            q: [
-              0.7071068,
-              0,
-              0,
-              0.7071068
             ],
             scale: 0.04
           }
@@ -20861,54 +21072,6 @@ ${label}`)));
         connectors: [
           {
             kind: "male",
-            name: "4",
-            p: [
-              -0.0280376,
-              43681e-7,
-              0.043689
-            ],
-            q: [
-              0.7071068,
-              0,
-              0,
-              0.7071068
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "2",
-            p: [
-              -0.0280376,
-              0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "2",
-            p: [
-              -0.0280376,
-              -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
             name: "1",
             p: [
               0.0280376,
@@ -20924,11 +21087,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
-            name: "1",
+            kind: "male",
+            name: "2",
             p: [
-              0.0280376,
-              -0.0362,
+              -0.0280376,
+              0.0484,
               0
             ],
             q: [
@@ -20952,6 +21115,54 @@ ${label}`)));
               0,
               0,
               0.7071068
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "4",
+            p: [
+              -0.0280376,
+              43681e-7,
+              0.043689
+            ],
+            q: [
+              0.7071068,
+              0,
+              0,
+              0.7071068
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "1",
+            p: [
+              0.0280376,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "2",
+            p: [
+              -0.0280376,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
             ],
             scale: 0.04
           }
@@ -21055,11 +21266,11 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
-            name: "2",
+            kind: "male",
+            name: "1",
             p: [
-              -0.0280376,
-              -0.0362,
+              0.0841127,
+              0.0484,
               0
             ],
             q: [
@@ -21083,6 +21294,54 @@ ${label}`)));
               0,
               0,
               1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "3",
+            p: [
+              -0.0280376,
+              0.0484,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "4",
+            p: [
+              -0.0841127,
+              0.0484,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "5",
+            p: [
+              0.0841127,
+              43681e-7,
+              0.043689
+            ],
+            q: [
+              0.7071068,
+              0,
+              0,
+              0.7071068
             ],
             scale: 0.04
           },
@@ -21120,25 +21379,9 @@ ${label}`)));
           },
           {
             kind: "male",
-            name: "4",
+            name: "8",
             p: [
               -0.0841127,
-              0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "5",
-            p: [
-              0.0841127,
               43681e-7,
               0.043689
             ],
@@ -21167,27 +21410,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "1",
-            p: [
-              0.0841127,
-              0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "3",
+            kind: "female",
+            name: "2",
             p: [
               -0.0280376,
-              0.0484,
+              -0.0362,
               0
             ],
             q: [
@@ -21195,22 +21422,6 @@ ${label}`)));
               0,
               0,
               1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "8",
-            p: [
-              -0.0841127,
-              43681e-7,
-              0.043689
-            ],
-            q: [
-              0.7071068,
-              0,
-              0,
-              0.7071068
             ],
             scale: 0.04
           }
@@ -21320,11 +21531,11 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
+            kind: "male",
             name: "3",
             p: [
               0.0280376,
-              -0.0362,
+              0.0484,
               0
             ],
             q: [
@@ -21352,11 +21563,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
+            kind: "female",
             name: "3",
             p: [
               0.0280376,
-              0.0484,
+              -0.0362,
               0
             ],
             q: [
@@ -21489,11 +21700,27 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
+            kind: "male",
+            name: "3",
+            p: [
+              0.0280376,
+              0.0484,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
             name: "4",
             p: [
               0.0841127,
-              -0.0362,
+              0.0484,
               0
             ],
             q: [
@@ -21510,22 +21737,6 @@ ${label}`)));
             p: [
               -0.0280376,
               0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "female",
-            name: "3",
-            p: [
-              0.0280376,
-              -0.0362,
               0
             ],
             q: [
@@ -21554,9 +21765,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "5",
+            name: "3",
             p: [
-              -0.0280376,
+              0.0280376,
               -0.0362,
               0
             ],
@@ -21569,11 +21780,27 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
+            kind: "female",
             name: "4",
             p: [
               0.0841127,
-              0.0484,
+              -0.0362,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
+            name: "5",
+            p: [
+              -0.0280376,
+              -0.0362,
               0
             ],
             q: [
@@ -21590,22 +21817,6 @@ ${label}`)));
             p: [
               -0.0841127,
               -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "3",
-            p: [
-              0.0280376,
-              0.0484,
               0
             ],
             q: [
@@ -21722,11 +21933,11 @@ ${label}`)));
         heightOverride: 0,
         connectors: [
           {
-            kind: "female",
+            kind: "male",
             name: "1",
             p: [
               -0.0560751,
-              -0.0362,
+              0.0484,
               0
             ],
             q: [
@@ -21771,9 +21982,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "3",
+            name: "1",
             p: [
-              0.0560751,
+              -0.0560751,
               -0.0362,
               0
             ],
@@ -21786,11 +21997,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "1",
+            kind: "female",
+            name: "3",
             p: [
-              -0.0560751,
-              0.0484,
+              0.0560751,
+              -0.0362,
               0
             ],
             q: [
@@ -21915,24 +22126,6 @@ ${label}`)));
           },
           {
             c: [
-              -6149e-7,
-              29e-7,
-              0
-            ],
-            size: [
-              0.1648138,
-              0.063807,
-              0.0530404
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ]
-          },
-          {
-            c: [
               -6835e-7,
               0.0195216,
               0
@@ -21998,9 +22191,9 @@ ${label}`)));
         connectors: [
           {
             kind: "male",
-            name: "6",
+            name: "3",
             p: [
-              -0.0841127,
+              0.0280376,
               0.0484,
               0
             ],
@@ -22013,11 +22206,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
+            kind: "male",
             name: "4",
             p: [
               0.0841127,
-              -0.0362,
+              0.0484,
               0
             ],
             q: [
@@ -22046,10 +22239,26 @@ ${label}`)));
           },
           {
             kind: "male",
+            name: "6",
+            p: [
+              -0.0841127,
+              0.0484,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "female",
             name: "4",
             p: [
               0.0841127,
-              0.0484,
+              -0.0362,
               0
             ],
             q: [
@@ -22066,22 +22275,6 @@ ${label}`)));
             p: [
               -0.0841127,
               -0.0362,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "3",
-            p: [
-              0.0280376,
-              0.0484,
               0
             ],
             q: [
@@ -22221,24 +22414,6 @@ ${label}`)));
               0,
               1
             ]
-          },
-          {
-            c: [
-              0,
-              4942e-7,
-              0
-            ],
-            size: [
-              0.2226001,
-              0.0639786,
-              0.0530404
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ]
           }
         ]
       },
@@ -22289,9 +22464,9 @@ ${label}`)));
         connectors: [
           {
             kind: "male",
-            name: "3",
+            name: "2",
             p: [
-              -0.0841127,
+              -0.1401878,
               0.0484,
               0
             ],
@@ -22304,11 +22479,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "female",
-            name: "2",
+            kind: "male",
+            name: "3",
             p: [
-              -0.1401878,
-              -0.0362,
+              -0.0841127,
+              0.0484,
               0
             ],
             q: [
@@ -22385,9 +22560,9 @@ ${label}`)));
           },
           {
             kind: "female",
-            name: "7",
+            name: "2",
             p: [
-              0.1401878,
+              -0.1401878,
               -0.0362,
               0
             ],
@@ -22400,11 +22575,11 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "2",
+            kind: "female",
+            name: "7",
             p: [
-              -0.1401878,
-              0.0484,
+              0.1401878,
+              -0.0362,
               0
             ],
             q: [
@@ -22491,24 +22666,6 @@ ${label}`)));
           ]
         },
         placedBoxes: [
-          {
-            c: [
-              -4012e-7,
-              4942e-7,
-              0
-            ],
-            size: [
-              0.3316568,
-              0.0639786,
-              0.0530404
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ]
-          },
           {
             c: [
               298e-6,
@@ -22752,24 +22909,6 @@ ${label}`)));
               0,
               1
             ]
-          },
-          {
-            c: [
-              0,
-              -0.0144419,
-              0
-            ],
-            size: [
-              0.053169,
-              0.0349175,
-              0.0530404
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ]
           }
         ]
       },
@@ -22814,6 +22953,54 @@ ${label}`)));
         connectors: [
           {
             kind: "male",
+            name: "1",
+            p: [
+              0,
+              43681e-7,
+              0.043689
+            ],
+            q: [
+              0.7071068,
+              0,
+              0,
+              0.7071068
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "2",
+            p: [
+              0,
+              0.0484,
+              0
+            ],
+            q: [
+              0,
+              0,
+              0,
+              1
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
+            name: "3",
+            p: [
+              -0.043689,
+              43681e-7,
+              0
+            ],
+            q: [
+              0.5,
+              -0.5,
+              0.5,
+              0.5
+            ],
+            scale: 0.04
+          },
+          {
+            kind: "male",
             name: "4",
             p: [
               0,
@@ -22845,38 +23032,6 @@ ${label}`)));
             scale: 0.04
           },
           {
-            kind: "male",
-            name: "3",
-            p: [
-              -0.043689,
-              43681e-7,
-              0
-            ],
-            q: [
-              0.5,
-              -0.5,
-              0.5,
-              0.5
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "2",
-            p: [
-              0,
-              0.0484,
-              0
-            ],
-            q: [
-              0,
-              0,
-              0,
-              1
-            ],
-            scale: 0.04
-          },
-          {
             kind: "female",
             name: "1",
             p: [
@@ -22889,22 +23044,6 @@ ${label}`)));
               0,
               0,
               1
-            ],
-            scale: 0.04
-          },
-          {
-            kind: "male",
-            name: "1",
-            p: [
-              0,
-              43681e-7,
-              0.043689
-            ],
-            q: [
-              0.7071068,
-              0,
-              0,
-              0.7071068
             ],
             scale: 0.04
           }
@@ -23336,7 +23475,7 @@ ${label}`)));
     };
     return (t) => ({ ...t, mate: move(t.mate), probe: move(t.probe), ori: oriMul(back, t.ori), q: ORIS[oriMul(back, t.ori)].q });
   }
-  function CheckIfCanConnect(store, held, allowed = true) {
+  function CheckIfCanConnect(store, held, allowed = true, obstacles = []) {
     if (!allowed) return null;
     const def = BRICKS[held.type];
     if (!def) return null;
@@ -23357,6 +23496,7 @@ ${label}`)));
     const pos = [partner.mate[0] - m[0], partner.mate[1] - m[1], partner.mate[2] - m[2]];
     const boxes = heldBoxesAt(held.type, pos, ori);
     if (!store.inside(boxes) || store.collides(boxes)) return null;
+    for (const o of obstacles) for (const b of boxes) if (obbOverlap(b, o)) return null;
     return { pos, ori, downwards, connector: c.index, partner };
   }
 
@@ -23819,6 +23959,24 @@ ${label}`)));
       this.chars += g.chars;
     }
   };
+  function validRecord(r) {
+    if (!Number.isInteger(r.seq) || r.seq < 1 || r.seq > MAX_SEQ || !r.author) return false;
+    if (r.kind === "P") return !!BRICKS[r.type] && Number.isInteger(r.ori) && r.ori >= 0 && r.ori < 24 && r.pos.every((v) => Number.isInteger(v));
+    return !!r.target && Number.isInteger(r.from) && Number.isInteger(r.to) && r.from >= 1 && r.from <= r.to && r.to <= MAX_SEQ;
+  }
+  function archiveBytes(records, capacity, segments) {
+    const authors = /* @__PURE__ */ new Set();
+    let chars = 0;
+    for (const r of records) {
+      chars += r.kind === "P" ? PLACE_CHARS : TOMB_CHARS;
+      authors.add(r.author);
+      if (r.kind === "T") authors.add(r.target);
+    }
+    let authorBytes = 0;
+    for (const a of authors) authorBytes += JSON.stringify(a).length + 1;
+    const used = Math.min(segments, Math.max(1, Math.ceil(chars / Math.max(1, capacity - 15 - authorBytes))));
+    return chars + used * (15 + authorBytes);
+  }
   function bySeq(a, b) {
     return a.author < b.author ? -1 : a.author > b.author ? 1 : a.seq - b.seq;
   }
@@ -23827,16 +23985,20 @@ ${label}`)));
       __publicField(this, "store");
       /** Every record seen, by id. */
       __publicField(this, "records", /* @__PURE__ */ new Map());
-      /** Ids of the records in the archive as last read. */
-      __publicField(this, "archived", /* @__PURE__ */ new Set());
+      /** Ids of the records in each archive segment as last read. */
+      __publicField(this, "segmentIds", []);
+      /** Records the ledger refused (unknown type or orientation, bad numbers). */
+      __publicField(this, "rejected", 0);
       __publicField(this, "placesByAuthor", /* @__PURE__ */ new Map());
       __publicField(this, "tombsByTarget", /* @__PURE__ */ new Map());
       __publicField(this, "maxSeq", /* @__PURE__ */ new Map());
       /** Bumped whenever the placed bricks change. */
       __publicField(this, "version", 0);
+      /** Whether the archive as last read holds a record. */
+      __publicField(this, "archived", { has: (id) => this.segmentIds.some((ids) => ids.has(id)) });
       this.store = new BrickStore(bounds);
     }
-    /** Highest seq seen from an author (0 for none). */
+    /** Highest seq seen from an author, or covered by a tombstone aimed at it (0 for none): the next record must be above. */
     lastSeq(author) {
       return this.maxSeq.get(author) ?? 0;
     }
@@ -23859,9 +24021,14 @@ ${label}`)));
       for (const r of recs) {
         const id = recordId(r);
         if (this.records.has(id)) continue;
+        if (!validRecord(r)) {
+          this.rejected++;
+          continue;
+        }
         fresh++;
         this.records.set(id, r);
         if (r.seq > (this.maxSeq.get(r.author) ?? 0)) this.maxSeq.set(r.author, r.seq);
+        if (r.kind === "T" && r.to > (this.maxSeq.get(r.target) ?? 0)) this.maxSeq.set(r.target, r.to);
         if (r.kind === "P") {
           let m = this.placesByAuthor.get(r.author);
           if (!m) this.placesByAuthor.set(r.author, m = /* @__PURE__ */ new Map());
@@ -23888,11 +24055,15 @@ ${label}`)));
       if (touched.length) this.version++;
       return fresh;
     }
-    /** The archive as just read: its records join the set, and their ids are what authors may drop from their logs. */
+    /** One archive segment as just read: its records join the set, and their ids are what authors may drop from their logs. */
+    setSegment(index, records, bulk = false) {
+      while (this.segmentIds.length <= index) this.segmentIds.push(/* @__PURE__ */ new Set());
+      this.segmentIds[index] = new Set(records.map(recordId));
+      this.ingest(records, bulk);
+    }
+    /** Every segment at once. */
     setArchive(segments, bulk = false) {
-      const ids = /* @__PURE__ */ new Set();
-      for (const seg of segments) for (const r of seg) ids.add(recordId(r));
-      this.archived = ids;
+      this.segmentIds = segments.map((seg) => new Set(seg.map(recordId)));
       this.ingest(segments.flat(), bulk);
     }
     /**
@@ -23914,10 +24085,10 @@ ${label}`)));
     /**
      * The referee's archive step. Appends every record not archived yet (in author, seq order) to the last segment
      * with room; when the segments run out, or a quarter of the archive is collectable, rewrites them all without the
-     * collectable records. Null when nothing needs writing.
+     * collectable records. A full archive keeps what it holds and takes what still fits (`leftOut` counts the rest).
+     * Null when nothing needs writing. `decoded` is `current` already decoded (nothing is decoded here).
      */
-    planArchive(current, o) {
-      const decoded = current.map((p) => decode(p));
+    planArchive(current, decoded, o) {
       const inArchive = /* @__PURE__ */ new Set();
       let collectable = 0;
       let total = 0;
@@ -23945,7 +24116,7 @@ ${label}`)));
           }
         }
         let ok = true;
-        let added = 0;
+        let added2 = 0;
         for (const r of missing) {
           while (at2 < segs2.length && sizes2[at2].with(r) > o.capacity) at2++;
           if (at2 >= segs2.length) {
@@ -23955,11 +24126,11 @@ ${label}`)));
           segs2[at2].push(r);
           sizes2[at2].add(r);
           changed2.add(at2);
-          added++;
+          added2++;
         }
         if (ok) {
           const segments2 = segs2.map((s, i) => changed2.has(i) ? encode(s) : current[i]);
-          return { segments: segments2, changed: [...changed2].sort((a, b) => a - b), repacked: false, added, dropped: 0 };
+          return { segments: segments2, records: segs2, changed: [...changed2].sort((a, b) => a - b), repacked: false, added: added2, dropped: 0, leftOut: 0 };
         }
       }
       const keep = [];
@@ -23969,19 +24140,26 @@ ${label}`)));
           if (inArchive.has(recordId(r))) dropped++;
         } else keep.push(r);
       }
-      keep.sort(bySeq);
+      const had = (r) => inArchive.has(recordId(r)) ? 0 : 1;
+      keep.sort((a, b) => had(a) - had(b) || bySeq(a, b));
       const segs = current.map(() => []);
       const sizes = segs.map(() => new SegmentSize());
       let at = 0;
+      let leftOut = 0;
       for (const r of keep) {
         while (at < segs.length && segs[at].length && sizes[at].with(r) > o.capacity) at++;
-        if (at >= segs.length) throw new Error(`the archive is full: ${keep.length} records do not fit ${segs.length} segments`);
+        if (at >= segs.length) {
+          leftOut++;
+          continue;
+        }
         segs[at].push(r);
         sizes[at].add(r);
       }
       const segments = segs.map((s) => encode(s));
       const changed = segments.map((s, i) => s.r !== (current[i]?.r ?? "") || JSON.stringify(s.a) !== JSON.stringify(current[i]?.a ?? []) ? i : -1).filter((i) => i >= 0);
-      return { segments, changed, repacked: true, added: keep.filter((r) => !inArchive.has(recordId(r))).length, dropped };
+      const added = segs.reduce((n, seg) => n + seg.filter((r) => !inArchive.has(recordId(r))).length, 0);
+      if (!changed.length) return leftOut ? { segments: [...current], records: decoded.map((d) => d.slice()), changed, repacked: false, added: 0, dropped: 0, leftOut } : null;
+      return { segments, records: segs, changed, repacked: true, added, dropped, leftOut };
     }
     /** A text that is equal on two clients exactly when they show the same bricks. */
     digest() {
@@ -24103,6 +24281,9 @@ ${label}`)));
   var ARCHIVE_SECONDS = 1;
   var SPAWNER_HOLD_SECONDS = 0.4;
   var HAMMER_MIN_RADIUS = 3 / 7e-4;
+  var HAMMER_MAX_BRICKS = 200;
+  var ARCHIVE_FILL_FOR_PLACING = 0.97;
+  var TILE_HOVER_METRES = 0.15;
   var BuildArea = class extends Behaviour {
     constructor() {
       super(...arguments);
@@ -24115,7 +24296,11 @@ ${label}`)));
       __publicField(this, "ghost", null);
       /** The type of the brick the ghost is for. */
       __publicField(this, "ghostType", -1);
-      __publicField(this, "stats", { placed: 0, deleted: 0, refused: 0, archiveWrites: 0, logWrites: 0, repacks: 0, rebuildRecords: 0 });
+      __publicField(this, "stats", { placed: 0, deleted: 0, refused: 0, refusedFull: 0, archiveWrites: 0, logWrites: 0, repacks: 0, rebuildRecords: 0, foreignRecords: 0 });
+      /** JSON bytes one archive segment may hold (a field so tests can make the archive small). */
+      __publicField(this, "segmentCapacity", SEGMENT_CAPACITY);
+      /** Records the referee's last archive step could not fit (the archive is full). */
+      __publicField(this, "archiveLeftOut", 0);
       // ---- kit objects (bindings fields; null in a bench without a kit) ----
       /** The ghost: one child per brick prefab (Complete mesh, see-through), shown where a held brick would snap. */
       __publicField(this, "ghostObject", null);
@@ -24148,6 +24333,10 @@ ${label}`)));
       __publicField(this, "areaRot", Quaternion.identity);
       __publicField(this, "segments", []);
       __publicField(this, "segSeen", []);
+      /** Each segment's records as last read (decoded once per change). */
+      __publicField(this, "segDecoded", []);
+      /** The archive's fill, worked out at most once a tick (`at`), plus the records published since (`extra`). */
+      __publicField(this, "fill", { at: -1, bytes: 0, extra: 0 });
       __publicField(this, "logSeen", /* @__PURE__ */ new Map());
       __publicField(this, "logIds", /* @__PURE__ */ new Map());
       __publicField(this, "myLog", []);
@@ -24156,6 +24345,8 @@ ${label}`)));
       __publicField(this, "lastArchive", -1);
       __publicField(this, "started", false);
       __publicField(this, "spawners", /* @__PURE__ */ new Map());
+      /** True when the last placement was refused because the area is full (shown on the status line). */
+      __publicField(this, "full", false);
       /**
        * A click on the carpet or on the build (desktop, or a VR laser): with the hammer on, the placed brick clicked goes;
        * else the selected brick goes on the face clicked, snapped as a brick let go just above it would be.
@@ -24218,13 +24409,21 @@ ${label}`)));
     }
     /** Takes in whatever changed in the archive and in the logs of the players present. */
     Poll(bulk) {
-      let segChanged = bulk;
-      for (let i = 0; i < this.segments.length; i++) if (this.segments[i].r !== this.segSeen[i]) segChanged = true;
-      if (segChanged) {
+      if (bulk) {
         this.segSeen = this.segments.map((s) => s.r);
-        const decoded = this.segments.map((s) => decode({ a: s.a, r: s.r }));
-        this.stats.rebuildRecords += decoded.reduce((n, s) => n + s.length, 0);
-        this.ledger.setArchive(decoded, bulk);
+        this.segDecoded = this.segments.map((s) => decode({ a: s.a, r: s.r }));
+        this.stats.rebuildRecords += this.segDecoded.reduce((n, s) => n + s.length, 0);
+        this.ledger.setArchive(this.segDecoded, true);
+      } else {
+        for (let i = 0; i < this.segments.length; i++) {
+          const seg = this.segments[i];
+          if (seg.r === this.segSeen[i]) continue;
+          this.segSeen[i] = seg.r;
+          const recs = decode({ a: seg.a, r: seg.r });
+          this.segDecoded[i] = recs;
+          this.stats.rebuildRecords += recs.length;
+          this.ledger.setSegment(i, recs);
+        }
       }
       const present = /* @__PURE__ */ new Set();
       const fresh = [];
@@ -24235,7 +24434,9 @@ ${label}`)));
         present.add(author);
         if (this.logSeen.get(log) === log.r) continue;
         this.logSeen.set(log, log.r);
-        const recs = decode({ a: log.a, r: log.r });
+        const all = decode({ a: log.a, r: log.r });
+        const recs = all.filter((r) => r.author === author);
+        this.stats.foreignRecords += all.length - recs.length;
         this.logIds.set(author, new Set(recs.map(recordId)));
         fresh.push(...recs);
       }
@@ -24248,6 +24449,7 @@ ${label}`)));
       this.Poll(false);
       this.renderer?.update(this.RenderChunks());
       this.ShowGhost();
+      this.UpdateSpawners();
       this.UpdateStatus();
       if (this.Networking.IsReferee && (this.lastArchive < 0 || this.Time.time - this.lastArchive >= ARCHIVE_SECONDS)) {
         this.lastArchive = this.Time.time;
@@ -24264,19 +24466,56 @@ ${label}`)));
       for (const r of this.myLog) inLogs.add(recordId(r));
       for (const r of this.queue) inLogs.add(recordId(r));
       const current = this.segments.map((s) => ({ a: s.a, r: s.r }));
-      const plan = this.ledger.planArchive(current, { capacity: SEGMENT_CAPACITY, presentAuthors, inLogs });
+      const plan = this.ledger.planArchive(current, this.decodedSegments(), { capacity: this.segmentCapacity, presentAuthors, inLogs });
       if (!plan) return;
+      if (plan.leftOut && !this.archiveLeftOut) this.Debug.LogWarning(`the build area's archive is full: ${plan.leftOut} records wait in their authors' logs`);
+      this.archiveLeftOut = plan.leftOut;
       for (const i of plan.changed) {
         const seg = this.segments[i];
         if (!this.Networking.IsOwner(seg.gameObject)) this.Networking.SetOwner(this.Networking.LocalPlayer, seg.gameObject);
         seg.a = plan.segments[i].a;
         seg.r = plan.segments[i].r;
         seg.RequestSerialization();
+        this.segSeen[i] = seg.r;
+        this.segDecoded[i] = plan.records[i];
+        this.ledger.setSegment(i, plan.records[i]);
       }
       if (plan.repacked) this.stats.repacks++;
       this.stats.archiveWrites += plan.changed.length;
-      this.segSeen = this.segments.map((s) => s.r);
-      this.ledger.setArchive(plan.segments.map((p) => decode(p)));
+    }
+    /** Each segment's records, decoding only those that changed since they were last read. */
+    decodedSegments() {
+      for (let i = 0; i < this.segments.length; i++) {
+        const seg = this.segments[i];
+        if (seg.r === this.segSeen[i] && this.segDecoded[i]) continue;
+        this.segSeen[i] = seg.r;
+        this.segDecoded[i] = decode({ a: seg.a, r: seg.r });
+        this.ledger.setSegment(i, this.segDecoded[i]);
+      }
+      return this.segDecoded.slice(0, this.segments.length);
+    }
+    /**
+     * Whether the archive has room for one more record of a kind. Every record the archive would keep (all but what
+     * garbage collection may drop now) is counted against the 24 segments; new bricks may fill
+     * ARCHIVE_FILL_FOR_PLACING of them, tombstones all. Upstream had no limit (a cloud database); a full area says so.
+     */
+    HasRoom(kind = "P") {
+      if (!this.segments.length) return true;
+      const total = this.segments.length * this.segmentCapacity;
+      const now = this.Time.time;
+      if (this.fill.at !== now) {
+        const presentAuthors = new Set(this.Networking.GetPlayers().map((p) => `${p.uid}~${p.sid}`));
+        const inLogs = /* @__PURE__ */ new Set();
+        for (const ids of this.logIds.values()) for (const id of ids) inLogs.add(id);
+        for (const r of this.myLog) inLogs.add(recordId(r));
+        for (const r of this.queue) inLogs.add(recordId(r));
+        const o = { capacity: this.segmentCapacity, presentAuthors, inLogs };
+        const kept = [];
+        for (const r of this.ledger.records.values()) if (!this.ledger.gcable(r, o)) kept.push(r);
+        this.fill = { at: now, bytes: archiveBytes(kept, this.segmentCapacity, this.segments.length), extra: 0 };
+      }
+      const bytes = this.fill.bytes + this.fill.extra + (kind === "P" ? PLACE_CHARS : TOMB_CHARS);
+      return bytes <= total * (kind === "P" ? ARCHIVE_FILL_FOR_PLACING : 1);
     }
     // ---- the author: own log ----------------------------------------------------------------------------------------
     myLogBehaviour() {
@@ -24321,6 +24560,7 @@ ${label}`)));
     publish(recs) {
       this.ledger.ingest(recs);
       this.queue.push(...recs);
+      for (const r of recs) this.fill.extra += r.kind === "P" ? PLACE_CHARS : TOMB_CHARS;
     }
     // ---- actions ----------------------------------------------------------------------------------------------------
     /** A brick straight onto the lattice (loading a save, tests, a future click-to-place). Null when refused. */
@@ -24336,22 +24576,44 @@ ${label}`)));
           return null;
         }
       }
+      if (!this.HasRoom("P")) {
+        this.stats.refused++;
+        this.stats.refusedFull++;
+        this.full = true;
+        this.UpdateStatus();
+        return null;
+      }
+      this.full = false;
       const rec = { kind: "P", author: this.author, seq: this.nextRecordSeq(), type, ori, pos: [pos[0], pos[1], pos[2]], rgb: rgbOf(color) };
       this.publish([rec]);
       this.stats.placed++;
       return recordId(rec);
     }
     /** A held brick let go at a pose in the build area's space: snap and place it, as BrickAttachDetector.BrickReleased. */
-    ReleaseLocal(held, color) {
-      const snap = CheckIfCanConnect(this.ledger.store, held, this.CanBuild());
+    ReleaseLocal(held, color, except = null) {
+      const snap = CheckIfCanConnect(this.ledger.store, held, this.CanBuild(), this.LooseBoxes(except));
       if (!snap) return null;
       if (!this.Place(held.type, snap.ori, snap.pos, color, false)) return null;
       this.PlacedSound(snap.pos[1] + BRICKS[held.type].bottomPlates * U_PER_PLATE <= 1);
       return snap;
     }
     /** The same from a world pose (HeldBrick.OnDrop). */
-    Release(type, color, position, rotation) {
-      return this.ReleaseLocal(this.ToLocal(type, position, rotation), color);
+    Release(type, color, position, rotation, slot = null) {
+      return this.ReleaseLocal(this.ToLocal(type, position, rotation), color, slot);
+    }
+    /**
+     * The colliders of every brick in a hand or lying loose (the pool slots in use), in area space: upstream's "lego"
+     * layer, which BrickAttachDetector.CollidesWithBricks tests as well as placed bricks (:265). `except`: the brick
+     * being let go (its own colliders are triggers while held, so upstream's CheckBox ignores them).
+     */
+    LooseBoxes(except = null) {
+      const out = [];
+      for (const slot of this.FindBehavioursOfType("HeldBrick")) {
+        if (slot === except || slot.t < 0 || !BRICKS[slot.t]) continue;
+        const l = this.ToLocal(slot.t, slot.transform.position, slot.transform.rotation);
+        for (const b of BRICKS[slot.t].heldBoxes) out.push(placeObb(b, l.pos, l.q));
+      }
+      return out;
     }
     /** Where the brick in the hand would go (the ghost), recomputed while it is held. */
     /** Nothing is held here any more: no ghost. */
@@ -24360,7 +24622,7 @@ ${label}`)));
     }
     HeldMoved(slot) {
       this.ghostType = slot.t;
-      this.ghost = CheckIfCanConnect(this.ledger.store, this.ToLocal(slot.t, slot.transform.position, slot.transform.rotation), this.CanBuild());
+      this.ghost = CheckIfCanConnect(this.ledger.store, this.ToLocal(slot.t, slot.transform.position, slot.transform.rotation), this.CanBuild(), this.LooseBoxes(slot));
     }
     /** Removes placed bricks (anyone may, unless the area is locked). Returns how many went. */
     Delete(ids) {
@@ -24373,6 +24635,7 @@ ${label}`)));
       }
       this.publish(recs);
       this.stats.deleted += recs.length;
+      if (recs.length) this.full = false;
       return recs.length;
     }
     /** Empties the area: one range tombstone per author (new; upstream had no such button). */
@@ -24395,10 +24658,11 @@ ${label}`)));
       this.stats.deleted += count;
       return count;
     }
-    /** Hammer.OnCollisionEnter: every placed brick within the radius of a point (area space, u) goes. */
-    Hammer(center, radius) {
+    /** Hammer.OnCollisionEnter: placed bricks within the radius of a point (area space, u) go, the nearest `max` of them. */
+    Hammer(center, radius, max = Infinity) {
       const r = Math.max(radius, 0);
-      const hits = this.ledger.store.near([center[0] - r, center[1] - r, center[2] - r], [center[0] + r, center[1] + r, center[2] + r]).filter((b) => Math.hypot(b.pos[0] - center[0], b.pos[1] - center[1], b.pos[2] - center[2]) <= r).map((b) => b.id);
+      const d = (b) => Math.hypot(b.pos[0] - center[0], b.pos[1] - center[1], b.pos[2] - center[2]);
+      const hits = this.ledger.store.near([center[0] - r, center[1] - r, center[2] - r], [center[0] + r, center[1] + r, center[2] + r]).filter((b) => d(b) <= r).sort((a, b) => d(a) - d(b) || (a.id < b.id ? -1 : 1)).slice(0, max).map((b) => b.id);
       return this.Delete(hits);
     }
     /** The placed brick a point is in (a hand reaching into it), nearest centre first; null if none. */
@@ -24418,24 +24682,30 @@ ${label}`)));
     PickUp(id) {
       const b = this.ledger.store.bricks.get(id);
       if (!b || !this.CanBuild()) return null;
+      const slot = this.FreeSlot();
+      if (!slot) return null;
       if (!this.Delete([id])) return null;
       const { position, rotation } = this.ToWorld(b.pos, ORIS[b.ori].q);
-      return this.Spawn(b.type, b.color, position, rotation);
+      slot.Claim(b.type, b.color, position, rotation);
+      return slot;
     }
-    /** A new brick in a free pool slot (BrickPickerBrick.Interact, HandBrickSpawner.HandleButtonPress). */
-    Spawn(type, color, position, rotation) {
+    /** A free pool slot (this player's own starting point in the pool, so two players rarely race for one), or null. */
+    FreeSlot() {
       const slots = this.FindBehavioursOfType("HeldBrick").sort((a, b) => a.index - b.index);
-      if (!slots.length || !BRICKS[type]) return null;
       let h = 0;
       for (let i = 0; i < this.author.length; i++) h = h * 31 + this.author.charCodeAt(i) >>> 0;
       for (let k = 0; k < slots.length; k++) {
         const slot = slots[(h + k) % slots.length];
-        if (slot.free) {
-          slot.Claim(type, color, position, rotation);
-          return slot;
-        }
+        if (slot.free) return slot;
       }
       return null;
+    }
+    /** A new brick in a free pool slot (BrickPickerBrick.Interact, HandBrickSpawner.HandleButtonPress). */
+    Spawn(type, color, position, rotation) {
+      if (!BRICKS[type]) return null;
+      const slot = this.FreeSlot();
+      if (slot) slot.Claim(type, color, position, rotation);
+      return slot;
     }
     /** Another client claimed the same slot in the same moment and won: that brick is gone (logged). */
     SpawnLost(slot) {
@@ -24451,7 +24721,11 @@ ${label}`)));
         if (slot) this.IntoHand(slot, side);
         return;
       }
-      if (button === Button.Primary || button === Button.Secondary) this.spawner(button, side).downAt = this.Time.time;
+      if (button === Button.Primary || button === Button.Secondary) {
+        const slot = this.spawner(button, side);
+        slot.downAt = this.Time.time;
+        slot.setDone = false;
+      }
     }
     OnButtonReleased(button, side) {
       if (button === Button.Grip) {
@@ -24467,27 +24741,65 @@ ${label}`)));
       if (slot.downAt < 0) return;
       const held = this.Time.time - slot.downAt;
       slot.downAt = -1;
-      const hand = this.HandLocal(side);
       const poses = this.Input.Poses;
-      if (!hand || !poses) return;
-      if (held >= SPAWNER_HOLD_SECONDS) {
+      if (held >= SPAWNER_HOLD_SECONDS || !slot.saved || !poses || this.attached.has(side)) return;
+      const pose2 = side === 0 ? poses.leftHand : poses.rightHand;
+      const def = BRICKS[slot.saved.type];
+      const rot = pose2.rotation.mul(Quaternion.Euler(def.spawnEuler[0], def.spawnEuler[1], def.spawnEuler[2]));
+      const k = this.scale / 7;
+      const o = def.spawnOffset;
+      this.Spawn(slot.saved.type, slot.saved.color, new Vector3(pose2.position.x + o[0] * k, pose2.position.y + o[1] * k, pose2.position.z + o[2] * k), rot);
+    }
+    /**
+     * HandleButtonHold: once a button has been held SPAWNER_HOLD_SECONDS, the first moment the hand is in a placed brick
+     * or on a picker tile "sets" that button to the brick (type and colour) or the tile (type and the picker's colour),
+     * with a haptic tick; while the button stays down it is not set again.
+     */
+    UpdateSpawners() {
+      for (const [key, slot] of this.spawners) {
+        if (slot.downAt < 0 || slot.setDone || this.Time.time - slot.downAt < SPAWNER_HOLD_SECONDS) continue;
+        const side = Number(key.split("/")[0]);
+        if (this.attached.has(side)) continue;
+        const hand = this.HandLocal(side);
+        if (!hand) continue;
         const id = this.BrickAt(hand);
         const b = id ? this.ledger.store.bricks.get(id) : null;
-        if (b) {
-          slot.saved = { type: b.type, color: b.color };
-          this.Input.Haptic(side, 0.5, 0.1);
+        let saved = b ? { type: b.type, color: b.color } : null;
+        if (!saved) {
+          const poses = this.Input.Poses;
+          const type = poses ? this.TileAt(side === 0 ? poses.leftHand.position : poses.rightHand.position) : -1;
+          if (type >= 0) saved = { type, color: this.color };
         }
-      } else if (slot.saved) {
-        const pose2 = side === 0 ? poses.leftHand : poses.rightHand;
-        const def = BRICKS[slot.saved.type];
-        const rot = pose2.rotation.mul(Quaternion.Euler(def.spawnEuler[0], def.spawnEuler[1], def.spawnEuler[2]));
-        this.Spawn(slot.saved.type, slot.saved.color, pose2.position, rot);
+        if (!saved) continue;
+        slot.saved = saved;
+        slot.setDone = true;
+        this.Input.Haptic(side, 0.5, 0.1);
       }
+    }
+    /** The brick type of the shown picker tile a point (world) is on, or -1 (BrickPickerBrick under the hand). */
+    TileAt(world) {
+      const reach = TILE_HOVER_METRES * (this.scale / 7);
+      let best = -1;
+      let bestD = reach;
+      for (const tile of this.FindBehavioursOfType("PickerTile")) {
+        const def = BRICKS[tile.type];
+        if (!def || CATEGORIES.indexOf(def.category) !== this.category) continue;
+        const d = tile.transform.position.sub(world).magnitude;
+        if (d < bestD) {
+          bestD = d;
+          best = tile.type;
+        }
+      }
+      return best;
+    }
+    /** What a spawner button is set to (tests). */
+    SpawnerSaved(side, button) {
+      return this.spawners.get(`${side}/${button}`)?.saved ?? null;
     }
     spawner(button, side) {
       const key = `${side}/${button}`;
       let s = this.spawners.get(key);
-      if (!s) this.spawners.set(key, s = { downAt: -1, saved: null });
+      if (!s) this.spawners.set(key, s = { downAt: -1, setDone: false, saved: null });
       return s;
     }
     HandLocal(side) {
@@ -24638,12 +24950,20 @@ ${label}`)));
       }
       return null;
     }
-    /** The grabbable hammer's head hit the build (Hammer.OnCollisionEnter): the brick it is in goes. */
-    HammerAt(world, radiusU = 30) {
+    /**
+     * The grabbable hammer's head hit the build at `speed` m/s (Hammer.OnCollisionEnter): every placed brick within
+     * max(3, explosionRadius 1 x speed) upstream units of the brick hit goes, at most 200 (the overlap buffer), nearest
+     * first. Upstream turns them into physics bricks and blows them apart; here they are removed (PORT.md C10). The kit
+     * is built at upstream's size, so an upstream unit is a metre times the snippet's scale. `reachU`: how far from the
+     * head a brick counts as hit.
+     */
+    HammerAt(world, speed = 0, reachU = 30) {
       const p = this.ToLocal(0, world, Quaternion.identity).pos;
-      const id = this.BrickAt(p, radiusU);
-      if (!id) return 0;
-      const n = this.Delete([id]);
+      const id = this.BrickAt(p, reachU);
+      const hit = id ? this.ledger.store.bricks.get(id) : null;
+      if (!hit) return 0;
+      const radius = Math.max(3, speed / (this.scale / 7)) / 7e-4;
+      const n = this.Hammer(hit.pos, radius, HAMMER_MAX_BRICKS);
       if (n) this.Play(this.carpetClips[1] ?? null);
       return n;
     }
@@ -24678,7 +24998,7 @@ ${label}`)));
       if (!this.status) return;
       const def = BRICKS[this.selectedType];
       const locked = this.Protected.Get("locked", false);
-      const text = `${def ? def.display : ""}   ${this.ledger ? this.ledger.store.count : 0} bricks` + (this.hammerMode ? "   HAMMER" : "") + (locked ? this.Protected.CanWrite ? "   locked (you may build)" : "   locked by the owner" : "");
+      const text = `${def ? def.display : ""}   ${this.ledger ? this.ledger.store.count : 0} bricks` + (this.hammerMode ? "   HAMMER" : "") + (this.full || this.archiveLeftOut ? "   AREA FULL: remove bricks to build more" : "") + (locked ? this.Protected.CanWrite ? "   locked (you may build)" : "   locked by the owner" : "");
       if (text !== this.statusText) {
         this.statusText = text;
         this.status.text = text;
@@ -24779,14 +25099,14 @@ ${label}`)));
       const now = this.Time.time;
       if (this.last && now > this.lastTime) {
         const speed = p.sub(this.last).magnitude / (now - this.lastTime);
-        if (speed >= HAMMER_SWING_SPEED) areaOf(this)?.HammerAt(p);
+        if (speed >= HAMMER_SWING_SPEED) areaOf(this)?.HammerAt(p, speed);
       }
       this.last = p;
       this.lastTime = now;
     }
-    /** The trigger of the hand holding it (bindings: heldTrigger): the brick under the head goes, swung or not. */
+    /** The trigger of the hand holding it (bindings: heldTrigger): a blow at rest (the smallest blast) where the head is. */
     Smash(_detail) {
-      void this.transform.Refresh().then(() => areaOf(this)?.HammerAt(this.HeadPosition(), 60));
+      void this.transform.Refresh().then(() => areaOf(this)?.HammerAt(this.HeadPosition(), 0, 60));
     }
   };
 
@@ -24869,7 +25189,7 @@ ${label}`)));
       if (!this.held || this.t < 0) return;
       this.held = false;
       this.area.HeldGone();
-      const snapped = this.area.Release(this.t, this.c, this.transform.position, this.transform.rotation);
+      const snapped = this.area.Release(this.t, this.c, this.transform.position, this.transform.rotation, this);
       if (snapped) {
         this.Free();
       } else {
@@ -24877,6 +25197,17 @@ ${label}`)));
         this.looseSince = this.Time.time;
         this.RequestSerialization();
       }
+    }
+    /**
+     * A player left: the referee frees a slot that player still held or owned, which nobody else would (upstream's
+     * Normcore objects went with their owner: destroyWhenOwnerOrLastClientLeaves, HandBrickSpawner.cs:137). Also a
+     * slot the room handed to the referee while it was in the leaver's hand (owned here, "held", not by this client).
+     */
+    OnPlayerLeft(player) {
+      if (!this.Networking.IsReferee || this.t < 0) return;
+      const owner = this.Networking.GetOwner(this.gameObject);
+      const orphan = !owner || owner.sid === player.sid || this.Networking.IsOwner(this.gameObject) && this.d === 0 && !this.held;
+      if (orphan) this.Free();
     }
     OnDeserialization(result) {
       if (result.isRollback) this.area.SpawnLost(this);
@@ -24991,6 +25322,14 @@ ${label}`)));
           return !!slot;
         },
         letGo: (side) => area().OnButtonReleased(Button.Grip, side),
+        /** The archive's segment size in bytes (tests: a small archive fills quickly); returns the one before. */
+        capacity: (bytes) => {
+          const before = area().segmentCapacity;
+          if (bytes > 0) area().segmentCapacity = bytes;
+          return before;
+        },
+        /** Removes placed bricks by id (tests). Returns how many went. */
+        remove: (ids) => area().Delete(ids),
         slot: (index) => {
           const h = area().FindBehavioursOfType("HeldBrick").find((x) => x.index === index);
           return h ? { t: h.t, c: h.c & 16777215, d: h.d, held: h.held } : null;
@@ -26949,7 +27288,7 @@ ${label}`)));
       console: g.console
     };
   }
-  var DEFAULT_BS_OPTIONS = { joinTimeoutMs: 3e4, kitTimeoutMs: 12e4, kitFindMs: 2e4, userFlushMs: 200, verbose: false };
+  var DEFAULT_BS_OPTIONS = { joinTimeoutMs: 3e4, kitTimeoutMs: 12e4, kitFindMs: 2e4, userFlushMs: 200, headProbeMs: 5e3, stateBudgetBytes: 96 * 1024, stateEchoMs: 4e3, verbose: false };
   var HOST_EVENTS = {
     click: "click",
     grab: "grab",
@@ -26985,12 +27324,23 @@ ${label}`)));
       __publicField(this, "sessionHandlers", []);
       __publicField(this, "snippetHandlers", []);
       __publicField(this, "poseHandlers", []);
+      __publicField(this, "teleportHandlers", []);
+      __publicField(this, "headReading", null);
       __publicField(this, "inputHandlers", []);
       __publicField(this, "wrappers", /* @__PURE__ */ new WeakMap());
       /** uid -> the page's UserData object for everyone in the room. */
       __publicField(this, "roster", /* @__PURE__ */ new Map());
       __publicField(this, "pendingPublic", null);
       __publicField(this, "pendingProtected", null);
+      /** Turns of writes not handed to the app yet (each turn is one action's writes: kept together while it fits). */
+      __publicField(this, "stateQueue", []);
+      /** Handed to the app, not yet seen back: path -> bytes and when. */
+      __publicField(this, "unechoed", /* @__PURE__ */ new Map());
+      __publicField(this, "unechoedBytes", 0);
+      __publicField(this, "stateTimer", 0);
+      __publicField(this, "warnedSplit", false);
+      /** For tests and diagnostics: handoffs to the app, and the largest one in bytes. */
+      __publicField(this, "stateStats", { handoffs: 0, largest: 0, deferred: 0 });
       __publicField(this, "pendingUser", /* @__PURE__ */ new Map());
       __publicField(this, "userTimer", 0);
       __publicField(this, "userLastFlush", -Infinity);
@@ -27070,9 +27420,14 @@ ${label}`)));
       registry.games[slug] = info;
       return true;
     }
+    /**
+     * Debugging hooks (state digests, a game's own test helpers such as "remove a cup" or "make me the saboteur") reach
+     * the page registry only on a test page: one that set `window.__pk1_debug = true` before the script ran (the Play-mode
+     * kit test's page does). A published page never does, so a shipped script exposes nothing to call.
+     */
     expose(key, hooks) {
       const registry = this.registry();
-      if (hooks) registry.debug[key] = hooks;
+      if (hooks && this.env.win.__pk1_debug === true) registry.debug[key] = hooks;
       else delete registry.debug[key];
     }
     onRelay(key, handlers) {
@@ -27175,6 +27530,11 @@ ${label}`)));
           this.emitUser(sid, change.path, value);
         }
       });
+      on("player-teleported", (detail) => {
+        if (!detail || !detail.position) return;
+        const position = from3(detail.position);
+        for (const handler of this.teleportHandlers.slice()) handler(position);
+      });
       on("pose-update", (detail) => {
         if (!detail || !detail.head) return;
         const poses = { head: pose(detail.head), leftHand: pose(detail.leftHand), rightHand: pose(detail.rightHand) };
@@ -27268,6 +27628,10 @@ ${label}`)));
     }
     /** Applies one change to the mirror and tells the listeners, unless the mirror already says so. */
     applyChange(path, value) {
+      if (this.unechoed.has(path)) {
+        this.release(path);
+        if (this.stateQueue.length) Promise.resolve().then(() => this.pumpState());
+      }
       const before = this.mirror.get(path);
       if (before === value) return;
       if (value === void 0) this.mirror.delete(path);
@@ -27352,9 +27716,75 @@ ${label}`)));
         const prot = this.pendingProtected;
         this.pendingPublic = null;
         this.pendingProtected = null;
-        if (pub) this.attempt("SetPublicSpaceProps", () => this.scene.SetPublicSpaceProps(pub));
-        if (prot) this.attempt("SetProtectedSpaceProps", () => this.scene.SetProtectedSpaceProps(prot));
+        if (pub) this.stateQueue.push({ scope: "public", writes: Object.entries(pub) });
+        if (prot) this.stateQueue.push({ scope: "protected", writes: Object.entries(prot) });
+        this.pumpState();
       });
+    }
+    /**
+     * Hands queued turns to the app while the bytes it holds that the room has not echoed stay within the budget. The
+     * app merges whatever it holds into its next batch (64 writes of up to 16 KiB: over the relay's 256 KiB), and does
+     * so even more while it backs off, so the page's own queue is the only place a batch's size can be bounded. A turn
+     * bigger than the budget is split (logged once); the leaves of one sync slot are one write each and never split.
+     */
+    pumpState() {
+      const budget = this.options.stateBudgetBytes;
+      const now = this.env.now();
+      for (const [path, entry] of this.unechoed) {
+        if (now - entry.at >= this.options.stateEchoMs) this.release(path);
+      }
+      while (this.stateQueue.length) {
+        const turn = this.stateQueue[0];
+        const room = budget - this.unechoedBytes;
+        const size = (w) => utf8Length(w[0]) + utf8Length(w[1]) + 16;
+        const total = turn.writes.reduce((sum, w) => sum + size(w), 0);
+        let take;
+        if (total <= room) take = turn.writes.splice(0);
+        else if (this.unechoedBytes > 0) break;
+        else {
+          take = [];
+          let bytes2 = 0;
+          while (turn.writes.length && (take.length === 0 || bytes2 + size(turn.writes[0]) <= budget)) {
+            bytes2 += size(turn.writes[0]);
+            take.push(turn.writes.shift());
+          }
+          if (!this.warnedSplit) {
+            this.warnedSplit = true;
+            this.log("info", `one turn wrote ${total} bytes of space state, more than the ${budget} bytes sent at once: it goes in parts`);
+          }
+        }
+        if (!turn.writes.length) this.stateQueue.shift();
+        const props = {};
+        let bytes = 0;
+        for (const w of take) {
+          props[w[0]] = w[1];
+          bytes += size(w);
+          if (this.mirror.get(w[0]) === w[1]) continue;
+          this.release(w[0]);
+          this.unechoed.set(w[0], { bytes: size(w), at: now });
+          this.unechoedBytes += size(w);
+        }
+        this.stateStats.handoffs++;
+        this.stateStats.largest = Math.max(this.stateStats.largest, bytes);
+        if (turn.scope === "protected") this.attempt("SetProtectedSpaceProps", () => this.scene.SetProtectedSpaceProps(props));
+        else this.attempt("SetPublicSpaceProps", () => this.scene.SetPublicSpaceProps(props));
+      }
+      if (this.stateQueue.length) {
+        this.stateStats.deferred++;
+        if (!this.stateTimer) {
+          this.stateTimer = this.env.setTimeout(() => {
+            this.stateTimer = 0;
+            this.pumpState();
+          }, 250);
+        }
+      }
+    }
+    /** A handed-off write came back (or failed, or timed out): it no longer counts against the budget. */
+    release(path) {
+      const entry = this.unechoed.get(path);
+      if (!entry) return;
+      this.unechoed.delete(path);
+      this.unechoedBytes -= entry.bytes;
     }
     async stateDelete(path) {
       let delay = 250;
@@ -27387,6 +27817,10 @@ ${label}`)));
       if (detail.key.startsWith(TAG + ".")) this.emitError(detail.key, String(detail.code ?? "internal"), true);
     }
     emitError(path, code, final) {
+      if (final && this.unechoed.has(path)) {
+        this.release(path);
+        if (this.stateQueue.length) Promise.resolve().then(() => this.pumpState());
+      }
       for (const handler of this.errorHandlers.slice()) {
         if (path.startsWith(handler.prefix)) this.attempt("state error handler", () => handler.fn(path, code, final));
       }
@@ -27563,7 +27997,7 @@ ${label}`)));
             );
           }
           if (object.seat) seat = await go.AddComponent(new BS.Seat({}));
-          objects.set(object.key, new BsHostObject(this, object.key, object.path, go, synced, seat));
+          objects.set(object.key, new BsHostObject(this, object.key, object.path, go, synced, seat, object.networkId, object.attachNetworkId ?? ""));
         } catch (error) {
           this.log("warn", `kit object ${object.key} (${object.path}): ${describe(error)}`);
           missing.push(object.key);
@@ -27672,6 +28106,65 @@ ${label}`)));
     onPose(handler) {
       return subscribe(this.poseHandlers, handler);
     }
+    onTeleported(handler) {
+      return subscribe(this.teleportHandlers, handler);
+    }
+    localPosition() {
+      if (!this.headReading) this.headReading = this.readHead();
+      return this.headReading;
+    }
+    /**
+     * The page has no call that answers where the local player is. A throwaway object attached to the local
+     * player's head (BS.AttachedObject, NonPhysics, attachment point Head = 0) is moved there by the app; its
+     * transform, read once, is the head's position. The object starts at the origin, so the first reading away
+     * from it is the answer. Then the object goes. UNVERIFIED in the app (checked in editor Play mode only, see
+     * spikes/RESULTS.md S7).
+     */
+    async readHead() {
+      const BS = this.env.BS;
+      const uid = this.local().uid;
+      let probe = null;
+      const answer = deferred();
+      const timer = this.env.setTimeout(() => answer.resolve(null), this.options.headProbeMs);
+      try {
+        probe = new BS.GameObject("pk1-head-probe");
+        await probe.Async();
+        const attached = await probe.AddComponent(
+          new BS.AttachedObject({
+            uid,
+            attachmentPosition: new BS.Vector3(0, 0, 0),
+            attachmentRotation: new BS.Quaternion(0, 0, 0, 1),
+            attachmentType: 1,
+            // NonPhysics
+            attachmentPoint: 0,
+            // Head
+            autoSync: false,
+            jointAvatar: false
+          })
+        );
+        const PN = this.api.PN ?? this.api.PropertyName;
+        const look = () => {
+          const p = probe.transform?.position;
+          if (p && (Number(p.x) || Number(p.y) || Number(p.z))) answer.resolve(from3(p));
+        };
+        await probe.WatchTransform([PN.position], look);
+        await attached.Attach(uid);
+        look();
+        return await answer.promise;
+      } catch (error) {
+        this.log("info", `the local position could not be read at start: ${describe(error)}`);
+        return null;
+      } finally {
+        this.env.clearTimeout(timer);
+        answer.resolve(null);
+        if (probe) {
+          try {
+            probe.Destroy();
+          } catch {
+          }
+        }
+      }
+    }
     onInput(handler) {
       return subscribe(this.inputHandlers, handler);
     }
@@ -27718,7 +28211,7 @@ ${label}`)));
     }
   };
   var BsHostObject = class {
-    constructor(platform, key, path, go, synced, seat) {
+    constructor(platform, key, path, go, synced, seat, networkId2 = "", attachNetworkId = "") {
       __publicField(this, "key");
       __publicField(this, "path");
       __publicField(this, "platform");
@@ -27727,6 +28220,8 @@ ${label}`)));
       __publicField(this, "seat");
       __publicField(this, "watchers", []);
       __publicField(this, "watching", false);
+      __publicField(this, "attachNetworkId");
+      __publicField(this, "hasNetworkId");
       __publicField(this, "attached", null);
       this.platform = platform;
       this.key = key;
@@ -27734,6 +28229,8 @@ ${label}`)));
       this.go = go;
       this.synced = synced;
       this.seat = seat;
+      this.hasNetworkId = networkId2 !== "";
+      this.attachNetworkId = attachNetworkId;
     }
     on(kind, handler) {
       const name = HOST_EVENTS[kind];
@@ -27828,10 +28325,21 @@ ${label}`)));
     }
     /** UNVERIFIED in Play mode: BS.AttachedObject added to a kit object, attachment point set, then Attach(local user id). */
     attachToHand(side, position, rotation) {
+      this.attach(side === 0 ? 1 : 2, position, rotation, false);
+    }
+    /** UNVERIFIED in Play mode: as attachToHand, at the head (attachment point 0); with autoSync the app shows it to others. */
+    attachToHead(position, rotation, autoSync) {
+      this.attach(0, position, rotation, autoSync);
+    }
+    attach(point, position, rotation, autoSync) {
       const BS = this.platform.api;
       const uid = this.platform.local().uid;
       void (async () => {
         try {
+          if (autoSync && !this.hasNetworkId && this.attachNetworkId) {
+            await this.go.SetNetworkId(this.attachNetworkId);
+            this.hasNetworkId = true;
+          }
           if (!this.attached) {
             this.attached = await this.go.AddComponent(
               new BS.AttachedObject({
@@ -27840,16 +28348,17 @@ ${label}`)));
                 attachmentRotation: new BS.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w),
                 attachmentType: 1,
                 // NonPhysics
-                attachmentPoint: side === 0 ? 1 : 2,
-                // LeftHand, RightHand
-                autoSync: false,
+                attachmentPoint: point,
+                // Head 0, LeftHand 1, RightHand 2
+                autoSync,
                 jointAvatar: false
               })
             );
           } else {
-            this.attached.attachmentPoint = side === 0 ? 1 : 2;
+            this.attached.attachmentPoint = point;
             this.attached.attachmentPosition = new BS.Vector3(position.x, position.y, position.z);
             this.attached.attachmentRotation = new BS.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
+            this.attached.autoSync = autoSync;
           }
           await this.attached.Attach(uid);
         } catch (error) {

@@ -1,6 +1,6 @@
 # brick-builder: test evidence
 
-Everything here ran on 2026-11-24 on Windows, Unity 6000.3.21f1, Creator SDK 4.0.29, in the Unity editor. Nothing ran
+Everything here ran on 2026-11-24 (first Unity phase) and 2026-11-25 (after the review; sections say which) on Windows, Unity 6000.3.21f1, Creator SDK 4.0.29, in the Unity editor. Nothing ran
 in the Altspace app, on a Quest, or with controllers (rung 5: not run; worlds stay Private).
 
 How to run each rung again:
@@ -12,9 +12,8 @@ python altspace/tools/import_upstream_bricks.py                                t
 altspace/tools/rebuild_kit.sh                                                  compile, Build Prefabs, script, bundles, Check (rung 2)
 portkit/tools/remote.sh altspace menu "PortKit/Bricks/Check Models"           the regenerated models in Unity (Logs/brick_models.txt)
 portkit/tools/playtest.sh altspace altspace/playtest/spike.json brick-builder   the rendering spike, option (b) (and spikeA.json, spikeA2.json: option (a))
-portkit/tools/playtest.sh altspace altspace/playtest/single.json brick-builder  rung 3
-portkit/tools/remote.sh altspace menu "PortKit/Multiplayer/Activate Player 2"
-portkit/tools/playtest.sh altspace altspace/playtest/multi.json brick-builder   rung 4
+portkit/tools/playtest.sh altspace altspace/playtest/single.json brick-builder  rung 3 (playtest.sh deactivates leftover players)
+portkit/tools/playtest.sh altspace altspace/playtest/multi.json brick-builder   rung 4 (playtest.sh activates Player 2 and waits for it)
 ```
 
 The page side of the Play-mode tests is `Assets/WebRoot/playtest/brick-playtest.js` (spike, helpers) and
@@ -27,9 +26,42 @@ renderer holds) and `framems` (`Assets/Kit/Editor/BrickChecks.cs`). Full logs: `
 
 ## Rung 1: Node (no Unity)
 
-`npm test` in `altspace/ts`: **25 tests, 25 pass, 0 fail** (portkit `1118ef0`, re-synced). The golden vectors (upstream
-`BrickAttachDetector.cs`, `LegoConnectorScript.cs`, `ColorInt.cs` compiled unchanged with dotnet 8: 650 snapping situations,
-64 colours) and the scenarios are described in PORT.md 9.1 and 9.2. New since the analysis:
+`npm test` in `altspace/ts`: **38 tests, 38 pass, 0 fail** (portkit `812f285`, re-synced 2026-11-25). The golden vectors
+(upstream `BrickAttachDetector.cs`, `LegoConnectorScript.cs`, `ColorInt.cs` compiled unchanged with dotnet 8: 650
+snapping situations, 64 colours) and the scenarios are described in PORT.md 9.1 and 9.2.
+
+After the independent review (2026-11-25, `REVIEW-FINDINGS.md`): the golden harness builds every brick from the upstream
+prefab YAML (`golden/PrefabYaml.cs`), so the vectors no longer share the port's catalogue; `test/catalogue.test.ts`
+checks the catalogue's connector order against the prefabs' serialized `_maleConnectors` / `_femaleConnectors` and its
+obstacles against their enabled colliders; `test/findings.test.ts` has one test per finding 3-15 (each fails on the code
+before its fix: 9 of 9 checked by running them against the previous commit's sources) and `test/repack.test.ts` the
+repack through the fake relay's message cap. With the first catalogue the new vectors give 163 disagreements.
+
+```
+ok 1 - connectors are in the order of the held prefabs' serialized _maleConnectors / _femaleConnectors
+ok 2 - placed obstacles are exactly the placed prefabs' enabled solid colliders on the placed lego layer
+ok 3 - a 1x1 plate fits under an arch, and an arch over a 1x1 plate (the arch's disabled root box is not solid)
+ok 4 - 3: a full archive refuses new bricks with a notice; nothing placed is lost and the referee does not throw
+ok 5 - 4: a record of an unknown brick type or orientation is ignored on ingest, never archived, never fatal
+ok 6 - 6: the swung hammer blasts every brick within max(3, speed) units, at most 200, nearest first
+ok 7 - 7: picking up with every pool slot in use leaves the brick where it is; a leaver's slot is freed
+ok 8 - 8: a log's records count only under its own player's key
+ok 9 - 9: a brick lying loose where a brick would snap blocks it, as upstream's lego layer does
+ok 10 - 10: an archive write decodes only the segments that changed
+ok 11 - 11: the hand spawner sets while the button is held (from a brick or a picker tile) and spawns with the offset
+ok 12 - 15: a brick number covered by a surviving tombstone is never used again by its author
+# MEASURE golden snapping: floor 150 (150 attach, worst position difference 0.86 u); brick 220 (161 attach, worst position difference 1.18 u); under 80 (79 attach, worst position difference 0.57 u); side 80 (51 attach, worst position difference 2.13 u); random 120 (62 attach, worst position difference 0.43 u); refused by the port as below the carpet (upstream attaches): 13; held side stud into a socket, placed differently: 0
+ok 22 - snapping: 650 situations agree with the upstream C\#
+# MEASURE repack: 19 segments before, largest state message 87681 bytes, sockets closed 0
+ok 26 - 5: a repack of 18+ segments (over 256 KiB) arrives in parts: no oversize message, everyone converges
+# MEASURE build 2000 bricks by 3 players over 33.6 s virtual: space-state batches 34 (peak 1/s, mean 1.01/s), user-state writes 508 (peak 16/s room-wide), rate_limited 0
+# MEASURE rebuild of 2000 bricks from 3 segments: median 20.2 ms, min 19.6 ms (Node, this machine)
+```
+
+The models: `tools/bricks/verify_bricks.py` prints `problems: 0` for all 269 files (548 connectors matched); the plant
+and pyramid files, now rebuilt from `BrickObjs/*.pobj`, match the dumps within 0.4 nm.
+
+From the first Unity phase:
 
 ```
 ok 12 - records: new bricks append, removed ones empty their slot, a freed slot is reused
@@ -167,9 +199,8 @@ there when the camera turned; letting go detached it (it then lay loose and went
 mode `BS.AttachedObject` does take the object to the local player; whether it follows a real controller is unverified.
 The kit uses it for a brick taken from the build with the grip and for a picker tile clicked in VR (both VR only).
 
-Run rung 3 with Player 2 deactivated (`PortKit/Multiplayer/Deactivate Players`): a clone left running from rung 4
-loads the same test page and plays the single-player script at the same time (seen once: 5 failures from the two pages
-clicking into each other's build).
+(First Unity phase: rung 3 had to run with Player 2 deactivated by hand, since a clone left running from rung 4
+loaded the same test page; `playtest.sh` now deactivates leftover players itself, portkit `d8f370d`.)
 
 What a person at the editor would see differently: the desktop grab does not follow InputSim's pointer (portkit
 RESULTS.md), so the held-brick test lets go in place (the brick was put just above the carpet); the first grab of a
