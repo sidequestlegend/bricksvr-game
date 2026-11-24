@@ -9,7 +9,7 @@
 // graph only ever sets an item or appends one.
 //
 // Relay op (Assets/Kit/Editor/BrickKitBuilder.cs, README op table of this game):
-//   bricks | @Area/Chunks/<chunk> | "<slot>,<mesh>,<x>,<y>,<z>,<ori>,<rgb>;..."
+//   bricks | @Area/Chunks/<chunk> | "<slot>,<mesh>,<x>,<y>,<z>,<ori>,<rgb>;..." | <1 while the chunk holds a brick, else 0>
 // mesh: index into the kit's mesh list: 0 the empty mesh, else 1 + 4 * type + variant (MESH_VARIANTS);
 // x, y, z: lattice units (0.1 mm of mesh); ori: Lattice.ORIS index; rgb: 0xRRGGBB as a whole number (the shader reads
 // it from UV1, see Assets/Kit/Shaders/BrickColor.shader).
@@ -88,7 +88,9 @@ export class BrickRenderer {
           slot = slots.free.length ? slots.free.pop()! : slots.items.length + [...changed.keys()].filter((s) => s >= slots.items.length).length;
           slots.slotOf.set(id, slot);
         }
-        if (slots.items[slot] !== item) changed.set(slot, item);
+        // (a slot freed above and taken again in the same pass may already hold exactly this look)
+        if (slots.items[slot] === item) changed.delete(slot);
+        else changed.set(slot, item);
       }
       if (!changed.size) continue;
       const order = [...changed.keys()].sort((a, b) => a - b);
@@ -98,7 +100,7 @@ export class BrickRenderer {
         records.push(`${slot},${slots.items[slot]}`);
       }
       const text = records.join(";");
-      this.host.op("bricks", `@Area/Chunks/${slots.name}`, [text]);
+      this.host.op("bricks", `@Area/Chunks/${slots.name}`, [text, slots.slotOf.size > 0 ? 1 : 0]);
       this.sent.ops++;
       this.sent.records += records.length;
       this.sent.bytes += text.length;

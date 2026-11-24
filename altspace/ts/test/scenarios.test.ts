@@ -177,6 +177,21 @@ test("a player who leaves keeps their bricks: archived, and there for a late joi
   assert.equal(area(world, c).ledger.store.count, 300);
 });
 
+test("the room empties: the build stays for the next visitor (whenEmpty keep), also after a reload of the only page", async () => {
+  const world = newWorld(21);
+  const a = world.join({ name: "Ann" });
+  await world.settle();
+  const plans = plannedBuild(120, 1)[0]!;
+  for (const p of plans) assert.ok(area(world, a).Place(p.type, p.ori, p.pos, p.color));
+  await world.run(3000); // archived by Ann, the referee
+  world.leave(a);
+  await world.run(60000); // nobody in the room; Ann's user state is gone
+  const b = world.join({ name: "Bob" });
+  await world.settle();
+  assert.ok(await converge(world, 120, 20000), "the next visitor did not see the build");
+  assert.equal(area(world, b).ledger.store.count, 120);
+});
+
 test("two build areas in one room stay separate", async () => {
   const world = newWorld(14);
   const els: Array<Record<string, string>> = [{ room: "north" }, { room: "south", width: "48" }];

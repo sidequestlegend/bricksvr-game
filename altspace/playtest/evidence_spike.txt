@@ -1,0 +1,38 @@
+local: script and bundles from the test server http://localhost:43500
+[main] INFO main in Play, page port 43400
+[main] PASS the kit loads from a hand-written bs-snippet and the instance starts: at 5674 ms after the page opened
+[main] CMD b1_468117 look 0.0000 0.0000 -0.2800
+[main] REPLY b1_468117 ok camera at 0.00,1.60,0.00
+[main] CMD b2_895672 renderstats pk1:brick-builder:0
+[main] REPLY b2_895672 batches 12 drawCalls 12 setPass 11 triangles 2542 vertices 6770 instancedBatches 0 chunks 0 drawn 0 emptySlots 0 chunkVertices 0 spikeObjects 0
+[main] INFO renderstats before any brick: batches 12 drawCalls 12 setPass 11 triangles 2542 vertices 6770 instancedBatches 0 chunks 0 drawn 0 emptySlots 0 chunkVertices 0 spikeObjects 0
+[main] CMD b3_917114 renderstats pk1:brick-builder:0
+[main] REPLY b3_917114 batches 20 drawCalls 20 setPass 12 triangles 55934 vertices 92178 instancedBatches 0 chunks 8 drawn 2000 emptySlots 0 chunkVertices 85408 spikeObjects 0
+[main] PASS 2,000 bricks placed and every one drawn (no lost bricks): placed 2000, drawn 2000, empty slots 0, chunks 8
+[main] INFO first build of 2,000 bricks: 358 ms on the page from the first Place to the last chunk built; 8 ops, 2000 records, 63786 bytes; merge 126.2 ms in all, worst chunk 23.5 ms; colliders 14.6 ms, worst 2.7 ms
+[main] PASS draw batches for the bricks at most 100 (plan's pass rule): 20 batches with the bricks, 12 without: 8 for 2,000 bricks; draw calls 8, SetPass undefined, triangles 55934, merged vertices 85408
+[main] INFO renderstats with 2,000 bricks: batches 20 drawCalls 20 setPass 12 triangles 55934 vertices 92178 instancedBatches 0 chunks 8 drawn 2000 emptySlots 0 chunkVertices 85408 spikeObjects 0
+[main] CMD b4_151411 framems 120
+[main] REPLY b4_151411 mean 6.282 worst 17.151 over 120
+[main] INFO frame time with 2,000 bricks: mean 6.282 worst 17.151 over 120
+[main] CMD b5_634197 renderstats pk1:brick-builder:0
+[main] REPLY b5_634197 batches 20 drawCalls 20 setPass 12 triangles 56054 vertices 92418 instancedBatches 0 chunks 8 drawn 2010 emptySlots 0 chunkVertices 85648 spikeObjects 0
+[main] PASS chunk rebuild within 8 ms after a placement (plan's pass rule; merge, in Unity): merge median 0.90 ms, worst 1.40 ms over 10 placements; collider cooking median 2.64, worst 2.84 ms; page-to-built latency median 54 ms
+[main] PASS after the placements every brick is still drawn: 2010 drawn, 2010 placed
+[main] INFO reloading the page for the late join: 2010:3fa44f81
+[main] PASS the kit loads from a hand-written bs-snippet and the instance starts: at 5066 ms after the page opened
+[main] CMD b1_699489 renderstats pk1:brick-builder:0
+[main] REPLY b1_699489 batches 20 drawCalls 20 setPass 12 triangles 56056 vertices 92422 instancedBatches 0 chunks 8 drawn 2010 emptySlots 0 chunkVertices 85648 spikeObjects 0
+[main] PASS late join by reload: every brick is rebuilt and drawn: 2010 drawn of 2010; the page opened 5295 ms before the last chunk was built (instance started at 5066 ms); 8 chunk ops, merge 122.2 ms in all (worst 22.9), colliders 14.7 ms (worst 2.7)
+[main] FAIL late join within 5 s of opening the page (plan's pass rule): 5295 ms
+[main] PASS the reloaded page holds the same bricks (digest): 2010:3fa44f81
+[main] INFO renderstats after the late join: batches 20 drawCalls 20 setPass 12 triangles 56056 vertices 92422 instancedBatches 0 chunks 8 drawn 2010 emptySlots 0 chunkVertices 85648 spikeObjects 0
+[main] CMD b2_102561 framems 120
+[main] REPLY b2_102561 mean 5.189 worst 7.48 over 120
+[main] INFO frame time: mean 5.189 worst 7.48 over 120
+[main] DONE
+served: /kits/windows/brick-builder x1, /web/pk-brick-builder.js x2, /web/playtest/brick-playtest.js x2, HEAD /kits/windows/brick-builder x2
+console (main editor): 1 error lines
+   [Exception] ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection. | System.Collections.Generic.List`1[T].get_Item (System.Int32 index) (at <41d29b352f6a475ab1bf7c6628b82790>:0)
+RESULT 8 passed, 1 failed
+DONE

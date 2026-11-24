@@ -37,6 +37,7 @@ namespace BrickBuilder
         public const string OrisVariable = "PkOris";
         public const string ItemsVariable = "PkItems";
         public const string TintVariable = "PkTint";
+        public const string ColliderVariable = "PkCollider";
 
         public override string Slug => "brick-builder";
         public override string Title => "Brick Builder";
@@ -94,8 +95,6 @@ namespace BrickBuilder
             var template = stage.Create("Template", chunks.transform);
             template.AddComponent<MeshFilter>();
             Quiet(template.AddComponent<MeshRenderer>().gameObject).GetComponent<MeshRenderer>().sharedMaterial = materials["Chunk"];
-            template.AddComponent<MeshCollider>();                              // clicks on the build (desktop placing, the hammer mode)
-            template.layer = 5;
             template.SetActive(false);
 
             // spike option (a): one object per brick, copied from a template per type (Assets/Kit/.. TESTS.md, rendering spike)
@@ -315,14 +314,14 @@ namespace BrickBuilder
         public override void RelayOps(RelayGraph.Ops ops)
         {
             var g = ops.g;
-            // bricks | @Area/Chunks/<chunk> | "<slot>,<mesh>,<x>,<y>,<z>,<ori>,<rgb>;..."  (ts/src/BrickRenderer.ts)
+            // bricks | @Area/Chunks/<chunk> | "<slot>,<mesh>,<x>,<y>,<z>,<ori>,<rgb>;..." | 1 or 0  (ts/src/BrickRenderer.ts)
             // Sets or appends CombineInstances in the chunk's list, merges the list into the chunk's mesh, reports
             // window.__pk1.event(inst, "chunk", "<chunk>|<ms>|<records>").
             ops.Add("bricks", () =>
             {
                 var t0 = g.Keep(g.Get(typeof(Time), "realtimeSinceStartup"));
                 var chunk = g.Keep(ops.Target);
-                g.If(g.Not(g.IsDefined(chunk, ItemsVariable)), () => g.SetObjVar(ItemsVariable, g.Unit<CreateList>("list", typeof(System.Collections.IList)), chunk, typeof(System.Collections.IList)));
+                g.If(g.Not(g.IsDefined(chunk, ItemsVariable)), () => g.SetObjVar(ItemsVariable, new Val(g, g.Add(new CreateList { inputCount = 0 }).valueOutputs["list"], typeof(System.Collections.IList)), chunk, typeof(System.Collections.IList)));
                 var items = g.Keep(g.ObjVarOf(chunk, ItemsVariable, typeof(System.Collections.IList)));
                 var meshes = g.Keep(g.ObjVarOf(g.KitRoot(), MeshesVariable, typeof(System.Collections.IList)));
                 var oris = g.Keep(g.ObjVarOf(g.KitRoot(), OrisVariable, typeof(System.Collections.IList)));
@@ -354,12 +353,15 @@ namespace BrickBuilder
                 g.Do(typeof(Mesh), "CombineMeshes", new[] { typeof(CombineInstance[]), typeof(bool), typeof(bool), typeof(bool) }, mesh, items, true, true, true);
                 g.Set(typeof(MeshFilter), "sharedMesh", filter, mesh);
                 var t1 = g.Keep(g.Get(typeof(Time), "realtimeSinceStartup"));
-                var collider = g.Keep(g.ComponentOf(chunk, typeof(MeshCollider)));
-                g.IfNotNull(collider, () =>
-                {
-                    g.Set(typeof(MeshCollider), "sharedMesh", collider, g.Null(typeof(Mesh)));
-                    g.Set(typeof(MeshCollider), "sharedMesh", collider, mesh);
-                });
+                // The chunk's collider lives on Area/Chunks itself (one MeshCollider per chunk on that one bound, clickable
+                // object): a click on the build then reaches the page as a click on `chunks`, with its point and normal.
+                // Arg 1 is "1" while the chunk holds a brick ("0": no collider; PhysX refuses a mesh of empty slots).
+                var holder = g.Keep(g.Get(typeof(Transform), "gameObject", g.Get(typeof(Transform), "parent", g.Get(typeof(GameObject), "transform", chunk))));
+                g.If(g.Not(g.IsDefined(chunk, ColliderVariable)), () =>
+                    g.SetObjVar(ColliderVariable, g.Call(typeof(GameObject), "AddComponent", new[] { typeof(Type) }, holder, g.TypeOf(typeof(MeshCollider))), chunk, typeof(Component)));
+                var collider = g.Keep(g.ObjVarOf(chunk, ColliderVariable, typeof(MeshCollider)));
+                g.Set(typeof(MeshCollider), "sharedMesh", collider, g.Null(typeof(Mesh)));
+                g.If(g.Same(ops.Arg(1), "1"), () => g.Set(typeof(MeshCollider), "sharedMesh", collider, mesh));
                 var t2 = g.Keep(g.Get(typeof(Time), "realtimeSinceStartup"));
                 g.PageEvent("chunk", g.Get(typeof(GameObject), "name", chunk), g.InvariantText((t1 - t0) * 1000f), g.InvariantText(g.Count(records)), g.InvariantText((t2 - t1) * 1000f));
             });

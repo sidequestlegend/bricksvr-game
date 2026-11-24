@@ -33,6 +33,9 @@ export function plannedBuild(count: number): Array<{ type: number; ori: number; 
 
 const game: GameDefinition = {
   slug: "brick-builder",
+  // A build stays in room state (24 h) when everybody has left: the next visitor sees it (PORT.md C6). The runtime's
+  // default, "reset", starts an empty room's instance afresh, as a VRChat instance would.
+  options: { whenEmpty: "keep" },
   behaviours: { BuildArea, BrickLog, BrickSegment, HeldBrick, PickerTile, PickerTab, Swatch, ToolButton, Hammer },
   debug: (instance) => {
     const area = () => instance.behaviour<BuildArea>("area");
@@ -74,6 +77,9 @@ const game: GameDefinition = {
         return [w.x, w.y, w.z];
       },
       locked: () => area().Protected.Get("locked", false),
+      /** Empties the area (range tombstones, as loading a save does): a test's clean start. */
+      clear: () => area().Clear(),
+      lastClick: () => area().lastSurfaceClick,
       canWrite: () => area().Protected.CanWrite,
       /** A held brick from the pool at a lattice point (tests: something to grab). Returns its slot index or -1. */
       spawn: (prefab: string, x: number, y: number, z: number) => {

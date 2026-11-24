@@ -24048,7 +24048,8 @@ ${label}`)));
             slot = slots.free.length ? slots.free.pop() : slots.items.length + [...changed.keys()].filter((s) => s >= slots.items.length).length;
             slots.slotOf.set(id, slot);
           }
-          if (slots.items[slot] !== item) changed.set(slot, item);
+          if (slots.items[slot] === item) changed.delete(slot);
+          else changed.set(slot, item);
         }
         if (!changed.size) continue;
         const order = [...changed.keys()].sort((a, b) => a - b);
@@ -24058,7 +24059,7 @@ ${label}`)));
           records.push(`${slot},${slots.items[slot]}`);
         }
         const text = records.join(";");
-        this.host.op("bricks", `@Area/Chunks/${slots.name}`, [text]);
+        this.host.op("bricks", `@Area/Chunks/${slots.name}`, [text, slots.slotOf.size > 0 ? 1 : 0]);
         this.sent.ops++;
         this.sent.records += records.length;
         this.sent.bytes += text.length;
@@ -24155,6 +24156,12 @@ ${label}`)));
       __publicField(this, "lastArchive", -1);
       __publicField(this, "started", false);
       __publicField(this, "spawners", /* @__PURE__ */ new Map());
+      /**
+       * A click on the carpet or on the build (desktop, or a VR laser): with the hammer on, the placed brick clicked goes;
+       * else the selected brick goes on the face clicked, snapped as a brick let go just above it would be.
+       */
+      /** The last surface click (tests). */
+      __publicField(this, "lastSurfaceClick", null);
     }
     // ---- start ------------------------------------------------------------------------------------------------------
     Start() {
@@ -24592,12 +24599,10 @@ ${label}`)));
       this.Host.setActive("@Tools/HammerButton/On", this.hammerMode);
       this.UpdateStatus();
     }
-    /**
-     * A click on the carpet or on the build (desktop, or a VR laser): with the hammer on, the placed brick clicked goes;
-     * else the selected brick goes on the face clicked, snapped as a brick let go just above it would be.
-     */
     SurfaceClicked(detail) {
       if (!detail || !detail.point) return;
+      const nn = detail.normal ?? Vector3.up;
+      this.lastSurfaceClick = { point: [detail.point.x, detail.point.y, detail.point.z], normal: [nn.x, nn.y, nn.z], result: "" };
       const p = this.ToLocal(0, detail.point, Quaternion.identity).pos;
       const nWorld = detail.normal ?? Vector3.up;
       const inv = qinv([this.areaRot.x, this.areaRot.y, this.areaRot.z, this.areaRot.w]);
@@ -24605,10 +24610,15 @@ ${label}`)));
       if (this.hammerMode) {
         const id = this.BrickAt([p[0] - n[0] * 12, p[1] - n[1] * 12, p[2] - n[2] * 12], 12);
         if (id && this.Delete([id])) this.Play(this.carpetClips[0] ?? null);
+        this.lastSurfaceClick.result = id ? "removed " + id : "nothing there";
         return;
       }
-      if (n[1] < 0.5) return;
-      this.PlaceAt(this.selectedType, p, this.yaw, this.color);
+      if (n[1] < 0.5) {
+        this.lastSurfaceClick.result = "not an upward face";
+        return;
+      }
+      const snap = this.PlaceAt(this.selectedType, p, this.yaw, this.color);
+      this.lastSurfaceClick.result = snap ? `placed at ${snap.pos.join(",")}` : `refused at ${p.map((v) => Math.round(v)).join(",")}`;
     }
     /** A brick on a horizontal face at `p` (u): tried at the half-stud alignments nearest the point. */
     PlaceAt(type, p, yaw, color) {
@@ -24918,6 +24928,9 @@ ${label}`)));
   }
   var game = {
     slug: "brick-builder",
+    // A build stays in room state (24 h) when everybody has left: the next visitor sees it (PORT.md C6). The runtime's
+    // default, "reset", starts an empty room's instance afresh, as a VRChat instance would.
+    options: { whenEmpty: "keep" },
     behaviours: { BuildArea, BrickLog, BrickSegment, HeldBrick, PickerTile, PickerTab, Swatch, ToolButton, Hammer },
     debug: (instance) => {
       const area = () => instance.behaviour("area");
@@ -24959,6 +24972,9 @@ ${label}`)));
           return [w.x, w.y, w.z];
         },
         locked: () => area().Protected.Get("locked", false),
+        /** Empties the area (range tombstones, as loading a save does): a test's clean start. */
+        clear: () => area().Clear(),
+        lastClick: () => area().lastSurfaceClick,
         canWrite: () => area().Protected.CanWrite,
         /** A held brick from the pool at a lattice point (tests: something to grab). Returns its slot index or -1. */
         spawn: (prefab, x, y, z) => {

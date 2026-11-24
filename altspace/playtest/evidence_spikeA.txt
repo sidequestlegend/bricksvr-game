@@ -1,0 +1,24 @@
+local: script and bundles from the test server http://localhost:43500
+[main] INFO main in Play, page port 43400
+[main] PASS the kit loads from a hand-written bs-snippet and the instance starts: at 5676 ms after the page opened
+[main] CMD b1_176192 look 0.0000 0.0000 -0.2800
+[main] REPLY b1_176192 ok camera at 0.00,1.60,0.00
+[main] CMD b2_364721 renderstats pk1:brick-builder:0
+[main] REPLY b2_364721 batches 20 drawCalls 20 setPass 12 triangles 56054 vertices 92418 instancedBatches 0 chunks 8 drawn 2010 emptySlots 0 chunkVertices 85648 spikeObjects 0
+[main] CMD b3_974155 renderstats pk1:brick-builder:0
+[main] REPLY b3_974155 batches 124 drawCalls 124 setPass 12 triangles 83512 vertices 131110 instancedBatches 0 chunks 8 drawn 2010 emptySlots 0 chunkVertices 85648 spikeObjects 400
+[main] CMD b4_455030 renderstats pk1:brick-builder:0
+[main] REPLY b4_455030 batches 745 drawCalls 753 setPass 14 triangles 249294 vertices 364706 instancedBatches 0 chunks 8 drawn 2010 emptySlots 0 chunkVertices 85648 spikeObjects 1600
+[main] CMD b5_722369 renderstats pk1:brick-builder:0
+[main] REPLY b5_722369 batches 1153 drawCalls 1182 setPass 16 triangles 358864 vertices 518734 instancedBatches 0 chunks 8 drawn 2010 emptySlots 0 chunkVertices 85648 spikeObjects 2000
+[main] PASS option (a): 2,000 objects from per-type templates: 2000 objects in 2764 ms (the page sent 2,000 bspawn records in one tick)
+[main] INFO option (a) (a material of its own per brick, renderer.material): batches: 1133 for the bricks (1153 with, 20 without); draw calls 1162; instanced batches 0; batches 1153 drawCalls 1182 setPass 16 triangles 358864 vertices 518734 instancedBatches 0 chunks 8 drawn 2010 emptySlots 0 chunkVertices 85648 spikeObjects 2000
+[main] CMD b6_127283 framems 120
+[main] REPLY b6_127283 mean 9.087 worst 31.248 over 120
+[main] INFO frame time: mean 9.087 worst 31.248 over 120
+[main] DONE
+served: /web/pk-brick-builder.js x1, /web/playtest/brick-playtest.js x1, HEAD /kits/windows/brick-builder x1
+console (main editor): 1 error lines
+   [Exception] ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection. | System.Collections.Generic.List`1[T].get_Item (System.Int32 index) (at <41d29b352f6a475ab1bf7c6628b82790>:0)
+RESULT 2 passed, 0 failed
+DONE

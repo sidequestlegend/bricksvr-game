@@ -599,8 +599,13 @@ export class BuildArea extends Behaviour {
    * A click on the carpet or on the build (desktop, or a VR laser): with the hammer on, the placed brick clicked goes;
    * else the selected brick goes on the face clicked, snapped as a brick let go just above it would be.
    */
+  /** The last surface click (tests). */
+  lastSurfaceClick: { point: number[]; normal: number[]; result: string } | null = null;
+
   SurfaceClicked(detail: HostEventDetail): void {
     if (!detail || !detail.point) return;
+    const nn = detail.normal ?? Vector3.up;
+    this.lastSurfaceClick = { point: [detail.point.x, detail.point.y, detail.point.z], normal: [nn.x, nn.y, nn.z], result: "" };
     const p = this.ToLocal(0, detail.point, Quaternion.identity).pos;
     const nWorld = detail.normal ?? Vector3.up;
     const inv = qinv([this.areaRot.x, this.areaRot.y, this.areaRot.z, this.areaRot.w]);
@@ -608,10 +613,15 @@ export class BuildArea extends Behaviour {
     if (this.hammerMode) {
       const id = this.BrickAt([p[0] - n[0] * 12, p[1] - n[1] * 12, p[2] - n[2] * 12], 12);
       if (id && this.Delete([id])) this.Play(this.carpetClips[0] ?? null);
+      this.lastSurfaceClick.result = id ? "removed " + id : "nothing there";
       return;
     }
-    if (n[1] < 0.5) return;
-    this.PlaceAt(this.selectedType, p, this.yaw, this.color);
+    if (n[1] < 0.5) {
+      this.lastSurfaceClick.result = "not an upward face";
+      return;
+    }
+    const snap = this.PlaceAt(this.selectedType, p, this.yaw, this.color);
+    this.lastSurfaceClick.result = snap ? `placed at ${snap.pos.join(",")}` : `refused at ${p.map((v) => Math.round(v)).join(",")}`;
   }
 
   /** A brick on a horizontal face at `p` (u): tried at the half-stud alignments nearest the point. */

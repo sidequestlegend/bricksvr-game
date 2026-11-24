@@ -34,11 +34,19 @@
       await clickPath("Tools/LoadButton", "Load");
       const loaded = await until(() => debug().bricks() === Number(flag("brickRung3Saved")), 8000, 100);
       check(!!loaded, "Load puts back the build saved on this device", `${debug().bricks()} bricks, saved ${flag("brickRung3Saved")}`);
+      await sleep(1000);
       await until(() => debug().render().idle, 5000, 50);
       const s2 = await stats();
       check(s2.drawn === debug().bricks(), "the loaded build is drawn", `${s2.drawn} drawn`);
       await cmd("shot loaded 0 1.8 -3.2 0 0.2 0 50");
       return;
+    }
+    // the editor's local relay keeps room state between Play sessions (a build stays: whenEmpty "keep"): start empty
+    if (debug().bricks() > 0) {
+      const had = debug().bricks();
+      debug().clear();
+      await until(() => debug().bricks() === 0 && debug().render().idle, 10000, 100);
+      say("INFO", "cleared what an earlier session left in the room", `${had} bricks`);
     }
     // the first grab of a Play session lets go by itself (portkit RESULTS.md, S6): use it up on the hammer
     const hammerPos = await probe("pos", "Hammer");
@@ -51,6 +59,7 @@
     // the picker: a category tab, a brick, a colour
     await clickPath("Picker/Tabs/Tab1", "the Plates tab");
     const plates = await until(() => debug().picker().category === 1, 3000, 50);
+    await sleep(700); // the relay ops go with the next tick and run in a later frame
     const shown = [await probe("active", "Picker/Cat1"), await probe("active", "Picker/Cat0")];
     check(!!plates && shown[0] === "True" && shown[1] === "False", "a category tab shows its bricks", `category ${debug().picker().category}; Cat1 active ${shown[0]}, Cat0 active ${shown[1]}`);
     await clickPath("Picker/Tabs/Tab0", "the Bricks tab");
@@ -74,8 +83,9 @@
     await until(() => debug().picker().color === 0xf2cd37, 3000, 50);
     const first = onCarpet[0];
     const before = debug().bricks();
-    await clickLattice(t, [first.pos[0] + 25, 96, first.pos[2] - 20], "the top of the first brick");
+    await clickLattice(t, [first.pos[0] + 4, 96, first.pos[2] - 4], "the top of the first brick");
     const stacked = await until(() => debug().bricks() === before + 1, 4000, 50);
+    say("INFO", "the click on the brick reached the page as", JSON.stringify(debug().lastClick()));
     const top = debug().placed().find((b) => b.pos[1] === 144);
     check(!!stacked && !!top && top.pos[0] === first.pos[0] && top.pos[2] === first.pos[2], "a click on a brick's top puts the next brick on its studs (the build is clickable)",
       top ? JSON.stringify([top.prefab, top.pos, top.color.toString(16)]) : "nothing stacked (" + debug().bricks() + " bricks)");
@@ -117,10 +127,12 @@
     // the hammer (desktop: hammer mode, then a click on a brick)
     await clickPath("Tools/HammerButton", "Hammer");
     const on = await until(() => debug().picker().hammer, 3000, 50);
+    await sleep(700);
     const marker = await probe("active", "Tools/HammerButton/On");
     const n1 = debug().bricks();
-    const victim = debug().placed().find((b) => b.pos[1] === 144);
-    await clickLattice(t, [victim.pos[0] + 10, 192, victim.pos[2] + 10], "the stacked brick with the hammer");
+    const victim = debug().placed().find((b) => b.pos[1] === 144) || debug().placed()[0];
+    await clickLattice(t, [victim.pos[0] + 10, victim.pos[1] + 48, victim.pos[2] + 10], "the stacked brick with the hammer");
+    say("INFO", "the hammer click reached the page as", JSON.stringify(debug().lastClick()));
     const gone = await until(() => debug().bricks() === n1 - 1 && !debug().placed().some((b) => b.id === victim.id), 4000, 50);
     await until(() => debug().render().idle, 4000, 50);
     const s3 = await stats();
@@ -207,6 +219,13 @@
     await sleep(3000);
     const others = debug().players().filter((p) => p.sid !== me);
     const first = me < others[0].sid;
+    if (first && debug().bricks() > 0) {
+      const had = debug().bricks();
+      debug().clear();
+      say("INFO", "cleared what an earlier session left in the room", `${had} bricks`);
+    }
+    await until(() => debug().bricks() === 0, 15000, 100);
+    await sleep(1000);
     say("INFO", (first ? "A" : "B") + " is " + me);
     // the first grab of a session lets go by itself; a click is not a grab, but keep the two players' timing alike
     await sleep(first ? 0 : 150);
