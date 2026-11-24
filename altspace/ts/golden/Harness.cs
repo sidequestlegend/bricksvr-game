@@ -173,6 +173,21 @@ public static class Harness
         foreach (var s in held.male) foreach (var t in targetsFemale) if (TriggersTouch(s, t)) s.connectorsCollidingWith.Add(t.gameObject);
 
         var (can, pos, rot, dir) = det.CheckIfCanConnect();
+        // Which held connector upstream's CheckIfCanConnect went by (connectorsToUse[0], :188-221), and whether it is a
+        // side stud (its up is not the brick's up): the one case test/golden.test.ts lets the port place differently.
+        bool firstIsSideStud = false;
+        if (can)
+        {
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var t = det.GetType();
+            var fem = (GameObject[])t.GetMethod("GetFemaleConnectorsWithConnections", flags).Invoke(det, null);
+            var mal = (GameObject[])t.GetMethod("GetMaleConnectorsWithConnections", flags).Invoke(det, null);
+            var vf = (GameObject[])t.GetMethod("ValidConnections", flags).Invoke(det, new object[] { fem });
+            var vm = (GameObject[])t.GetMethod("ValidConnections", flags).Invoke(det, new object[] { mal });
+            var use = vf.Length > vm.Length ? vf : vm;
+            Vector3 up = Quaternion.Inverse(held.root.transform.rotation) * (use[0].transform.rotation * Vector3.up);
+            firstIsSideStud = up.y < 0.99f;
+        }
 
         var sb = new StringBuilder();
         sb.Append("{\"kind\":\"").Append(kind).Append("\",\"placed\":[");
@@ -182,7 +197,7 @@ public static class Harness
         sb.Append("\"upstream\":{\"can\":").Append(can ? "true" : "false");
         if (can)
             sb.Append(",\"pos\":").Append(Arr(new[] { pos.x / W, pos.y / W, pos.z / W })).Append(",\"q\":").Append(Arr(new[] { rot.x, rot.y, rot.z, rot.w }))
-              .Append(",\"down\":").Append(dir.y < 0 ? "true" : "false");
+              .Append(",\"down\":").Append(dir.y < 0 ? "true" : "false").Append(",\"sideStud\":").Append(firstIsSideStud ? "true" : "false");
         // Cover flags by connector: "m|f:x,y,z", the connector's position in its brick's space rounded to whole u, so the
         // test matches them without sharing any order or name (the placed 2x4 plate names its connectors differently
         // from the held one).

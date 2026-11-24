@@ -5,8 +5,9 @@
 //  - Swatch: a palette colour (ColorPickerSaveSpot.cs; upstream's spots hold slider colours, here they are presets
 //    beside the three HSV sliders);
 //  - ToolButton: the desktop hammer mode, rotate, lock (RoomOwnershipSync), save and load on the device;
-//  - Hammer: the grabbable hammer (Hammer.cs): its head removes the placed brick it is swung into; on desktop, the
-//    trigger while holding it removes the brick under its head.
+//  - Hammer: the grabbable hammer (Hammer.cs): swung into the build it removes every placed brick within its blast
+//    radius (at least 3 upstream units, more the faster it moves, at most 200 bricks); on desktop, the
+//    trigger while holding it is a blow at rest (the smallest blast) where its head is.
 
 import { Behaviour, type HostEventDetail, Vector3 } from "../portkit/src/index.ts";
 import type { BuildArea } from "./BuildArea.ts";
@@ -81,14 +82,14 @@ export class Hammer extends Behaviour {
     const now = this.Time.time;
     if (this.last && now > this.lastTime) {
       const speed = p.sub(this.last).magnitude / (now - this.lastTime);
-      if (speed >= HAMMER_SWING_SPEED) areaOf(this)?.HammerAt(p);
+      if (speed >= HAMMER_SWING_SPEED) areaOf(this)?.HammerAt(p, speed);
     }
     this.last = p;
     this.lastTime = now;
   }
 
-  /** The trigger of the hand holding it (bindings: heldTrigger): the brick under the head goes, swung or not. */
+  /** The trigger of the hand holding it (bindings: heldTrigger): a blow at rest (the smallest blast) where the head is. */
   Smash(_detail?: HostEventDetail): void {
-    void this.transform.Refresh().then(() => areaOf(this)?.HammerAt(this.HeadPosition(), 60));
+    void this.transform.Refresh().then(() => areaOf(this)?.HammerAt(this.HeadPosition(), 0, 60));
   }
 }

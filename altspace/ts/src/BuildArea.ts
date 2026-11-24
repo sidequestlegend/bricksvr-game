@@ -10,7 +10,7 @@
 import { type AudioClipRef, type AudioSourceRef, Behaviour, Button, type ButtonName, Color, type GameObject, type HandSide, type HostEventDetail, Quaternion, type TextRef, Vector3 } from "../portkit/src/index.ts";
 import { CheckIfCanConnect, type HeldPose, heldBoxesAt, type Snap } from "./BrickAttachDetector.ts";
 import { BRICKS, BricksForCategory, CATEGORIES } from "./BrickData.ts";
-import { BrickLedger } from "./BrickLedger.ts";
+import { archiveBytes, BrickLedger } from "./BrickLedger.ts";
 import type { BrickLog } from "./BrickLog.ts";
 import { type BrickRecord, decode, encode, MAX_SEQ, type Packed, PLACE_CHARS, placeable, type PlaceRecord, recordId, seqOf, TOMB_CHARS } from "./BrickRecords.ts";
 import type { BrickSegment } from "./BrickSegment.ts";
@@ -18,7 +18,8 @@ import { BrickRenderer } from "./BrickRenderer.ts";
 import { type RenderChunk, renderChunk } from "./ChunkedRenderer.ts";
 import { argbOf, rgbOf } from "./ColorInt.ts";
 import type { HeldBrick } from "./HeldBrick.ts";
-import { MESH_M_PER_U, ORIS, type Q, qinv, qmul, qrot, U_PER_PLATE, U_PER_STUD, type V3 } from "./Lattice.ts";
+import { MESH_M_PER_U, type Obb, ORIS, placeObb, type Q, qinv, qmul, qrot, U_PER_PLATE, U_PER_STUD, type V3 } from "./Lattice.ts";
+import type { PickerTile } from "./Controls.ts";
 
 /** JSON bytes a log may hold before new records wait for the archive (a user-state leaf takes 16,384). */
 export const LOG_CAPACITY = 12000;
@@ -30,6 +31,15 @@ export const ARCHIVE_SECONDS = 1;
 export const SPAWNER_HOLD_SECONDS = 0.4;
 /** Hammer.cs:30: the blast radius never goes below 3 world units: 3 / 7e-4 u. */
 export const HAMMER_MIN_RADIUS = 3 / 7e-4;
+/** Hammer.cs:17: OverlapSphereNonAlloc fills a buffer of 200, so one blow takes at most 200 bricks. */
+export const HAMMER_MAX_BRICKS = 200;
+/**
+ * Share of the archive's bytes new bricks may fill; the rest is for tombstones (removing bricks must always work)
+ * and for the slack of packing records into segments.
+ */
+export const ARCHIVE_FILL_FOR_PLACING = 0.97;
+/** How near a picker tile's centre a hand must be for the hand spawner to count it as hovered (m, at scale 1). */
+export const TILE_HOVER_METRES = 0.15;
 
 export interface SavedBuild {
   v: 1;
@@ -39,6 +49,8 @@ export interface SavedBuild {
 
 interface SpawnerSlot {
   downAt: number;
+  /** The hold already "set" this button (HandBrickSpawner's ButtonHoldCallbackCalled). */
+  setDone: boolean;
   saved: { type: number; color: number } | null;
 }
 
@@ -53,7 +65,11 @@ export class BuildArea extends Behaviour {
   /** The type of the brick the ghost is for. */
   ghostType = -1;
 
-  readonly stats = { placed: 0, deleted: 0, refused: 0, archiveWrites: 0, logWrites: 0, repacks: 0, rebuildRecords: 0 };
+  readonly stats = { placed: 0, deleted: 0, refused: 0, refusedFull: 0, archiveWrites: 0, logWrites: 0, repacks: 0, rebuildRecords: 0, foreignRecords: 0 };
+  /** JSON bytes one archive segment may hold (a field so tests can make the archive small). */
+  segmentCapacity = SEGMENT_CAPACITY;
+  /** Records the referee's last archive step could not fit (the archive is full). */
+  archiveLeftOut = 0;
 
   // ---- kit objects (bindings fields; null in a bench without a kit) ----
   /** The ghost: one child per brick prefab (Complete mesh, see-through), shown where a held brick would snap. */
@@ -90,6 +106,10 @@ export class BuildArea extends Behaviour {
   private areaRot = Quaternion.identity;
   private segments: BrickSegment[] = [];
   private segSeen: string[] = [];
+  /** Each segment's records as last read (decoded once per change). */
+  private segDecoded: BrickRecord[][] = [];
+  /** The archive's fill, worked out at most once a tick (`at`), plus the records published since (`extra`). */
+  private fill = { at: -1, bytes: 0, extra: 0 };
   private readonly logSeen = new Map<BrickLog, string>();
   private readonly logIds = new Map<string, Set<string>>();
   private myLog: BrickRecord[] = [];
@@ -165,13 +185,22 @@ export class BuildArea extends Behaviour {
 
   /** Takes in whatever changed in the archive and in the logs of the players present. */
   private Poll(bulk: boolean): void {
-    let segChanged = bulk;
-    for (let i = 0; i < this.segments.length; i++) if (this.segments[i]!.r !== this.segSeen[i]) segChanged = true;
-    if (segChanged) {
+    if (bulk) {
       this.segSeen = this.segments.map((s) => s.r);
-      const decoded = this.segments.map((s) => decode({ a: s.a, r: s.r }));
-      this.stats.rebuildRecords += decoded.reduce((n, s) => n + s.length, 0);
-      this.ledger.setArchive(decoded, bulk);
+      this.segDecoded = this.segments.map((s) => decode({ a: s.a, r: s.r }));
+      this.stats.rebuildRecords += this.segDecoded.reduce((n, s) => n + s.length, 0);
+      this.ledger.setArchive(this.segDecoded, true);
+    } else {
+      // Only the segments that changed are decoded again (a write changes one or a few of the 24).
+      for (let i = 0; i < this.segments.length; i++) {
+        const seg = this.segments[i]!;
+        if (seg.r === this.segSeen[i]) continue;
+        this.segSeen[i] = seg.r;
+        const recs = decode({ a: seg.a, r: seg.r });
+        this.segDecoded[i] = recs;
+        this.stats.rebuildRecords += recs.length;
+        this.ledger.setSegment(i, recs);
+      }
     }
     const present = new Set<string>();
     const fresh: BrickRecord[] = [];
@@ -182,7 +211,11 @@ export class BuildArea extends Behaviour {
       present.add(author);
       if (this.logSeen.get(log) === log.r) continue;
       this.logSeen.set(log, log.r);
-      const recs = decode({ a: log.a, r: log.r });
+      // A log speaks only for its own player: records under another author's key are not taken (else a modified
+      // client could forge, or pre-empt with its own copy, a record of someone else's).
+      const all = decode({ a: log.a, r: log.r });
+      const recs = all.filter((r) => r.author === author);
+      this.stats.foreignRecords += all.length - recs.length;
       this.logIds.set(author, new Set(recs.map(recordId)));
       fresh.push(...recs);
     }
@@ -196,6 +229,7 @@ export class BuildArea extends Behaviour {
     this.Poll(false);
     this.renderer?.update(this.RenderChunks());
     this.ShowGhost();
+    this.UpdateSpawners();
     this.UpdateStatus();
     if (this.Networking.IsReferee && (this.lastArchive < 0 || this.Time.time - this.lastArchive >= ARCHIVE_SECONDS)) {
       this.lastArchive = this.Time.time;
@@ -214,20 +248,64 @@ export class BuildArea extends Behaviour {
     for (const r of this.myLog) inLogs.add(recordId(r));
     for (const r of this.queue) inLogs.add(recordId(r));
     const current = this.segments.map((s) => ({ a: s.a, r: s.r }));
-    const plan = this.ledger.planArchive(current, { capacity: SEGMENT_CAPACITY, presentAuthors, inLogs });
+    const plan = this.ledger.planArchive(current, this.decodedSegments(), { capacity: this.segmentCapacity, presentAuthors, inLogs });
     if (!plan) return;
+    if (plan.leftOut && !this.archiveLeftOut) this.Debug.LogWarning(`the build area's archive is full: ${plan.leftOut} records wait in their authors' logs`);
+    this.archiveLeftOut = plan.leftOut;
+    // A repack can rewrite all 24 segments (about 14.5 KB each) in one tick; the runtime paces space-state writes
+    // under the relay's message cap (portkit 9b7c447), so they arrive in parts.
     for (const i of plan.changed) {
       const seg = this.segments[i]!;
       if (!this.Networking.IsOwner(seg.gameObject)) this.Networking.SetOwner(this.Networking.LocalPlayer, seg.gameObject);
       seg.a = plan.segments[i]!.a;
       seg.r = plan.segments[i]!.r;
       seg.RequestSerialization();
+      this.segSeen[i] = seg.r;
+      this.segDecoded[i] = plan.records[i]!;
+      this.ledger.setSegment(i, plan.records[i]!);
     }
     if (plan.repacked) this.stats.repacks++;
     this.stats.archiveWrites += plan.changed.length;
-    this.segSeen = this.segments.map((s) => s.r);
-    this.ledger.setArchive(plan.segments.map((p) => decode(p)));
   }
+
+  /** Each segment's records, decoding only those that changed since they were last read. */
+  private decodedSegments(): BrickRecord[][] {
+    for (let i = 0; i < this.segments.length; i++) {
+      const seg = this.segments[i]!;
+      if (seg.r === this.segSeen[i] && this.segDecoded[i]) continue;
+      this.segSeen[i] = seg.r;
+      this.segDecoded[i] = decode({ a: seg.a, r: seg.r });
+      this.ledger.setSegment(i, this.segDecoded[i]!);
+    }
+    return this.segDecoded.slice(0, this.segments.length);
+  }
+
+  /**
+   * Whether the archive has room for one more record of a kind. Every record the archive would keep (all but what
+   * garbage collection may drop now) is counted against the 24 segments; new bricks may fill
+   * ARCHIVE_FILL_FOR_PLACING of them, tombstones all. Upstream had no limit (a cloud database); a full area says so.
+   */
+  HasRoom(kind: "P" | "T" = "P"): boolean {
+    if (!this.segments.length) return true;
+    const total = this.segments.length * this.segmentCapacity;
+    const now = this.Time.time;
+    if (this.fill.at !== now) {
+      const presentAuthors = new Set(this.Networking.GetPlayers().map((p) => `${p.uid}~${p.sid}`));
+      const inLogs = new Set<string>();
+      for (const ids of this.logIds.values()) for (const id of ids) inLogs.add(id);
+      for (const r of this.myLog) inLogs.add(recordId(r));
+      for (const r of this.queue) inLogs.add(recordId(r));
+      const o = { capacity: this.segmentCapacity, presentAuthors, inLogs };
+      const kept: BrickRecord[] = [];
+      for (const r of this.ledger.records.values()) if (!this.ledger.gcable(r, o)) kept.push(r);
+      this.fill = { at: now, bytes: archiveBytes(kept, this.segmentCapacity, this.segments.length), extra: 0 };
+    }
+    const bytes = this.fill.bytes + this.fill.extra + (kind === "P" ? PLACE_CHARS : TOMB_CHARS);
+    return bytes <= total * (kind === "P" ? ARCHIVE_FILL_FOR_PLACING : 1);
+  }
+
+  /** True when the last placement was refused because the area is full (shown on the status line). */
+  full = false;
 
   // ---- the author: own log ----------------------------------------------------------------------------------------
 
@@ -279,6 +357,7 @@ export class BuildArea extends Behaviour {
   private publish(recs: BrickRecord[]): void {
     this.ledger.ingest(recs);
     this.queue.push(...recs);
+    for (const r of recs) this.fill.extra += r.kind === "P" ? PLACE_CHARS : TOMB_CHARS;
   }
 
   // ---- actions ----------------------------------------------------------------------------------------------------
@@ -296,6 +375,15 @@ export class BuildArea extends Behaviour {
         return null;
       }
     }
+    if (!this.HasRoom("P")) {
+      // The archive is full: a brick placed now could not be archived and would be lost when its author leaves.
+      this.stats.refused++;
+      this.stats.refusedFull++;
+      this.full = true;
+      this.UpdateStatus();
+      return null;
+    }
+    this.full = false;
     const rec: PlaceRecord = { kind: "P", author: this.author, seq: this.nextRecordSeq(), type, ori, pos: [pos[0], pos[1], pos[2]], rgb: rgbOf(color) };
     this.publish([rec]);
     this.stats.placed++;
@@ -303,8 +391,8 @@ export class BuildArea extends Behaviour {
   }
 
   /** A held brick let go at a pose in the build area's space: snap and place it, as BrickAttachDetector.BrickReleased. */
-  ReleaseLocal(held: HeldPose, color: number): Snap | null {
-    const snap = CheckIfCanConnect(this.ledger.store, held, this.CanBuild());
+  ReleaseLocal(held: HeldPose, color: number, except: HeldBrick | null = null): Snap | null {
+    const snap = CheckIfCanConnect(this.ledger.store, held, this.CanBuild(), this.LooseBoxes(except));
     if (!snap) return null;
     if (!this.Place(held.type, snap.ori, snap.pos, color, false)) return null;
     this.PlacedSound(snap.pos[1] + BRICKS[held.type]!.bottomPlates * U_PER_PLATE <= 1);
@@ -312,8 +400,23 @@ export class BuildArea extends Behaviour {
   }
 
   /** The same from a world pose (HeldBrick.OnDrop). */
-  Release(type: number, color: number, position: Vector3, rotation: Quaternion): Snap | null {
-    return this.ReleaseLocal(this.ToLocal(type, position, rotation), color);
+  Release(type: number, color: number, position: Vector3, rotation: Quaternion, slot: HeldBrick | null = null): Snap | null {
+    return this.ReleaseLocal(this.ToLocal(type, position, rotation), color, slot);
+  }
+
+  /**
+   * The colliders of every brick in a hand or lying loose (the pool slots in use), in area space: upstream's "lego"
+   * layer, which BrickAttachDetector.CollidesWithBricks tests as well as placed bricks (:265). `except`: the brick
+   * being let go (its own colliders are triggers while held, so upstream's CheckBox ignores them).
+   */
+  LooseBoxes(except: HeldBrick | null = null): Obb[] {
+    const out: Obb[] = [];
+    for (const slot of this.FindBehavioursOfType<HeldBrick>("HeldBrick")) {
+      if (slot === except || slot.t < 0 || !BRICKS[slot.t]) continue;
+      const l = this.ToLocal(slot.t, slot.transform.position, slot.transform.rotation);
+      for (const b of BRICKS[slot.t]!.heldBoxes) out.push(placeObb(b, l.pos, l.q));
+    }
+    return out;
   }
 
   /** Where the brick in the hand would go (the ghost), recomputed while it is held. */
@@ -324,7 +427,7 @@ export class BuildArea extends Behaviour {
 
   HeldMoved(slot: HeldBrick): void {
     this.ghostType = slot.t;
-    this.ghost = CheckIfCanConnect(this.ledger.store, this.ToLocal(slot.t, slot.transform.position, slot.transform.rotation), this.CanBuild());
+    this.ghost = CheckIfCanConnect(this.ledger.store, this.ToLocal(slot.t, slot.transform.position, slot.transform.rotation), this.CanBuild(), this.LooseBoxes(slot));
   }
 
   /** Removes placed bricks (anyone may, unless the area is locked). Returns how many went. */
@@ -338,6 +441,7 @@ export class BuildArea extends Behaviour {
     }
     this.publish(recs);
     this.stats.deleted += recs.length;
+    if (recs.length) this.full = false;
     return recs.length;
   }
 
@@ -362,12 +466,15 @@ export class BuildArea extends Behaviour {
     return count;
   }
 
-  /** Hammer.OnCollisionEnter: every placed brick within the radius of a point (area space, u) goes. */
-  Hammer(center: V3, radius: number): number {
+  /** Hammer.OnCollisionEnter: placed bricks within the radius of a point (area space, u) go, the nearest `max` of them. */
+  Hammer(center: V3, radius: number, max = Infinity): number {
     const r = Math.max(radius, 0);
+    const d = (b: { pos: V3 }) => Math.hypot(b.pos[0] - center[0], b.pos[1] - center[1], b.pos[2] - center[2]);
     const hits = this.ledger.store
       .near([center[0] - r, center[1] - r, center[2] - r], [center[0] + r, center[1] + r, center[2] + r])
-      .filter((b) => Math.hypot(b.pos[0] - center[0], b.pos[1] - center[1], b.pos[2] - center[2]) <= r)
+      .filter((b) => d(b) <= r)
+      .sort((a, b) => d(a) - d(b) || (a.id < b.id ? -1 : 1))
+      .slice(0, max)
       .map((b) => b.id);
     return this.Delete(hits);
   }
@@ -390,25 +497,33 @@ export class BuildArea extends Behaviour {
   PickUp(id: string): HeldBrick | null {
     const b = this.ledger.store.bricks.get(id);
     if (!b || !this.CanBuild()) return null;
+    // The pool slot first: with every slot in use the brick stays where it is (it is not deleted for nothing).
+    const slot = this.FreeSlot();
+    if (!slot) return null;
     if (!this.Delete([id])) return null;
     const { position, rotation } = this.ToWorld(b.pos, ORIS[b.ori]!.q);
-    return this.Spawn(b.type, b.color, position, rotation);
+    slot.Claim(b.type, b.color, position, rotation);
+    return slot;
   }
 
-  /** A new brick in a free pool slot (BrickPickerBrick.Interact, HandBrickSpawner.HandleButtonPress). */
-  Spawn(type: number, color: number, position: Vector3, rotation: Quaternion): HeldBrick | null {
+  /** A free pool slot (this player's own starting point in the pool, so two players rarely race for one), or null. */
+  FreeSlot(): HeldBrick | null {
     const slots = this.FindBehavioursOfType<HeldBrick>("HeldBrick").sort((a, b) => a.index - b.index);
-    if (!slots.length || !BRICKS[type]) return null;
     let h = 0;
     for (let i = 0; i < this.author.length; i++) h = (h * 31 + this.author.charCodeAt(i)) >>> 0;
     for (let k = 0; k < slots.length; k++) {
       const slot = slots[(h + k) % slots.length]!;
-      if (slot.free) {
-        slot.Claim(type, color, position, rotation);
-        return slot;
-      }
+      if (slot.free) return slot;
     }
     return null;
+  }
+
+  /** A new brick in a free pool slot (BrickPickerBrick.Interact, HandBrickSpawner.HandleButtonPress). */
+  Spawn(type: number, color: number, position: Vector3, rotation: Quaternion): HeldBrick | null {
+    if (!BRICKS[type]) return null;
+    const slot = this.FreeSlot();
+    if (slot) slot.Claim(type, color, position, rotation);
+    return slot;
   }
 
   /** Another client claimed the same slot in the same moment and won: that brick is gone (logged). */
@@ -428,7 +543,11 @@ export class BuildArea extends Behaviour {
       if (slot) this.IntoHand(slot, side);
       return;
     }
-    if (button === Button.Primary || button === Button.Secondary) this.spawner(button, side).downAt = this.Time.time;
+    if (button === Button.Primary || button === Button.Secondary) {
+      const slot = this.spawner(button, side);
+      slot.downAt = this.Time.time;
+      slot.setDone = false;
+    }
   }
 
   override OnButtonReleased(button: ButtonName, side: HandSide): void {
@@ -445,29 +564,72 @@ export class BuildArea extends Behaviour {
     if (slot.downAt < 0) return;
     const held = this.Time.time - slot.downAt;
     slot.downAt = -1;
-    const hand = this.HandLocal(side);
     const poses = this.Input.Poses;
-    if (!hand || !poses) return;
-    if (held >= SPAWNER_HOLD_SECONDS) {
-      // "Set" the spawner from the brick the hand is in (HandleButtonHold).
+    // HandleButtonPress: only a short press spawns (FramesDownFor < 30), and not with something in that hand.
+    if (held >= SPAWNER_HOLD_SECONDS || !slot.saved || !poses || this.attached.has(side)) return;
+    const pose = side === 0 ? poses.leftHand : poses.rightHand;
+    const def = BRICKS[slot.saved.type]!;
+    const rot = pose.rotation.mul(Quaternion.Euler(def.spawnEuler[0], def.spawnEuler[1], def.spawnEuler[2]));
+    // `brick.transform.localPosition += HandSpawnerPositionOffset` (HandBrickSpawner.cs:143): a world offset in
+    // upstream units, i.e. metres times the snippet's scale here (the kit is built at upstream's size).
+    const k = this.scale / 7;
+    const o = def.spawnOffset;
+    this.Spawn(slot.saved.type, slot.saved.color, new Vector3(pose.position.x + o[0] * k, pose.position.y + o[1] * k, pose.position.z + o[2] * k), rot);
+  }
+
+  /**
+   * HandleButtonHold: once a button has been held SPAWNER_HOLD_SECONDS, the first moment the hand is in a placed brick
+   * or on a picker tile "sets" that button to the brick (type and colour) or the tile (type and the picker's colour),
+   * with a haptic tick; while the button stays down it is not set again.
+   */
+  private UpdateSpawners(): void {
+    for (const [key, slot] of this.spawners) {
+      if (slot.downAt < 0 || slot.setDone || this.Time.time - slot.downAt < SPAWNER_HOLD_SECONDS) continue;
+      const side = Number(key.split("/")[0]) as HandSide;
+      if (this.attached.has(side)) continue;
+      const hand = this.HandLocal(side);
+      if (!hand) continue;
       const id = this.BrickAt(hand);
       const b = id ? this.ledger.store.bricks.get(id) : null;
-      if (b) {
-        slot.saved = { type: b.type, color: b.color };
-        this.Input.Haptic(side, 0.5, 0.1);
+      let saved: SpawnerSlot["saved"] = b ? { type: b.type, color: b.color } : null;
+      if (!saved) {
+        const poses = this.Input.Poses;
+        const type = poses ? this.TileAt(side === 0 ? poses.leftHand.position : poses.rightHand.position) : -1;
+        if (type >= 0) saved = { type, color: this.color };
       }
-    } else if (slot.saved) {
-      const pose = side === 0 ? poses.leftHand : poses.rightHand;
-      const def = BRICKS[slot.saved.type]!;
-      const rot = pose.rotation.mul(Quaternion.Euler(def.spawnEuler[0], def.spawnEuler[1], def.spawnEuler[2]));
-      this.Spawn(slot.saved.type, slot.saved.color, pose.position, rot);
+      if (!saved) continue;
+      slot.saved = saved;
+      slot.setDone = true;
+      this.Input.Haptic(side, 0.5, 0.1);
     }
+  }
+
+  /** The brick type of the shown picker tile a point (world) is on, or -1 (BrickPickerBrick under the hand). */
+  TileAt(world: Vector3): number {
+    const reach = TILE_HOVER_METRES * (this.scale / 7);
+    let best = -1;
+    let bestD = reach;
+    for (const tile of this.FindBehavioursOfType<PickerTile>("PickerTile")) {
+      const def = BRICKS[tile.type];
+      if (!def || CATEGORIES.indexOf(def.category) !== this.category) continue;
+      const d = tile.transform.position.sub(world).magnitude;
+      if (d < bestD) {
+        bestD = d;
+        best = tile.type;
+      }
+    }
+    return best;
+  }
+
+  /** What a spawner button is set to (tests). */
+  SpawnerSaved(side: HandSide, button: ButtonName): { type: number; color: number } | null {
+    return this.spawners.get(`${side}/${button}`)?.saved ?? null;
   }
 
   private spawner(button: ButtonName, side: HandSide): SpawnerSlot {
     const key = `${side}/${button}`;
     let s = this.spawners.get(key);
-    if (!s) this.spawners.set(key, (s = { downAt: -1, saved: null }));
+    if (!s) this.spawners.set(key, (s = { downAt: -1, setDone: false, saved: null }));
     return s;
   }
 
@@ -643,12 +805,20 @@ export class BuildArea extends Behaviour {
     return null;
   }
 
-  /** The grabbable hammer's head hit the build (Hammer.OnCollisionEnter): the brick it is in goes. */
-  HammerAt(world: Vector3, radiusU = 30): number {
+  /**
+   * The grabbable hammer's head hit the build at `speed` m/s (Hammer.OnCollisionEnter): every placed brick within
+   * max(3, explosionRadius 1 x speed) upstream units of the brick hit goes, at most 200 (the overlap buffer), nearest
+   * first. Upstream turns them into physics bricks and blows them apart; here they are removed (PORT.md C10). The kit
+   * is built at upstream's size, so an upstream unit is a metre times the snippet's scale. `reachU`: how far from the
+   * head a brick counts as hit.
+   */
+  HammerAt(world: Vector3, speed = 0, reachU = 30): number {
     const p = this.ToLocal(0, world, Quaternion.identity).pos;
-    const id = this.BrickAt(p, radiusU);
-    if (!id) return 0;
-    const n = this.Delete([id]);
+    const id = this.BrickAt(p, reachU);
+    const hit = id ? this.ledger.store.bricks.get(id) : null;
+    if (!hit) return 0;
+    const radius = Math.max(3, speed / (this.scale / 7)) / 7e-4;
+    const n = this.Hammer(hit.pos, radius, HAMMER_MAX_BRICKS);
     if (n) this.Play(this.carpetClips[1] ?? null);
     return n;
   }
@@ -691,6 +861,7 @@ export class BuildArea extends Behaviour {
     const text =
       `${def ? def.display : ""}   ${this.ledger ? this.ledger.store.count : 0} bricks` +
       (this.hammerMode ? "   HAMMER" : "") +
+      (this.full || this.archiveLeftOut ? "   AREA FULL: remove bricks to build more" : "") +
       (locked ? (this.Protected.CanWrite ? "   locked (you may build)" : "   locked by the owner") : "");
     if (text !== this.statusText) {
       this.statusText = text;

@@ -10,7 +10,7 @@
 // is free again. If not, the brick lies where physics leaves it and the slot frees itself after 6 s untouched
 // (AutoDespawnPhysicsBricks.cs:25-48: "6 s stationary"), or when someone grabs it again.
 
-import { Behaviour, Color, type DeserializationResult, type HandSide, Quaternion, Vector3 } from "../portkit/src/index.ts";
+import { Behaviour, Color, type DeserializationResult, type HandSide, type Player, Quaternion, Vector3 } from "../portkit/src/index.ts";
 import { BRICKS } from "./BrickData.ts";
 import type { BuildArea } from "./BuildArea.ts";
 
@@ -102,7 +102,7 @@ export class HeldBrick extends Behaviour {
     if (!this.held || this.t < 0) return;
     this.held = false;
     this.area.HeldGone();
-    const snapped = this.area.Release(this.t, this.c, this.transform.position, this.transform.rotation);
+    const snapped = this.area.Release(this.t, this.c, this.transform.position, this.transform.rotation, this);
     if (snapped) {
       this.Free();
     } else {
@@ -110,6 +110,18 @@ export class HeldBrick extends Behaviour {
       this.looseSince = this.Time.time;
       this.RequestSerialization();
     }
+  }
+
+  /**
+   * A player left: the referee frees a slot that player still held or owned, which nobody else would (upstream's
+   * Normcore objects went with their owner: destroyWhenOwnerOrLastClientLeaves, HandBrickSpawner.cs:137). Also a
+   * slot the room handed to the referee while it was in the leaver's hand (owned here, "held", not by this client).
+   */
+  override OnPlayerLeft(player: Player): void {
+    if (!this.Networking.IsReferee || this.t < 0) return;
+    const owner = this.Networking.GetOwner(this.gameObject);
+    const orphan = !owner || owner.sid === player.sid || (this.Networking.IsOwner(this.gameObject) && this.d === 0 && !this.held);
+    if (orphan) this.Free();
   }
 
   override OnDeserialization(result: DeserializationResult): void {

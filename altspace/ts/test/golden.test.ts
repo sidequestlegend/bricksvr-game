@@ -5,8 +5,9 @@
 //     pitch, connector offsets of 40.05 u), the port on exact faces of the lattice; side studs within SIDE_TOLERANCE u
 //     (the side stud sits 62.4 u out upstream, 40 u plus a 48 u half brick here);
 //   - the port refuses a brick that would reach below the carpet (upstream lets one hang there): checked to be the
-//     only reason, by running the same case without the floor rule;
-//   - a held brick's own side stud going up into a socket is not compared (upstream ignores that connector's frame);
+//     only reason, by running the same case without the floor rule (same position, rotation and direction);
+//   - a held brick's own side stud going into a socket is not compared (upstream ignores that connector's frame), only
+//     when the harness reports that upstream went by that side stud (`sideStud`; none in the current vectors);
 //   - nothing else: whether it attaches, the rotation, the direction and every connector's cover flag must match.
 
 import assert from "node:assert/strict";
@@ -14,7 +15,6 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { CheckIfCanConnect } from "../src/BrickAttachDetector.ts";
-import { BRICKS } from "../src/BrickData.ts";
 import { BrickStore } from "../src/BrickStore.ts";
 import { Color32ToInt, ColorToInt, IntToColor32 } from "../src/ColorInt.ts";
 import { nearestOri, ORIS, type Q, type V3 } from "../src/Lattice.ts";
@@ -24,7 +24,8 @@ interface SnapCase {
   placed: Array<{ type: number; ori: number; pos: V3 }>;
   held: { type: number; pos: V3; q: Q };
   /** Cover flags per placed brick, by connector: "m|f:x,y,z", its position in the brick's space in whole u (no shared order). */
-  upstream: { can: boolean; pos?: V3; q?: Q; down?: boolean; covered: Array<Record<string, boolean>> };
+  /** `sideStud`: the held connector upstream went by (connectorsToUse[0]) is one of the held brick's side studs. */
+  upstream: { can: boolean; pos?: V3; q?: Q; down?: boolean; sideStud?: boolean; covered: Array<Record<string, boolean>> };
   pairs: number;
 }
 
@@ -66,13 +67,14 @@ test(`snapping: ${vectors.snap.length} situations agree with the upstream C#`, (
       const open = new BrickStore({ halfX: 40000, halfZ: 40000, height: 30000, floor: -Infinity });
       c.placed.forEach((p, i) => open.add({ id: `b${i}`, type: p.type, ori: p.ori, pos: p.pos, color: -1 }));
       const s2 = CheckIfCanConnect(open, c.held, true);
-      if (s2 && Math.max(...s2.pos.map((v, i) => Math.abs(v - c.upstream.pos![i]!))) <= SIDE_TOLERANCE) {
+      // the same landing in every respect (position, rotation, direction), only below the carpet
+      if (s2 && Math.max(...s2.pos.map((v, i) => Math.abs(v - c.upstream.pos![i]!))) <= SIDE_TOLERANCE && s2.ori === nearestOri(c.upstream.q!) && s2.downwards === c.upstream.down) {
         belowCarpet++;
         return;
       }
     }
     const agrees = !!snap === c.upstream.can && (!snap || (Math.max(...snap.pos.map((v, i) => Math.abs(v - c.upstream.pos![i]!))) <= SIDE_TOLERANCE && snap.ori === nearestOri(c.upstream.q!)));
-    if (!agrees && c.upstream.can && c.upstream.down === false && BRICKS[c.held.type]!.males.some((m) => m.up[1] !== 1)) {
+    if (!agrees && c.upstream.can && c.upstream.sideStud === true) {
       // The other decided difference: a held brick's own side stud going into a socket. Upstream treats it as if it
       // were on top (GetNewPosWithRot ignores the connector's frame); the port matches it in its own frame.
       heldSideStud++;

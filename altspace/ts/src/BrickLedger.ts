@@ -9,9 +9,10 @@
 // record from its log once it is archived; the archive drops a deleted brick and its tombstone together once no
 // present player's log holds them (garbage collection, see `gcable`).
 
+import { BRICKS } from "./BrickData.ts";
 import { BrickStore, type AreaBounds, type Placement } from "./BrickStore.ts";
 import { argbOf } from "./ColorInt.ts";
-import { type BrickRecord, decode, encode, type Packed, PLACE_CHARS, type PlaceRecord, recordId, TOMB_CHARS, type TombRecord } from "./BrickRecords.ts";
+import { type BrickRecord, encode, MAX_SEQ, type Packed, PLACE_CHARS, type PlaceRecord, recordId, TOMB_CHARS, type TombRecord } from "./BrickRecords.ts";
 
 /** The JSON size of a packed list, kept as records are added (`{"a":[...],"r":"..."}` is 15 bytes empty). */
 class SegmentSize {
@@ -53,11 +54,38 @@ class SegmentSize {
 export interface ArchivePlan {
   /** New content per segment index (every segment, in order). */
   segments: Packed[];
+  /** The same, decoded (so nobody decodes them again). */
+  records: BrickRecord[][];
   /** Indices whose content changed. */
   changed: number[];
   repacked: boolean;
   added: number;
   dropped: number;
+  /** Records that should be archived but did not fit: the archive is full (they stay in their authors' logs). */
+  leftOut: number;
+}
+
+/** Whether a record can be one at all: a known brick type and orientation, sane numbers (BrickRecords.decode reads any byte). */
+export function validRecord(r: BrickRecord): boolean {
+  if (!Number.isInteger(r.seq) || r.seq < 1 || r.seq > MAX_SEQ || !r.author) return false;
+  if (r.kind === "P") return !!BRICKS[r.type] && Number.isInteger(r.ori) && r.ori >= 0 && r.ori < 24 && r.pos.every((v) => Number.isInteger(v));
+  return !!r.target && Number.isInteger(r.from) && Number.isInteger(r.to) && r.from >= 1 && r.from <= r.to && r.to <= MAX_SEQ;
+}
+
+/** JSON bytes the archive needs for some records spread over segments: the records plus each segment's envelope and author list. */
+export function archiveBytes(records: Iterable<BrickRecord>, capacity: number, segments: number): number {
+  const authors = new Set<string>();
+  let chars = 0;
+  for (const r of records) {
+    chars += r.kind === "P" ? PLACE_CHARS : TOMB_CHARS;
+    authors.add(r.author);
+    if (r.kind === "T") authors.add(r.target);
+  }
+  let authorBytes = 0;
+  for (const a of authors) authorBytes += JSON.stringify(a).length + 1;
+  // Every segment in use may repeat every author key.
+  const used = Math.min(segments, Math.max(1, Math.ceil(chars / Math.max(1, capacity - 15 - authorBytes))));
+  return chars + used * (15 + authorBytes);
 }
 
 export interface ArchiveOptions {
@@ -77,8 +105,10 @@ export class BrickLedger {
   readonly store: BrickStore;
   /** Every record seen, by id. */
   readonly records = new Map<string, BrickRecord>();
-  /** Ids of the records in the archive as last read. */
-  archived = new Set<string>();
+  /** Ids of the records in each archive segment as last read. */
+  private segmentIds: Array<Set<string>> = [];
+  /** Records the ledger refused (unknown type or orientation, bad numbers). */
+  rejected = 0;
   private readonly placesByAuthor = new Map<string, Map<number, PlaceRecord>>();
   private readonly tombsByTarget = new Map<string, TombRecord[]>();
   private readonly maxSeq = new Map<string, number>();
@@ -89,7 +119,10 @@ export class BrickLedger {
     this.store = new BrickStore(bounds);
   }
 
-  /** Highest seq seen from an author (0 for none). */
+  /** Whether the archive as last read holds a record. */
+  readonly archived = { has: (id: string): boolean => this.segmentIds.some((ids) => ids.has(id)) };
+
+  /** Highest seq seen from an author, or covered by a tombstone aimed at it (0 for none): the next record must be above. */
   lastSeq(author: string): number {
     return this.maxSeq.get(author) ?? 0;
   }
@@ -115,9 +148,18 @@ export class BrickLedger {
     for (const r of recs) {
       const id = recordId(r);
       if (this.records.has(id)) continue;
+      // Checked before anything is stored: a record the store cannot place must not reach the archive, where every
+      // later joiner would read it (the area would be dead for them).
+      if (!validRecord(r)) {
+        this.rejected++;
+        continue;
+      }
       fresh++;
       this.records.set(id, r);
       if (r.seq > (this.maxSeq.get(r.author) ?? 0)) this.maxSeq.set(r.author, r.seq);
+      // A tombstone outlives the brick it removed (garbage collection drops the brick first): an author who comes
+      // back under the same key must not reuse a number it covers, or the tombstone would hide the new brick.
+      if (r.kind === "T" && r.to > (this.maxSeq.get(r.target) ?? 0)) this.maxSeq.set(r.target, r.to);
       if (r.kind === "P") {
         let m = this.placesByAuthor.get(r.author);
         if (!m) this.placesByAuthor.set(r.author, (m = new Map()));
@@ -145,11 +187,16 @@ export class BrickLedger {
     return fresh;
   }
 
-  /** The archive as just read: its records join the set, and their ids are what authors may drop from their logs. */
+  /** One archive segment as just read: its records join the set, and their ids are what authors may drop from their logs. */
+  setSegment(index: number, records: readonly BrickRecord[], bulk = false): void {
+    while (this.segmentIds.length <= index) this.segmentIds.push(new Set());
+    this.segmentIds[index] = new Set(records.map(recordId));
+    this.ingest(records, bulk);
+  }
+
+  /** Every segment at once. */
   setArchive(segments: readonly BrickRecord[][], bulk = false): void {
-    const ids = new Set<string>();
-    for (const seg of segments) for (const r of seg) ids.add(recordId(r));
-    this.archived = ids;
+    this.segmentIds = segments.map((seg) => new Set(seg.map(recordId)));
     this.ingest(segments.flat(), bulk);
   }
 
@@ -171,10 +218,10 @@ export class BrickLedger {
   /**
    * The referee's archive step. Appends every record not archived yet (in author, seq order) to the last segment
    * with room; when the segments run out, or a quarter of the archive is collectable, rewrites them all without the
-   * collectable records. Null when nothing needs writing.
+   * collectable records. A full archive keeps what it holds and takes what still fits (`leftOut` counts the rest).
+   * Null when nothing needs writing. `decoded` is `current` already decoded (nothing is decoded here).
    */
-  planArchive(current: readonly Packed[], o: ArchiveOptions): ArchivePlan | null {
-    const decoded = current.map((p) => decode(p));
+  planArchive(current: readonly Packed[], decoded: readonly BrickRecord[][], o: ArchiveOptions): ArchivePlan | null {
     const inArchive = new Set<string>();
     let collectable = 0;
     let total = 0;
@@ -217,7 +264,7 @@ export class BrickLedger {
       }
       if (ok) {
         const segments = segs.map((s, i) => (changed.has(i) ? encode(s) : current[i]!));
-        return { segments, changed: [...changed].sort((a, b) => a - b), repacked: false, added, dropped: 0 };
+        return { segments, records: segs, changed: [...changed].sort((a, b) => a - b), repacked: false, added, dropped: 0, leftOut: 0 };
       }
     }
 
@@ -229,19 +276,27 @@ export class BrickLedger {
         if (inArchive.has(recordId(r))) dropped++;
       } else keep.push(r);
     }
-    keep.sort(bySeq);
+    // What the archive holds goes first, so a full archive never drops a record it had for one it never had.
+    const had = (r: BrickRecord) => (inArchive.has(recordId(r)) ? 0 : 1);
+    keep.sort((a, b) => had(a) - had(b) || bySeq(a, b));
     const segs: BrickRecord[][] = current.map(() => []);
     const sizes = segs.map(() => new SegmentSize());
     let at = 0;
+    let leftOut = 0;
     for (const r of keep) {
       while (at < segs.length && segs[at]!.length && sizes[at]!.with(r) > o.capacity) at++;
-      if (at >= segs.length) throw new Error(`the archive is full: ${keep.length} records do not fit ${segs.length} segments`);
+      if (at >= segs.length) {
+        leftOut++;
+        continue;
+      }
       segs[at]!.push(r);
       sizes[at]!.add(r);
     }
     const segments = segs.map((s) => encode(s));
     const changed = segments.map((s, i) => (s.r !== (current[i]?.r ?? "") || JSON.stringify(s.a) !== JSON.stringify(current[i]?.a ?? []) ? i : -1)).filter((i) => i >= 0);
-    return { segments, changed, repacked: true, added: keep.filter((r) => !inArchive.has(recordId(r))).length, dropped };
+    const added = segs.reduce((n, seg) => n + seg.filter((r) => !inArchive.has(recordId(r))).length, 0);
+    if (!changed.length) return leftOut ? { segments: [...current], records: decoded.map((d) => d.slice()), changed, repacked: false, added: 0, dropped: 0, leftOut } : null;
+    return { segments, records: segs, changed, repacked: true, added, dropped, leftOut };
   }
 
   /** A text that is equal on two clients exactly when they show the same bricks. */

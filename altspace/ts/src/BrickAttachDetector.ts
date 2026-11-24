@@ -20,7 +20,7 @@
 
 import { BRICKS, type Connector } from "./BrickData.ts";
 import type { BrickStore, WorldConnector } from "./BrickStore.ts";
-import { nearestOri, type Obb, ORI_Y180, ORIS, oriApply, oriInv, oriMul, placeObb, type Q, qangle, qeuler, qeulerAngles, qmul, qrot, type V3 } from "./Lattice.ts";
+import { nearestOri, type Obb, obbOverlap, ORI_Y180, ORIS, oriApply, oriInv, oriMul, placeObb, type Q, qangle, qeuler, qeulerAngles, qmul, qrot, type V3 } from "./Lattice.ts";
 
 export interface HeldPose {
   type: number;
@@ -138,8 +138,12 @@ function untilting(store: BrickStore, partner: WorldConnector): (t: WorldConnect
   return (t) => ({ ...t, mate: move(t.mate), probe: move(t.probe), ori: oriMul(back, t.ori), q: ORIS[oriMul(back, t.ori)]!.q });
 }
 
-/** CheckIfCanConnect. Null when the brick would not attach (it falls instead). */
-export function CheckIfCanConnect(store: BrickStore, held: HeldPose, allowed = true): Snap | null {
+/**
+ * CheckIfCanConnect. Null when the brick would not attach (it falls instead). `obstacles`: the boxes of bricks in
+ * hands or lying loose (upstream's "lego" layer, which CollidesWithBricks tests beside "placed lego", :265), not the
+ * brick being let go.
+ */
+export function CheckIfCanConnect(store: BrickStore, held: HeldPose, allowed = true, obstacles: readonly Obb[] = []): Snap | null {
   if (!allowed) return null;
   const def = BRICKS[held.type];
   if (!def) return null;
@@ -166,5 +170,6 @@ export function CheckIfCanConnect(store: BrickStore, held: HeldPose, allowed = t
   const pos: V3 = [partner.mate[0] - m[0], partner.mate[1] - m[1], partner.mate[2] - m[2]];
   const boxes = heldBoxesAt(held.type, pos, ori);
   if (!store.inside(boxes) || store.collides(boxes)) return null;
+  for (const o of obstacles) for (const b of boxes) if (obbOverlap(b, o)) return null;
   return { pos, ori, downwards, connector: c.index, partner };
 }
