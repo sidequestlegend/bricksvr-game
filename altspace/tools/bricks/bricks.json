@@ -1,0 +1,5167 @@
+{
+ "_doc": "Brick catalogue for generate_bricks.py. Units: metres in Unity mesh space after import (X = long axis, Y up, Z = short axis, pivot = centre of footprint at mid-height of the base brick/plate). size = [studs along X, studs along Z]; height_plates: 1 plate = 3.2 mm, 3 plates = 1 brick; bottom_plates = y of the underside in plate units. See README.md for sources.",
+ "bricks": [
+  {
+   "name": "Brick_1x3_Arch",
+   "family": "Arches",
+   "folder": "Arches/Brick_1x3_Arch",
+   "shape": "arch",
+   "size": [
+    3,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "arch": {
+    "half_width": 0.004,
+    "crown_y": 0.0013,
+    "rise": 0.003
+   },
+   "hollow_cells": [
+    [
+     0,
+     0
+    ],
+    [
+     2,
+     0
+    ]
+   ],
+   "files": [
+    {
+     "file": "Arches/Brick_1x3_Arch/Brick_1x3_Arch_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_1x3_Arch_Complete",
+     "guid": "2c16ed3762e0245f4a57462a6a9200f7",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -8739384063890720086
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x3Arch - Placed.prefab",
+      "Assets/Resources/1x3Arch.prefab"
+     ]
+    },
+    {
+     "file": "Arches/Brick_1x3_Arch/Brick_1x3_Arch_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_1x3_Arch_HollowBody",
+     "guid": "2a0ea5d84fe044c53a4d042896472c96",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      2794109961086056732
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Arches/Brick_1x3_Arch/Brick_1x3_Arch_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_1x3_Arch_SolidBody",
+     "guid": "4beabce4c1802442c8b030aea08d9427",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -1267985273458256665
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_1x4_Arch",
+   "family": "Arches",
+   "folder": "Arches/Brick_1x4_Arch",
+   "shape": "arch",
+   "size": [
+    4,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "arch": {
+    "half_width": 0.008,
+    "crown_y": 0.0024,
+    "rise": 0.0045
+   },
+   "hollow_cells": [
+    [
+     0,
+     0
+    ],
+    [
+     3,
+     0
+    ]
+   ],
+   "files": [
+    {
+     "file": "Arches/Brick_1x4_Arch/Brick_1x4_Arch_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_1x4_Arch_Complete",
+     "guid": "ce6df2439b48f458b8b6ea015681679f",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -6402410196752924946
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x4Arch - Placed.prefab",
+      "Assets/Resources/1x4Arch.prefab"
+     ]
+    },
+    {
+     "file": "Arches/Brick_1x4_Arch/Brick_1x4_Arch_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_1x4_Arch_HollowBody",
+     "guid": "9dc9ee18d916f4bb7aec38e89d516f21",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      8690412735392022435
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Arches/Brick_1x4_Arch/Brick_1x4_Arch_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_1x4_Arch_SolidBody",
+     "guid": "56041654741604088a00e07aaa9c764a",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -1133428822396802290
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_1x6_Arch",
+   "family": "Arches",
+   "folder": "Arches/Brick_1x6_Arch",
+   "shape": "arch",
+   "size": [
+    6,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "arch": {
+    "half_width": 0.016,
+    "crown_y": 0.0013,
+    "rise": 0.0055
+   },
+   "hollow_cells": [
+    [
+     0,
+     0
+    ],
+    [
+     5,
+     0
+    ]
+   ],
+   "files": [
+    {
+     "file": "Arches/Brick_1x6_Arch/Brick_1x6_Arch_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_1x6_Arch_Complete",
+     "guid": "05579906cbe194cc88c6afc62fc77c98",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -2064389047162867318
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x6Arch - Placed.prefab",
+      "Assets/Resources/1x6Arch.prefab"
+     ]
+    },
+    {
+     "file": "Arches/Brick_1x6_Arch/Brick_1x6_Arch_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_1x6_Arch_HollowBody",
+     "guid": "69b83e5ad11bd4a68900b42957e0f6ea",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      1187830188626729247
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Arches/Brick_1x6_Arch/Brick_1x6_Arch_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_1x6_Arch_SolidBody",
+     "guid": "76018d3a7158c401d931594671166019",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -4069944871601069052
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_1x1",
+   "family": "Bricks",
+   "folder": "Bricks/Brick_1x1",
+   "shape": "box",
+   "size": [
+    1,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Bricks/Brick_1x1/Brick_1x1_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_1x1_Complete",
+     "guid": "f04f4d17a7b574ea0993f1c6c8be6abc",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      4047860501499412163
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Prefabs/NatureScene.prefab",
+      "Assets/Resources/1x1 - Placed.prefab",
+      "Assets/Resources/1x1.prefab"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_1x1/Brick_1x1_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_1x1_HollowBody",
+     "guid": "06c84aa30c4fa4a0b81d0dfd379eb5a3",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Bricks/Brick_1x1/Brick_1x1_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Brick_1x1_HollowBody_NoBevel",
+     "guid": "0cfad721835f448bc9958668e7e2179a",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -6198864047793392816
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_1x1/Brick_1x1_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_1x1_SolidBody",
+     "guid": "341daa12e176c4e4a8bb4e8b4409dcb5",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Bricks/Brick_1x1/Brick_1x1_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Brick_1x1_SolidBody_NoBevel",
+     "guid": "1c2fb69740b4044e9bca2e3d3a7e732f",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      3892171845944583718
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_1x10",
+   "family": "Bricks",
+   "folder": "Bricks/Brick_1x10",
+   "shape": "box",
+   "size": [
+    10,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Bricks/Brick_1x10/Brick_1x10_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_1x10_Complete",
+     "guid": "d96e1cb795c6f44ccbcfb4c6fec54cfa",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -365641137892825773
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x10 - Placed.prefab",
+      "Assets/Resources/1x10.prefab"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_1x10/Brick_1x10_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_1x10_HollowBody",
+     "guid": "0b9e95971a1094e89b0bf443fbbcef7e",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -7684015004026060043
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_1x10/Brick_1x10_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Brick_1x10_HollowBody_NoBevel",
+     "guid": "208c03443eaf84af2991f9f312e04233",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -4094899329177763879
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_1x10/Brick_1x10_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_1x10_SolidBody",
+     "guid": "86ecf0b8556a343a59d8feb9ba70bd95",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      430954631345188222
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_1x10/Brick_1x10_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Brick_1x10_SolidBody_NoBevel",
+     "guid": "06967fc82d0024cc7a3ac1398b8bc45e",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      4568534974655984002
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_1x2",
+   "family": "Bricks",
+   "folder": "Bricks/Brick_1x2",
+   "shape": "box",
+   "size": [
+    2,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Bricks/Brick_1x2/Brick_1x2_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_1x2_Complete",
+     "guid": "4f5e40c4f26884cadbd1c58197a396ef",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -9031240278408722307
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Prefabs/NatureScene.prefab",
+      "Assets/Resources/1x2 - Placed.prefab",
+      "Assets/Resources/1x2.prefab"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_1x2/Brick_1x2_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_1x2_HollowBody",
+     "guid": "d8cfa56900ba043869699a4297970b12",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Bricks/Brick_1x2/Brick_1x2_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Brick_1x2_HollowBody_NoBevel",
+     "guid": "07e1229bd858c4c778458b38708f24f7",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      3100128127608479972
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_1x2/Brick_1x2_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_1x2_SolidBody",
+     "guid": "fd8ba5f908bd84158a331dd2f2b4a9cc",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Bricks/Brick_1x2/Brick_1x2_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Brick_1x2_SolidBody_NoBevel",
+     "guid": "d3b07a66b0d0e4fdfa4ca7dc443d6fc7",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      2962210569379975165
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_1x3",
+   "family": "Bricks",
+   "folder": "Bricks/Brick_1x3",
+   "shape": "box",
+   "size": [
+    3,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Bricks/Brick_1x3/Brick_1x3_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_1x3_Complete",
+     "guid": "d07ff32b1bbca433894a2f1c9fa5e3ec",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -8190449186959557402
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x3 - Placed.prefab",
+      "Assets/Resources/1x3.prefab"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_1x3/Brick_1x3_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_1x3_HollowBody",
+     "guid": "938fa796a322f40f5a404d6887cd9416",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Bricks/Brick_1x3/Brick_1x3_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Brick_1x3_HollowBody_NoBevel",
+     "guid": "f19b6d52d63ea4e90b281d5962138a80",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -8817485180858593558
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_1x3/Brick_1x3_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_1x3_SolidBody",
+     "guid": "90d758c6dec7f480e9fc9b74b4c615ec",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Bricks/Brick_1x3/Brick_1x3_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Brick_1x3_SolidBody_NoBevel",
+     "guid": "3b15b7efd790d4965ada2c3abfefb357",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      3867578561609386630
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_1x4",
+   "family": "Bricks",
+   "folder": "Bricks/Brick_1x4",
+   "shape": "box",
+   "size": [
+    4,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Bricks/Brick_1x4/Brick_1x4_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_1x4_Complete",
+     "guid": "3da3a1e715b5f4f3abc9fb90952612bb",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      4151752812887827602
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Prefabs/BrickTree.prefab",
+      "Assets/Prefabs/NatureScene.prefab",
+      "Assets/Resources/1x4 - Placed.prefab",
+      "Assets/Resources/1x4.prefab"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_1x4/Brick_1x4_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_1x4_HollowBody",
+     "guid": "090e61444b1374bf7ae66bb0fdfd104a",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Bricks/Brick_1x4/Brick_1x4_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Brick_1x4_HollowBody_NoBevel",
+     "guid": "d779542b8c4b34d12a6284bb6f5ee31e",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -7094641262858654551
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_1x4/Brick_1x4_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_1x4_SolidBody",
+     "guid": "e013bb71360674a0c9bd2576c9d8a7d1",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Bricks/Brick_1x4/Brick_1x4_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Brick_1x4_SolidBody_NoBevel",
+     "guid": "03214473ea73644d2b222e892a26f0e4",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      2892865974015904513
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_1x6",
+   "family": "Bricks",
+   "folder": "Bricks/Brick_1x6",
+   "shape": "box",
+   "size": [
+    6,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Bricks/Brick_1x6/Brick_1x6_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_1x6_Complete",
+     "guid": "12467db6b5bd74351afe502a4b888b77",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -1796566443659330726
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x6 - Placed.prefab",
+      "Assets/Resources/1x6.prefab"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_1x6/Brick_1x6_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_1x6_HollowBody",
+     "guid": "b44b8d2a79cde44b4a5affe4a18a815d",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      7017125736742206294
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_1x6/Brick_1x6_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_1x6_SolidBody",
+     "guid": "09502d1ed44da4fcaa19e9f4e3f5e266",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -7442994202669622048
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_1x8",
+   "family": "Bricks",
+   "folder": "Bricks/Brick_1x8",
+   "shape": "box",
+   "size": [
+    8,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Bricks/Brick_1x8/Brick_1x8_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_1x8_Complete",
+     "guid": "e0b7e4f31446a4c5794c3a030951408a",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      7087868006114543687
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x8 - Placed.prefab",
+      "Assets/Resources/1x8.prefab"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_1x8/Brick_1x8_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_1x8_HollowBody",
+     "guid": "7fb0f4742c3c84359bc42663202b80c5",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -7669848285573524936
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_1x8/Brick_1x8_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_1x8_SolidBody",
+     "guid": "f03489a2234c641e29649480ba85ad38",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -1028506163573225932
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_2x2",
+   "family": "Bricks",
+   "folder": "Bricks/Brick_2x2",
+   "shape": "box",
+   "size": [
+    2,
+    2
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Bricks/Brick_2x2/Brick_2x2_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_2x2_Complete",
+     "guid": "b4599711774f74ed7bf649b16d817303",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      3165059112001151810
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Prefabs/BrickTree.prefab",
+      "Assets/Prefabs/NatureScene.prefab",
+      "Assets/Resources/2x2 - Placed.prefab",
+      "Assets/Resources/2x2.prefab"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_2x2/Brick_2x2_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_2x2_HollowBody",
+     "guid": "d866500044656455b853f18980dad1a4",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Bricks/Brick_2x2/Brick_2x2_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Brick_2x2_HollowBody_NoBevel",
+     "guid": "c005005fd3f0a4bf490c6bdb3f6be0f8",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      652874246274987942
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_2x2/Brick_2x2_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_2x2_SolidBody",
+     "guid": "7ce46fbe4cb0b4774b9157cf9d0ccc76",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Bricks/Brick_2x2/Brick_2x2_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Brick_2x2_SolidBody_NoBevel",
+     "guid": "6b4cdb783962240fea7ed67957f4b3df",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -4829072286563320259
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_2x2_Corner",
+   "family": "Bricks",
+   "folder": "Bricks/Brick_2x2_Corner",
+   "shape": "box",
+   "size": [
+    2,
+    2
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "cells": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ]
+   ],
+   "note": "L shape; missing cell (-X,+Z) per connector layout",
+   "files": [
+    {
+     "file": "Bricks/Brick_2x2_Corner/Brick_2x2_Corner_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_2x2_Corner_Complete",
+     "guid": "0db7992207a844342b0e32284e7830c3",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      4417872634275097404
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/2x2Corner - Placed.prefab",
+      "Assets/Resources/2x2Corner.prefab"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_2x2_Corner/Brick_2x2_Corner_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_2x2_Corner_HollowBody",
+     "guid": "0b4f4cf7feb9344e4b1a2d7876f1884b",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      968793734231460142
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_2x2_Corner/Brick_2x2_Corner_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_2x2_Corner_SolidBody",
+     "guid": "1d915c2be6bd44d9b8dae69a29bede5e",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      4784415628653499047
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_2x3",
+   "family": "Bricks",
+   "folder": "Bricks/Brick_2x3",
+   "shape": "box",
+   "size": [
+    3,
+    2
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Bricks/Brick_2x3/Brick_2x3_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_2x3_Complete",
+     "guid": "a5e5bae24bf434fa48790c662a1ed684",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      4937820704872165802
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/2x3 - Placed.prefab",
+      "Assets/Resources/2x3.prefab"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_2x3/Brick_2x3_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_2x3_HollowBody",
+     "guid": "8367d0c816c4f48a4b1bd26a85778d22",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      4009195618479928762
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_2x3/Brick_2x3_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_2x3_SolidBody",
+     "guid": "a3bb512096600481da9359aa4023d0c0",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -4576774772208496622
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_2x4",
+   "family": "Bricks",
+   "folder": "Bricks/Brick_2x4",
+   "shape": "box",
+   "size": [
+    4,
+    2
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Bricks/Brick_2x4/Brick_2x4_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_2x4_Complete",
+     "guid": "bbcc4befd0e6248fd98d7378c785acf1",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -3159978364427899027
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Prefabs/BrickTree.prefab",
+      "Assets/Prefabs/NatureScene.prefab",
+      "Assets/Prefabs/UI/BrickPickerBrickTile.prefab",
+      "Assets/Resources/4x2 - Placed.prefab",
+      "Assets/Resources/4x2.prefab",
+      "Assets/Resources/BlankPlacedBrick.prefab",
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_2x4/Brick_2x4_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_2x4_HollowBody",
+     "guid": "b0a4a7ac359af4475950ff2fa70e5bbf",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Bricks/Brick_2x4/Brick_2x4_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Brick_2x4_HollowBody_NoBevel",
+     "guid": "b2f7a85440b41463bafdb020d176db87",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      5838977262975087403
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_2x4/Brick_2x4_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_2x4_SolidBody",
+     "guid": "369dfd61b6a6946c7b8f9f2f3798255d",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Bricks/Brick_2x4/Brick_2x4_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Brick_2x4_SolidBody_NoBevel",
+     "guid": "3d39a30ec7afd4b7d9a98f788b3f7aac",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      6538896473265349376
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_2x6",
+   "family": "Bricks",
+   "folder": "Bricks/Brick_2x6",
+   "shape": "box",
+   "size": [
+    6,
+    2
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Bricks/Brick_2x6/Brick_2x6_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_2x6_Complete",
+     "guid": "06faf7fa7c6894dd4af6efc24d476aaf",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      2145964417238504352
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/2x6 - Placed.prefab",
+      "Assets/Resources/2x6.prefab"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_2x6/Brick_2x6_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_2x6_HollowBody",
+     "guid": "3dd2a2382258d405a8f1e0916a8a715d",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -8167150723122388064
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_2x6/Brick_2x6_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_2x6_SolidBody",
+     "guid": "c0b5920f9d77e448881370e36f027a1e",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -6125873032034406246
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_2x8",
+   "family": "Bricks",
+   "folder": "Bricks/Brick_2x8",
+   "shape": "box",
+   "size": [
+    8,
+    2
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Bricks/Brick_2x8/Brick_2x8_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_2x8_Complete",
+     "guid": "0d8f610276fcc4e77b3db43c946e31bc",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      5400634216820004204
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/2x8 - Placed.prefab",
+      "Assets/Resources/2x8.prefab"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_2x8/Brick_2x8_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_2x8_HollowBody",
+     "guid": "d98b9b6d16bbe4d91aba32deaae08747",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Bricks/Brick_2x8/Brick_2x8_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Brick_2x8_HollowBody_NoBevel",
+     "guid": "55243dd1cdd5b4024aca5bc2144094eb",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      4426340236654509489
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks/Brick_2x8/Brick_2x8_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_2x8_SolidBody",
+     "guid": "c25c997141fbf4f6aba0a8aaf6b26a62",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Bricks/Brick_2x8/Brick_2x8_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Brick_2x8_SolidBody_NoBevel",
+     "guid": "0eaee2e036a904a44af4e9ec3b45b871",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -716223655601728521
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_1x2_Masonry",
+   "family": "Bricks_Masonry",
+   "folder": "Bricks_Masonry/Brick_1x2_Masonry",
+   "shape": "masonry",
+   "size": [
+    2,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Bricks_Masonry/Brick_1x2_Masonry/Brick_1x2_Masonry_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_1x2_Masonry_Complete",
+     "guid": "199decaddda8d4414b7f1c50cefc201f",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      6214842436787067395
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x2Masonry - Placed.prefab",
+      "Assets/Resources/1x2Masonry.prefab"
+     ]
+    },
+    {
+     "file": "Bricks_Masonry/Brick_1x2_Masonry/Brick_1x2_Masonry_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_1x2_Masonry_HollowBody",
+     "guid": "fe0e6f895223b492e9754f5bf23105f3",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      5681612441761802822
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks_Masonry/Brick_1x2_Masonry/Brick_1x2_Masonry_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_1x2_Masonry_SolidBody",
+     "guid": "51fa7b9dcbfed4e47ba0b915e8d15ba0",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      1390559934189122890
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_1x4_Masonry",
+   "family": "Bricks_Masonry",
+   "folder": "Bricks_Masonry/Brick_1x4_Masonry",
+   "shape": "masonry",
+   "size": [
+    4,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Bricks_Masonry/Brick_1x4_Masonry/Brick_1x4_Masonry_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_1x4_Masonry_Complete",
+     "guid": "806dcf4f7904c4188bcde3033b78806f",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      6894739018472991694
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x4Masonry - Placed.prefab",
+      "Assets/Resources/1x4Masonry.prefab"
+     ]
+    },
+    {
+     "file": "Bricks_Masonry/Brick_1x4_Masonry/Brick_1x4_Masonry_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Brick_1x4_Masonry_HollowBody",
+     "guid": "0661f85d0752f478bb5751d5515239ef",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -890891172759037251
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Bricks_Masonry/Brick_1x4_Masonry/Brick_1x4_Masonry_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_1x4_Masonry_SolidBody",
+     "guid": "7b9e93d74540d427b8877fe574e8a97a",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -2196657782392827299
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Bob",
+   "family": "Misc",
+   "folder": "Misc",
+   "shape": "figure",
+   "size": [
+    3,
+    2
+   ],
+   "height_plates": 18,
+   "bottom_plates": 0,
+   "studs": [],
+   "note": "placeholder blocky figure; upstream 'Bob' is commented out of BrickData; model is used flipped (Bob.prefab rotates it 180 deg about X)",
+   "files": [
+    {
+     "file": "Misc/Bob.fbx",
+     "variant": "complete",
+     "mesh_name": "Bob",
+     "guid": "c5876d46c66ba4cc68df067197250e8b",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -2812107940972762080
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Resources/Bob - Placed.prefab",
+      "Assets/Resources/Bob.prefab",
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Plant_Green_Flat",
+   "family": "Plants",
+   "folder": "Plants",
+   "shape": "plant_flat",
+   "size": [
+    1,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "files": [
+    {
+     "file": "Plants/Plant_Green_Flat.fbx",
+     "variant": "complete",
+     "mesh_name": "Plant_Green_Flat",
+     "guid": "9a6af63b7fa254968bdb86d440f26d86",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -4799873028984781982
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/FlatPlant - Placed.prefab",
+      "Assets/Resources/FlatPlant.prefab",
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Plant_Green_MediumHeight",
+   "family": "Plants",
+   "folder": "Plants",
+   "shape": "plant_three_leaf",
+   "size": [
+    1,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "files": [
+    {
+     "file": "Plants/Plant_Green_MediumHeight.fbx",
+     "variant": "complete",
+     "mesh_name": "Plant_Green_MediumHeight",
+     "guid": "31f39a7b935d240d2bef6b82da2497df",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -4435103942091294989
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/ThreeLeafedPlant - Placed.prefab",
+      "Assets/Resources/ThreeLeafedPlant.prefab",
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Plate_1x1",
+   "family": "Plates",
+   "folder": "Plates/Plate_1x1",
+   "shape": "box",
+   "size": [
+    1,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Plates/Plate_1x1/Plate_1x1_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Plate_1x1_Complete",
+     "guid": "3b585205fbd3544f990a550c91d07539",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -6034191114104528692
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Prefabs/NatureScene.prefab",
+      "Assets/Resources/1x1Plate - Placed.prefab",
+      "Assets/Resources/1x1Plate.prefab"
+     ]
+    },
+    {
+     "file": "Plates/Plate_1x1/Plate_1x1_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Plate_1x1_HollowBody",
+     "guid": "36d3fbcc26f804fa3811942bc5b7156e",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_1x1/Plate_1x1_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Plate_1x1_HollowBody_NoBevel",
+     "guid": "bd2cd0675c5ca405d89402d599b0757c",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      2315913335825194320
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Plates/Plate_1x1/Plate_1x1_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Plate_1x1_SolidBody",
+     "guid": "f95059054223b4d5f86a0f51f1eb9545",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_1x1/Plate_1x1_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Plate_1x1_SolidBody_NoBevel",
+     "guid": "d19500fd04cf1464f81e9ee5a23083d5",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      9048931087584910796
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Plate_1x10",
+   "family": "Plates",
+   "folder": "Plates/Plate_1x10",
+   "shape": "box",
+   "size": [
+    10,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Plates/Plate_1x10/Plate_1x10_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Plate_1x10_Complete",
+     "guid": "6cf103b2cc8b1471e9c627cde8847ce4",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      1175238929172934835
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x10Plate - Placed.prefab",
+      "Assets/Resources/1x10Plate.prefab"
+     ]
+    },
+    {
+     "file": "Plates/Plate_1x10/Plate_1x10_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Plate_1x10_HollowBody",
+     "guid": "36947b7244d7a430baac05a9156349d4",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_1x10/Plate_1x10_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Plate_1x10_HollowBody_NoBevel",
+     "guid": "43d4249fe4f1749f8b0f90357f9a84a9",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      7617755756511306680
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Plates/Plate_1x10/Plate_1x10_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Plate_1x10_SolidBody",
+     "guid": "0ac6ca961cf7f4f7e906e58d1af7dd71",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_1x10/Plate_1x10_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Plate_1x10_SolidBody_NoBevel",
+     "guid": "3e2eed69abb964c568bec264c21c92d3",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      7871938380314904445
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Plate_1x2",
+   "family": "Plates",
+   "folder": "Plates/Plate_1x2",
+   "shape": "box",
+   "size": [
+    2,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Plates/Plate_1x2/Plate_1x2_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Plate_1x2_Complete",
+     "guid": "7aacdf96373e64e3c9eeecb4ddf16300",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -8379499910406495561
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x2Plate - Placed.prefab",
+      "Assets/Resources/1x2Plate.prefab"
+     ]
+    },
+    {
+     "file": "Plates/Plate_1x2/Plate_1x2_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Plate_1x2_HollowBody",
+     "guid": "d2500d20b34164a06b1e24724356b914",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_1x2/Plate_1x2_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Plate_1x2_HollowBody_NoBevel",
+     "guid": "f5dafc0da4b2041ba9624db6711bf39e",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      5354561264344527366
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Plates/Plate_1x2/Plate_1x2_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Plate_1x2_SolidBody",
+     "guid": "0af1d5ff872a74c069659ccef1ec3c6b",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_1x2/Plate_1x2_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Plate_1x2_SolidBody_NoBevel",
+     "guid": "d20d060bde46d4e0eb0b4801404b33a2",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      3034811006328683373
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Plate_1x2_1Stud",
+   "family": "Plates",
+   "folder": "Plates/Plate_1x2_1Stud",
+   "shape": "box",
+   "size": [
+    2,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [
+    [
+     0.0,
+     0.0
+    ]
+   ],
+   "studs_are_positions": true,
+   "files": [
+    {
+     "file": "Plates/Plate_1x2_1Stud/Plate_1x2_1Stud_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Plate_1x2_1Stud_Complete",
+     "guid": "a28bacf3281bd4220a9a673dd756e87c",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -1169991453205134546
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x2Plate1Stud - Placed.prefab",
+      "Assets/Resources/1x2Plate1Stud.prefab"
+     ]
+    },
+    {
+     "file": "Plates/Plate_1x2_1Stud/Plate_1x2_1Stud_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Plate_1x2_1Stud_HollowBody",
+     "guid": "fc76bebbc71ef4103bae52715519756f",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_1x2_1Stud/Plate_1x2_1Stud_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Plate_1x2_1Stud_SolidBody",
+     "guid": "7b02933b253ff48c4a584ee3cc586e35",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "Plate_1x3",
+   "family": "Plates",
+   "folder": "Plates/Plate_1x3",
+   "shape": "box",
+   "size": [
+    3,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Plates/Plate_1x3/Plate_1x3_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Plate_1x3_Complete",
+     "guid": "227029ddf6dc2410998c0f1b2aa97cdb",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -1926275790256614241
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x3Plate - Placed.prefab",
+      "Assets/Resources/1x3Plate.prefab"
+     ]
+    },
+    {
+     "file": "Plates/Plate_1x3/Plate_1x3_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Plate_1x3_HollowBody",
+     "guid": "0dc88e78733f14e8192c5b4207c82dc7",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_1x3/Plate_1x3_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Plate_1x3_HollowBody_NoBevel",
+     "guid": "5da4e16b959b44748b66cd316c6706ed",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -9209378921855270722
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Plates/Plate_1x3/Plate_1x3_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Plate_1x3_SolidBody",
+     "guid": "a07019d3173b942879aa0f79e8e63789",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_1x3/Plate_1x3_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Plate_1x3_SolidBody_NoBevel",
+     "guid": "e60f4bacfe67b4d2f871cd1d9702a40e",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      5375580435838867662
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Plate_1x4",
+   "family": "Plates",
+   "folder": "Plates/Plate_1x4",
+   "shape": "box",
+   "size": [
+    4,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Plates/Plate_1x4/Plate_1x4_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Plate_1x4_Complete",
+     "guid": "b8976195cf0cd4cd1a7b85f25bf45ab1",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -5355602627545535795
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x4Plate - Placed.prefab",
+      "Assets/Resources/1x4Plate.prefab"
+     ]
+    },
+    {
+     "file": "Plates/Plate_1x4/Plate_1x4_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Plate_1x4_HollowBody",
+     "guid": "480b0434284d14c5085dffe18181cd96",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_1x4/Plate_1x4_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Plate_1x4_HollowBody_NoBevel",
+     "guid": "249cffbede0b740579303ff6955aefd1",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -9219491792462332424
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Plates/Plate_1x4/Plate_1x4_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Plate_1x4_SolidBody",
+     "guid": "9f1ca8f9bc91940319f060e6f2777f8b",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_1x4/Plate_1x4_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Plate_1x4_SolidBody_NoBevel",
+     "guid": "12b0034d43e6246aba2f460b36219bde",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -4344930828572440404
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Plate_1x6",
+   "family": "Plates",
+   "folder": "Plates/Plate_1x6",
+   "shape": "box",
+   "size": [
+    6,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Plates/Plate_1x6/Plate_1x6_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Plate_1x6_Complete",
+     "guid": "39fc02e826bb0440e87a7b7f41a1554a",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -5767639774255567600
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x6Plate - Placed.prefab",
+      "Assets/Resources/1x6Plate.prefab"
+     ]
+    },
+    {
+     "file": "Plates/Plate_1x6/Plate_1x6_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Plate_1x6_HollowBody",
+     "guid": "eb30eb53e22ba489ba192f531e6f035e",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -7585219109110377787
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Plates/Plate_1x6/Plate_1x6_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Plate_1x6_SolidBody",
+     "guid": "eddce8f63b0994f43bcb8e7605acd842",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -4776171996822984301
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Plate_1x8",
+   "family": "Plates",
+   "folder": "Plates/Plate_1x8",
+   "shape": "box",
+   "size": [
+    8,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Plates/Plate_1x8/Plate_1x8_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Plate_1x8_Complete",
+     "guid": "509a0e4b3b57b45b1a7ec53f13e9f4db",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      7114417540042471169
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x8Plate - Placed.prefab",
+      "Assets/Resources/1x8Plate.prefab"
+     ]
+    },
+    {
+     "file": "Plates/Plate_1x8/Plate_1x8_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Plate_1x8_HollowBody",
+     "guid": "7f7c50fa1b85c49b7beee34607160a9e",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      7603802878751205462
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Plates/Plate_1x8/Plate_1x8_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Plate_1x8_SolidBody",
+     "guid": "a80e1d080c86c49e29fa2361d8a2bf59",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -3816912498493048821
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Plate_2x2",
+   "family": "Plates",
+   "folder": "Plates/Plate_2x2",
+   "shape": "box",
+   "size": [
+    2,
+    2
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Plates/Plate_2x2/Plate_2x2_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Plate_2x2_Complete",
+     "guid": "c73c61450444f48ffa2862c04b518c24",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -1063922579623717517
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/2x2Plate - Placed.prefab",
+      "Assets/Resources/2x2Plate.prefab"
+     ]
+    },
+    {
+     "file": "Plates/Plate_2x2/Plate_2x2_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Plate_2x2_HollowBody",
+     "guid": "1cf262a1571264e9a9719bded364b2c0",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_2x2/Plate_2x2_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Plate_2x2_HollowBody_NoBevel",
+     "guid": "418eb6f73ae744c20bf8cf8340d72587",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      4599737022522426103
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Plates/Plate_2x2/Plate_2x2_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Plate_2x2_SolidBody",
+     "guid": "09c3c1b811ba344fcb10ac6853df20ad",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_2x2/Plate_2x2_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Plate_2x2_SolidBody_NoBevel",
+     "guid": "75ffedc0676684da9951fc8904df3ad4",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -7551239734322960994
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Plate_2x2_1Stud",
+   "family": "Plates",
+   "folder": "Plates/Plate_2x2_1Stud",
+   "shape": "box",
+   "size": [
+    2,
+    2
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [
+    [
+     0.0,
+     0.0
+    ]
+   ],
+   "studs_are_positions": true,
+   "files": [
+    {
+     "file": "Plates/Plate_2x2_1Stud/Plate_2x2_1Stud_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Plate_2x2_1Stud_Complete",
+     "guid": "c3f61930f44e34621a35f34037a01285",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -5458407958307401675
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/2x2Plate1Stud - Placed.prefab",
+      "Assets/Resources/2x2Plate1Stud.prefab"
+     ]
+    },
+    {
+     "file": "Plates/Plate_2x2_1Stud/Plate_2x2_1Stud_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Plate_2x2_1Stud_HollowBody",
+     "guid": "6cd6610ce42e24b76a0cc18376127763",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_2x2_1Stud/Plate_2x2_1Stud_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Plate_2x2_1Stud_SolidBody",
+     "guid": "a33dfffed394c4d498b9ece0a666b57b",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "Plate_2x2_Corner",
+   "family": "Plates",
+   "folder": "Plates/Plate_2x2_Corner",
+   "shape": "box",
+   "size": [
+    2,
+    2
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "cells": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ]
+   ],
+   "note": "L shape; missing cell (-X,+Z) per connector layout",
+   "files": [
+    {
+     "file": "Plates/Plate_2x2_Corner/Plate_2x2_Corner_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Plate_2x2_Corner_Complete",
+     "guid": "bd28807490a684b12bc3039668dd5525",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -3240734288270418986
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Resources/2x2CornerPlate - Placed.prefab",
+      "Assets/Resources/2x2CornerPlate.prefab",
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Plates/Plate_2x2_Corner/Plate_2x2_Corner_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Plate_2x2_Corner_HollowBody",
+     "guid": "842c07f4e945b4eceb2557002f950ec0",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -5321350088704396871
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Plates/Plate_2x2_Corner/Plate_2x2_Corner_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Plate_2x2_Corner_SolidBody",
+     "guid": "ee6689d13711440aa9dc1f05b90d85cc",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "Plate_2x3",
+   "family": "Plates",
+   "folder": "Plates/Plate_2x3",
+   "shape": "box",
+   "size": [
+    3,
+    2
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Plates/Plate_2x3/Plate_2x3_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Plate_2x3_Complete",
+     "guid": "4494797c07fda4e7893faf7306087a3d",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      2582079332005992847
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/2x3Plate - Placed.prefab",
+      "Assets/Resources/2x3Plate.prefab"
+     ]
+    },
+    {
+     "file": "Plates/Plate_2x3/Plate_2x3_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Plate_2x3_HollowBody",
+     "guid": "243a0b444e45a4d139ddd2ab1c4ff137",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      4298704177441886525
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Plates/Plate_2x3/Plate_2x3_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Plate_2x3_SolidBody",
+     "guid": "1abcce1e4f0ee41af91ccd0641c582e0",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      5933647837967785936
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Plate_2x4",
+   "family": "Plates",
+   "folder": "Plates/Plate_2x4",
+   "shape": "box",
+   "size": [
+    4,
+    2
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Plates/Plate_2x4/Plate_2x4_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Plate_2x4_Complete",
+     "guid": "b6f98f56addb648e4a740d8b0f3fe606",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -941664010615619532
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Prefabs/NatureScene.prefab",
+      "Assets/Resources/2x4Plate - Placed.prefab",
+      "Assets/Resources/2x4Plate.prefab"
+     ]
+    },
+    {
+     "file": "Plates/Plate_2x4/Plate_2x4_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Plate_2x4_HollowBody",
+     "guid": "a55e0b7b9836242bf91b1230800a500f",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_2x4/Plate_2x4_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Plate_2x4_HollowBody_NoBevel",
+     "guid": "6c7835f3dac714bcc979825ffde06913",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -842448537587983713
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Plates/Plate_2x4/Plate_2x4_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Plate_2x4_SolidBody",
+     "guid": "19a13e16b7f164864b3b8a4e30ef84b2",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_2x4/Plate_2x4_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Plate_2x4_SolidBody_NoBevel",
+     "guid": "f8ecd6af420c54fb7b8a750dd4328926",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      3948064403138139522
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Plate_2x6",
+   "family": "Plates",
+   "folder": "Plates/Plate_2x6",
+   "shape": "box",
+   "size": [
+    6,
+    2
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Plates/Plate_2x6/Plate_2x6_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Plate_2x6_Complete",
+     "guid": "1ae7d2cffbf104dbc9d120100aa6a6b2",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      3038539734813603626
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/2x6Plate - Placed.prefab",
+      "Assets/Resources/2x6Plate.prefab"
+     ]
+    },
+    {
+     "file": "Plates/Plate_2x6/Plate_2x6_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Plate_2x6_HollowBody",
+     "guid": "b8f6eb7a35d17492ea19040598f6c4d5",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      269558089957196993
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Plates/Plate_2x6/Plate_2x6_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Plate_2x6_SolidBody",
+     "guid": "4daf0db0884974f6ab9501640479d14d",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -423683531764942047
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Plate_2x8",
+   "family": "Plates",
+   "folder": "Plates/Plate_2x8",
+   "shape": "box",
+   "size": [
+    8,
+    2
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Plates/Plate_2x8/Plate_2x8_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Plate_2x8_Complete",
+     "guid": "a61e2cd75a57240109b81cb9d15eccbb",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -5413004394979882842
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/2x8Plate - Placed.prefab",
+      "Assets/Resources/2x8Plate.prefab"
+     ]
+    },
+    {
+     "file": "Plates/Plate_2x8/Plate_2x8_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Plate_2x8_HollowBody",
+     "guid": "a4830155b069c4a839aa21b80f44e287",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      2597652973790218476
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Plates/Plate_2x8/Plate_2x8_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Plate_2x8_HollowBody_NoBevel",
+     "guid": "03db329ba494f4a2396da083698425c0",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      8251246647805523824
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Plates/Plate_2x8/Plate_2x8_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Plate_2x8_SolidBody",
+     "guid": "b4ba6d024124b410f809f4a7d701409f",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_2x8/Plate_2x8_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Plate_2x8_SolidBody_NoBevel",
+     "guid": "04e0d4c3d7f0e4894bb978cd9cba221e",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -2110086650737854383
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Plate_3x3",
+   "family": "Plates",
+   "folder": "Plates/Plate_3x3",
+   "shape": "box",
+   "size": [
+    3,
+    3
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Plates/Plate_3x3/Plate_3x3_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Plate_3x3_Complete",
+     "guid": "c1b325a2210db402e84b2684f93590a2",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_3x3/Plate_3x3_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Plate_3x3_HollowBody",
+     "guid": "2b53aeb4722474d64a3ead21b3ae252e",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Plates/Plate_3x3/Plate_3x3_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Plate_3x3_SolidBody",
+     "guid": "e35217f2ea6844465a610f00df12f410",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "Plate_Round_1x1",
+   "family": "Plates",
+   "folder": "Plates/Plate_Round_1x1",
+   "shape": "round",
+   "size": [
+    1,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "files": [
+    {
+     "file": "Plates/Plate_Round_1x1/Plate_Round_1x1_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Plate_Round_1x1_Complete",
+     "guid": "8e4d942843be3499fbfea6d3bfde14a5",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -4361308284578209232
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x1RoundPlate - Placed.prefab",
+      "Assets/Resources/1x1RoundPlate.prefab"
+     ]
+    },
+    {
+     "file": "Plates/Plate_Round_1x1/Plate_Round_1x1_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Plate_Round_1x1_HollowBody",
+     "guid": "f08cf8e4354d94ae3aa12a7e73d635c3",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -7199924275864254328
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Plates/Plate_Round_1x1/Plate_Round_1x1_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Plate_Round_1x1_SolidBody",
+     "guid": "5427fa3457cf54f30821c9bbeb0b191f",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "Brick_1x1_Pyramid",
+   "family": "Pyramids",
+   "folder": "Pyramids/Brick_1x1_Pyramid",
+   "shape": "pyramid",
+   "size": [
+    1,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": [],
+   "pyramid": {
+    "base_thickness": 0.0013,
+    "apex_y": 0.0004
+   },
+   "files": [
+    {
+     "file": "Pyramids/Brick_1x1_Pyramid/Brick_1x1_Pyramid_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_1x1_Pyramid_Complete",
+     "guid": "ff989bbfd7f0f4c518b6854985d4aafa",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -4439177635779473790
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Resources/1x1Pyramid - Placed.prefab",
+      "Assets/Resources/1x1Pyramid.prefab",
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Pyramids/Brick_1x1_Pyramid/Brick_1x1_Pyramid_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Brick_1x1_Pyramid_SolidBody",
+     "guid": "48977075c71034087af55d63c32c7c64",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -3073488902156337868
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_1x1_1FaceSideStud",
+   "family": "SideStudBricks",
+   "folder": "SideStudBricks/Brick_1x1_1FaceSideStud",
+   "shape": "box",
+   "size": [
+    1,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "side_studs": {
+    "faces": [
+     "+z"
+    ],
+    "y": 0.0006
+   },
+   "files": [
+    {
+     "file": "SideStudBricks/Brick_1x1_1FaceSideStud/Brick_1x1_1FaceSideStud_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_1x1_1FaceSideStud_Complete",
+     "guid": "8761ff847380947b8bb0b6b4966b5414",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -5547226821776838944
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Resources/1x1_1FaceSideStud - Placed.prefab",
+      "Assets/Resources/1x1_1FaceSideStud.prefab"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_1x1_4FaceSideStud",
+   "family": "SideStudBricks",
+   "folder": "SideStudBricks/Brick_1x1_4FaceSideStud",
+   "shape": "box",
+   "size": [
+    1,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "side_studs": {
+    "faces": [
+     "+z",
+     "-z",
+     "+x",
+     "-x"
+    ],
+    "y": 0.0006
+   },
+   "files": [
+    {
+     "file": "SideStudBricks/Brick_1x1_4FaceSideStud/Brick_1x1_4FaceSideStud_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_1x1_4FaceSideStud_Complete",
+     "guid": "d368c886cbd3c4d018a10ff5756d16fe",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -7075533180959684982
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Resources/1x1_4FaceSideStud - Placed.prefab",
+      "Assets/Resources/1x1_4FaceSideStud.prefab"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_1x2_1FaceSideStud",
+   "family": "SideStudBricks",
+   "folder": "SideStudBricks/Brick_1x2_1FaceSideStud",
+   "shape": "box",
+   "size": [
+    2,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "side_studs": {
+    "faces": [
+     "+z"
+    ],
+    "y": 0.0006
+   },
+   "files": [
+    {
+     "file": "SideStudBricks/Brick_1x2_1FaceSideStud/Brick_1x2_1FaceSideStud_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_1x2_1FaceSideStud_Complete",
+     "guid": "90fbd5999de4040efbd8d14b6e88fc15",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      2478642557212298803
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Resources/1x2_1FaceSideStud - Placed.prefab",
+      "Assets/Resources/1x2_1FaceSideStud.prefab"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Brick_1x4_1FaceSideStud",
+   "family": "SideStudBricks",
+   "folder": "SideStudBricks/Brick_1x4_1FaceSideStud",
+   "shape": "box",
+   "size": [
+    4,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "side_studs": {
+    "faces": [
+     "+z"
+    ],
+    "y": 0.0006
+   },
+   "files": [
+    {
+     "file": "SideStudBricks/Brick_1x4_1FaceSideStud/Brick_1x4_1FaceSideStud_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Brick_1x4_1FaceSideStud_Complete",
+     "guid": "2f8e74acbe319425aa80d00012b07c4d",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      6948634446427596978
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Resources/1x4_1FaceSideStud - Placed.prefab",
+      "Assets/Resources/1x4_1FaceSideStud.prefab"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Slope_1x1x2-3",
+   "family": "Slopes",
+   "folder": "Slopes/Slope_1x1x2-3",
+   "shape": "slope",
+   "size": [
+    1,
+    1
+   ],
+   "height_plates": 2,
+   "bottom_plates": -1.5,
+   "studs": [],
+   "slope": {
+    "angle_deg": null,
+    "flat_cells": 0,
+    "min_lip": 0.0008,
+    "lip": 0.0008
+   },
+   "note": "2/3-height (2 plates) wedge, high side +X; 1x4 variant runs along Z (connectors along Z)",
+   "files": [
+    {
+     "file": "Slopes/Slope_1x1x2-3/Slope_1x1x2-3_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Slope_1x1x2-3_Complete",
+     "guid": "edfd37c7f3e7a4423b5637d6f114b5ac",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      8947455821484762293
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Resources/1x1-2_3Slope - Placed.prefab",
+      "Assets/Resources/1x1-2_3Slope.prefab",
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_1x1x2-3/Slope_1x1x2-3_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Slope_1x1x2-3_SolidBody",
+     "guid": "00f027994632f481f9eecb3590c13530",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      3998812471721418272
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Slope_1x2",
+   "family": "Slopes",
+   "folder": "Slopes/Slope_1x2",
+   "shape": "slope",
+   "size": [
+    2,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": [
+    [
+     1,
+     0
+    ]
+   ],
+   "slope": {
+    "angle_deg": 45,
+    "flat_cells": 1,
+    "min_lip": 0.0016
+   },
+   "files": [
+    {
+     "file": "Slopes/Slope_1x2/Slope_1x2_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Slope_1x2_Complete",
+     "guid": "ffcb620be8deb40f6a1f070a0275e701",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      1293541810172995276
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x2Slope - Placed.prefab",
+      "Assets/Resources/1x2Slope.prefab"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_1x2/Slope_1x2_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Slope_1x2_HollowBody",
+     "guid": "0a684c91cf90c465daa9db636d72d91a",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Slopes/Slope_1x2/Slope_1x2_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Slope_1x2_HollowBody_NoBevel",
+     "guid": "0817474cf7bbb4bc39c745e4aa4518b5",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      401631329912737744
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_1x2/Slope_1x2_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Slope_1x2_SolidBody",
+     "guid": "5a869495905bb4d9eb69d853d2189fab",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Slopes/Slope_1x2/Slope_1x2_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Slope_1x2_SolidBody_NoBevel",
+     "guid": "691d80aaccbd24c42a9b93b64323005c",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      3133764255893092776
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Slope_1x2_Inverted",
+   "family": "Slopes",
+   "folder": "Slopes/Slope_1x2_Inverted",
+   "shape": "slope_inverted",
+   "size": [
+    2,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "slope": {
+    "angle_deg": 45,
+    "flat_cells": 1,
+    "min_lip": 0.0016
+   },
+   "files": [
+    {
+     "file": "Slopes/Slope_1x2_Inverted/Slope_1x2_Inverted_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Slope_1x2_Inverted_Complete",
+     "guid": "16b7af773ac2d4afc95acc6074dc9f5d",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      3508588571457314370
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x2SlopeInverted - Placed.prefab",
+      "Assets/Resources/1x2SlopeInverted.prefab"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_1x2_Inverted/Slope_1x2_Inverted_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Slope_1x2_Inverted_HollowBody",
+     "guid": "310ee9c6767464a8a982fb49159daf69",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -4423795422912902238
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_1x2_Inverted/Slope_1x2_Inverted_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Slope_1x2_Inverted_SolidBody",
+     "guid": "fe82833e164084ca5a2a7fba2162cb07",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -6122365266489183019
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Slope_1x2x3",
+   "family": "Slopes",
+   "folder": "Slopes/Slope_1x2x3",
+   "shape": "slope",
+   "size": [
+    2,
+    1
+   ],
+   "height_plates": 9,
+   "bottom_plates": -1.5,
+   "studs": [
+    [
+     1,
+     0
+    ]
+   ],
+   "slope": {
+    "angle_deg": 73,
+    "flat_cells": 1,
+    "min_lip": 0.0016
+   },
+   "files": [
+    {
+     "file": "Slopes/Slope_1x2x3/Slope_1x2x3_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Slope_1x2x3_Complete",
+     "guid": "8af14908aaef044d2a6fca94a788488a",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -8070799192665740776
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x2x3Slope.prefab"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_1x2x3/Slope_1x2x3_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Slope_1x2x3_HollowBody",
+     "guid": "b7cccab3505a342ef89814946a966b79",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Slopes/Slope_1x2x3/Slope_1x2x3_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Slope_1x2x3_SolidBody",
+     "guid": "834e6e98a97f34432aa4c32ce68cee6e",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "Slope_1x3",
+   "family": "Slopes",
+   "folder": "Slopes/Slope_1x3",
+   "shape": "slope",
+   "size": [
+    3,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": [
+    [
+     2,
+     0
+    ]
+   ],
+   "slope": {
+    "angle_deg": 33,
+    "flat_cells": 1,
+    "min_lip": 0.0016
+   },
+   "files": [
+    {
+     "file": "Slopes/Slope_1x3/Slope_1x3_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Slope_1x3_Complete",
+     "guid": "16579b57e9ae246ac82248de74ff5e5a",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      9119962407987461182
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x3Slope - Placed.prefab",
+      "Assets/Resources/1x3Slope.prefab"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_1x3/Slope_1x3_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Slope_1x3_HollowBody",
+     "guid": "54d6d96cc632045ac979af50302526ec",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Slopes/Slope_1x3/Slope_1x3_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Slope_1x3_HollowBody_NoBevel",
+     "guid": "5e80ca165f54b4ac2b6db6e1d37bcf17",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -1265378529647897953
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_1x3/Slope_1x3_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Slope_1x3_SolidBody",
+     "guid": "0514cfb391b034285bd530c143d921fc",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Slopes/Slope_1x3/Slope_1x3_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Slope_1x3_SolidBody_NoBevel",
+     "guid": "a875433d300ee49ed8e4014c9a921265",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -9213066544345054581
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Slope_1x4",
+   "family": "Slopes",
+   "folder": "Slopes/Slope_1x4",
+   "shape": "slope",
+   "size": [
+    4,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": [
+    [
+     3,
+     0
+    ]
+   ],
+   "slope": {
+    "angle_deg": 18,
+    "flat_cells": 1,
+    "min_lip": 0.0016
+   },
+   "files": [
+    {
+     "file": "Slopes/Slope_1x4/Slope_1x4_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Slope_1x4_Complete",
+     "guid": "cf9d6be7dd5204534859a12d135d410b",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      8592048090100981297
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x4Slope - Placed.prefab",
+      "Assets/Resources/1x4Slope.prefab"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_1x4/Slope_1x4_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Slope_1x4_HollowBody",
+     "guid": "a15dafa24cecf4d47b5636784649d4c0",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Slopes/Slope_1x4/Slope_1x4_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Slope_1x4_HollowBody_NoBevel",
+     "guid": "ad325bcece2f948919b2f4656ffd59fc",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      4158550022977358545
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_1x4/Slope_1x4_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Slope_1x4_SolidBody",
+     "guid": "ecf83b43ec9024be299fb12b1d2efa16",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Slopes/Slope_1x4/Slope_1x4_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Slope_1x4_SolidBody_NoBevel",
+     "guid": "4e12c069e8221417b9d3cbb50233d5be",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -1733912369294414215
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Slope_1x4x2-3",
+   "family": "Slopes",
+   "folder": "Slopes/Slope_1x4x2-3",
+   "shape": "slope",
+   "size": [
+    1,
+    4
+   ],
+   "height_plates": 2,
+   "bottom_plates": -1.5,
+   "studs": [],
+   "slope": {
+    "angle_deg": null,
+    "flat_cells": 0,
+    "min_lip": 0.0008,
+    "lip": 0.0008
+   },
+   "note": "2/3-height (2 plates) wedge, high side +X; 1x4 variant runs along Z (connectors along Z)",
+   "files": [
+    {
+     "file": "Slopes/Slope_1x4x2-3/Slope_1x4x2-3_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Slope_1x4x2-3_Complete",
+     "guid": "4246b72c5100944c89bcbfefad2bd5b3",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -5805454270036199996
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Resources/1x4-2_3Slope - Placed.prefab",
+      "Assets/Resources/1x4-2_3Slope.prefab",
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_1x4x2-3/Slope_1x4x2-3_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Slope_1x4x2-3_SolidBody",
+     "guid": "fcb75b74b97b54623a0868804351f96d",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      4461862648615533422
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Slope_2x2",
+   "family": "Slopes",
+   "folder": "Slopes/Slope_2x2",
+   "shape": "slope",
+   "size": [
+    2,
+    2
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": [
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ]
+   ],
+   "slope": {
+    "angle_deg": 45,
+    "flat_cells": 1,
+    "min_lip": 0.0016
+   },
+   "files": [
+    {
+     "file": "Slopes/Slope_2x2/Slope_2x2_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Slope_2x2_Complete",
+     "guid": "797b6a559aedb433f93ada159160aabd",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -2538813143022482412
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/2x2Slope - Placed.prefab",
+      "Assets/Resources/2x2Slope.prefab"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_2x2/Slope_2x2_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Slope_2x2_HollowBody",
+     "guid": "2f62e1d192324482d822274cfc05f243",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Slopes/Slope_2x2/Slope_2x2_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Slope_2x2_HollowBody_NoBevel",
+     "guid": "52d7a1461aff44bbcb4f0c8309f8d8a5",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -8984864573839673976
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_2x2/Slope_2x2_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Slope_2x2_SolidBody",
+     "guid": "b1b86abcacef549d8b4a54382843daf2",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Slopes/Slope_2x2/Slope_2x2_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Slope_2x2_SolidBody_NoBevel",
+     "guid": "9267b040009bc4647b994ac7ec5398aa",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -291397147737461078
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Slope_Corner_2x2",
+   "family": "Slopes",
+   "folder": "Slopes/Slope_Corner_2x2",
+   "shape": "corner_slope",
+   "size": [
+    2,
+    2
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": [
+    [
+     1,
+     1
+    ]
+   ],
+   "slope": {
+    "angle_deg": 45,
+    "flat_cells": 1,
+    "min_lip": 0.0008
+   },
+   "files": [
+    {
+     "file": "Slopes/Slope_Corner_2x2/Slope_Corner_2x2_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Corner_2x2_Complete",
+     "guid": "bf39bce1fbb834c44a74f3c3866b6a73",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      6503436045309741318
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/2x2CornerSlope - Placed.prefab",
+      "Assets/Resources/2x2CornerSlope.prefab"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_Corner_2x2/Slope_Corner_2x2_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Corner_2x2_HollowBody",
+     "guid": "a383185313ced423ebb167a7d0a363c3",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      2400339237857727962
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_Corner_2x2/Slope_Corner_2x2_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Corner_2x2_SolidBody",
+     "guid": "6a7a7592975fb4422b8ac8bc8b4ccd65",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      7272684702512119577
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Slope_Corner_3x3",
+   "family": "Slopes",
+   "folder": "Slopes/Slope_Corner_3x3",
+   "shape": "corner_slope",
+   "size": [
+    3,
+    3
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": [
+    [
+     2,
+     2
+    ]
+   ],
+   "slope": {
+    "angle_deg": 33,
+    "flat_cells": 1,
+    "min_lip": 0.0008
+   },
+   "files": [
+    {
+     "file": "Slopes/Slope_Corner_3x3/Slope_Corner_3x3_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Corner_3x3_Complete",
+     "guid": "541dbd6e20ab3449e9c1ac9e4376d89c",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      6035168433501024876
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/3x3CornerSlope - Placed.prefab",
+      "Assets/Resources/3x3CornerSlope.prefab"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_Corner_3x3/Slope_Corner_3x3_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Corner_3x3_HollowBody",
+     "guid": "1f1aecac3658e4a03bd8085268fa4a4a",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      7215532761686794062
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_Corner_3x3/Slope_Corner_3x3_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Corner_3x3_SolidBody",
+     "guid": "fea1b19c10a254bd0bd1d47c65bf66f4",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      2341939545110718052
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Slope_Corner_4x4",
+   "family": "Slopes",
+   "folder": "Slopes/Slope_Corner_4x4",
+   "shape": "corner_slope",
+   "size": [
+    4,
+    4
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": [
+    [
+     3,
+     3
+    ]
+   ],
+   "slope": {
+    "angle_deg": 18,
+    "flat_cells": 1,
+    "min_lip": 0.0008
+   },
+   "files": [
+    {
+     "file": "Slopes/Slope_Corner_4x4/Slope_Corner_4x4_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Corner_4x4_Complete",
+     "guid": "8915548e2fef74e8f8a650b45c7ff67a",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -4703184657675060824
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/4x4CornerSlope - Placed.prefab",
+      "Assets/Resources/4x4CornerSlope.prefab"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_Corner_4x4/Slope_Corner_4x4_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Corner_4x4_HollowBody",
+     "guid": "07075b5063d494486acfa53a6e31d08a",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -1992737408373519832
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Slopes/Slope_Corner_4x4/Slope_Corner_4x4_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Corner_4x4_SolidBody",
+     "guid": "3ef1fce6862df4bf89e2432fbabe0401",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      2087900427076881482
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Tile_1x1",
+   "family": "Tiles",
+   "folder": "Tiles/Tile_1x1",
+   "shape": "box",
+   "size": [
+    1,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "files": [
+    {
+     "file": "Tiles/Tile_1x1/Tile_1x1_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_1x1_Complete",
+     "guid": "8af1a6c5c510f480fbed7685efbf4db6",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -2787826082196537194
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Prefabs/NatureScene.prefab",
+      "Assets/Resources/1x1Tile - Placed.prefab",
+      "Assets/Resources/1x1Tile.prefab"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_1x1/Tile_1x1_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Tile_1x1_HollowBody",
+     "guid": "9fa28382560904ed2bccc99676d5e494",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_1x1/Tile_1x1_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Tile_1x1_HollowBody_NoBevel",
+     "guid": "840bea704cc824fc79e9ad800f632ddd",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      8400006838361860939
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_1x1/Tile_1x1_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Tile_1x1_SolidBody",
+     "guid": "34f8493584bd8485380024404ab18837",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_1x1/Tile_1x1_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Tile_1x1_SolidBody_NoBevel",
+     "guid": "3b95809e7eccf420a9eb41e9d617eb11",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -2117484658973385311
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Tile_1x10",
+   "family": "Tiles",
+   "folder": "Tiles/Tile_1x10",
+   "shape": "box",
+   "size": [
+    10,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "files": [
+    {
+     "file": "Tiles/Tile_1x10/Tile_1x10_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_1x10_Complete",
+     "guid": "c68726b09ef334528bbd4b72f9e6df48",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -1445654430636573457
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x10Tile - Placed.prefab",
+      "Assets/Resources/1x10Tile.prefab"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_1x10/Tile_1x10_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Tile_1x10_HollowBody",
+     "guid": "fb1c3145f63cd4794ac2f91c898e75f5",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      4777537666839805878
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_1x10/Tile_1x10_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Tile_1x10_HollowBody_NoBevel",
+     "guid": "b693cdf26429c486c8866ba5b5899b1e",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -3281535294825906478
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_1x10/Tile_1x10_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Tile_1x10_SolidBody",
+     "guid": "a2f4aea101bf34d69851edad07d22847",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      7579898313361351363
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_1x10/Tile_1x10_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Tile_1x10_SolidBody_NoBevel",
+     "guid": "c6e36db818db04bfd8588eab924d1c83",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -6717757014263753755
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Tile_1x2",
+   "family": "Tiles",
+   "folder": "Tiles/Tile_1x2",
+   "shape": "box",
+   "size": [
+    2,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "files": [
+    {
+     "file": "Tiles/Tile_1x2/Tile_1x2_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_1x2_Complete",
+     "guid": "f1416dfebbf074b00ada29f7cbd950eb",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -6714474705893732472
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Prefabs/NatureScene.prefab",
+      "Assets/Resources/1x2Tile - Placed.prefab",
+      "Assets/Resources/1x2Tile.prefab"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_1x2/Tile_1x2_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Tile_1x2_HollowBody",
+     "guid": "791687885b5e94b7192d83d09ec8c828",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_1x2/Tile_1x2_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Tile_1x2_HollowBody",
+     "guid": "a43d323e74b78466fa589a256f13d06c",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      5543296917188478792
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_1x2/Tile_1x2_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Tile_1x2_SolidBody",
+     "guid": "94fab9c242b5c449f90a8d6c0602719f",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_1x2/Tile_1x2_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Tile_1x2_SolidBody_NoBevel",
+     "guid": "19807852773dd4fde8305ba6666a7a18",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -384344152684795786
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Tile_1x3",
+   "family": "Tiles",
+   "folder": "Tiles/Tile_1x3",
+   "shape": "box",
+   "size": [
+    3,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "files": [
+    {
+     "file": "Tiles/Tile_1x3/Tile_1x3_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_1x3_Complete",
+     "guid": "d5616f743eb2746f9989980468c8abd3",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      6270263121857088359
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x3Tile - Placed.prefab",
+      "Assets/Resources/1x3Tile.prefab"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_1x3/Tile_1x3_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Tile_1x3_HollowBody",
+     "guid": "c1891a98a9a9d46708c9905edb7ebfdf",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_1x3/Tile_1x3_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Tile_1x3_HollowBody_NoBevel",
+     "guid": "a26b39bd0c0e34c5ba5ff6d2ae304a65",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      3997252155275095761
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_1x3/Tile_1x3_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Tile_1x3_SolidBody",
+     "guid": "8c4032644f5e24c44b7bbbd18a6807c7",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_1x3/Tile_1x3_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Tile_1x3_SolidBody_NoBevel",
+     "guid": "79d7b5b90b09b4b4fbd336334c4fef01",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      1930828042954089294
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Tile_1x4",
+   "family": "Tiles",
+   "folder": "Tiles/Tile_1x4",
+   "shape": "box",
+   "size": [
+    4,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "files": [
+    {
+     "file": "Tiles/Tile_1x4/Tile_1x4_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_1x4_Complete",
+     "guid": "c55479117138b4641bc7e591d74aa1e2",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -6058702092227891373
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Prefabs/NatureScene.prefab",
+      "Assets/Resources/1x4Tile - Placed.prefab",
+      "Assets/Resources/1x4Tile.prefab"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_1x4/Tile_1x4_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Tile_1x4_HollowBody",
+     "guid": "b6c01887d5b444726a7e29a729b5ad28",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_1x4/Tile_1x4_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Tile_1x4_HollowBody_NoBevel",
+     "guid": "f318952a277194e278b33e973a32b7e9",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      934487796056681267
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_1x4/Tile_1x4_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Tile_1x4_SolidBody",
+     "guid": "d35739a0e91e04ebfbbb18b8a83f283a",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_1x4/Tile_1x4_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Tile_1x4_SolidBody_NoBevel",
+     "guid": "8a69de21748994b1eac6c4e79209884b",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      4246209015241642803
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Tile_1x6",
+   "family": "Tiles",
+   "folder": "Tiles/Tile_1x6",
+   "shape": "box",
+   "size": [
+    6,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "files": [
+    {
+     "file": "Tiles/Tile_1x6/Tile_1x6_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_1x6_Complete",
+     "guid": "2c04715cd78c14edfa0681e3d72052ac",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_1x6/Tile_1x6_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Tile_1x6_HollowBody",
+     "guid": "16c00140a0c6d49e3b4f56ce08e99101",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -7994297666480257058
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x6Tile - Placed.prefab",
+      "Assets/Resources/1x6Tile.prefab",
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_1x6/Tile_1x6_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Tile_1x6_SolidBody",
+     "guid": "35e3c21862c4e4f21b1c75b96616ed40",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      6135233168034270492
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Tile_1x8",
+   "family": "Tiles",
+   "folder": "Tiles/Tile_1x8",
+   "shape": "box",
+   "size": [
+    8,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "files": [
+    {
+     "file": "Tiles/Tile_1x8/Tile_1x8_Complete-HollowBody.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_1x8_Complete-HollowBody",
+     "guid": "fe24b8fa7db7944899bb6265539a2744",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      5952950207144732928
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Resources/1x8Tile - Placed.prefab",
+      "Assets/Resources/1x8Tile.prefab",
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_1x8/Tile_1x8_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_1x8_Complete",
+     "guid": "552baec3c51384d76934e2b7a0cd5be8",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_1x8/Tile_1x8_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Tile_1x8_SolidBody",
+     "guid": "6aa787d0a7afd489fb7c2ac00998fcf6",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      3621351128134978531
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Tile_2x2",
+   "family": "Tiles",
+   "folder": "Tiles/Tile_2x2",
+   "shape": "box",
+   "size": [
+    2,
+    2
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "files": [
+    {
+     "file": "Tiles/Tile_2x2/Tile_2x2_Complete+HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Tile_2x2_Complete+HollowBody_NoBevel",
+     "guid": "f5ab5dd86b6554e94a2045e9fca9aa6b",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      2331013928504239841
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_2x2/Tile_2x2_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_2x2_Complete",
+     "guid": "2dc8bec7ca430460f8475953825ca260",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -8338598605111023405
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Prefabs/NatureScene.prefab",
+      "Assets/Resources/2x2Tile - Placed.prefab",
+      "Assets/Resources/2x2Tile.prefab"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_2x2/Tile_2x2_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Tile_2x2_HollowBody",
+     "guid": "a3270edb7e6a9495e8613167da696fca",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_2x2/Tile_2x2_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Tile_2x2_SolidBody",
+     "guid": "ab1120c9f30af4b4199dbe92d7aef94a",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_2x2/Tile_2x2_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Tile_2x2_SolidBody_NoBevel",
+     "guid": "b89ef3ae04bf74ba19c794133727a636",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      9020815842931854921
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Tile_2x2_Corner",
+   "family": "Tiles",
+   "folder": "Tiles/Tile_2x2_Corner",
+   "shape": "box",
+   "size": [
+    2,
+    2
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "cells": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ]
+   ],
+   "note": "L shape; missing cell (-X,+Z) per connector layout",
+   "files": [
+    {
+     "file": "Tiles/Tile_2x2_Corner/Tile_2x2_Corner_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_2x2_Corner_Complete",
+     "guid": "60d9b9ac16d614ae688f43df44bf47ef",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      1102457469446066216
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Resources/2x2CornerTile - Placed.prefab",
+      "Assets/Resources/2x2CornerTile.prefab",
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_2x2_Corner/Tile_2x2_Corner_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Tile_2x2_Corner_SolidBody",
+     "guid": "b456e5ba81ac146429c5d1215f6d1510",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -3463520483103145272
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Tile_2x3",
+   "family": "Tiles",
+   "folder": "Tiles/Tile_2x3",
+   "shape": "box",
+   "size": [
+    3,
+    2
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "files": [
+    {
+     "file": "Tiles/Tile_2x3/Tile_2x3_Complete-HollowBody.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_2x3_Complete-HollowBody",
+     "guid": "c77bad38871dc4fa2aba3be6a8037710",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -7773910122194904890
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Resources/2x3Tile - Placed.prefab",
+      "Assets/Resources/2x3Tile.prefab",
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_2x3/Tile_2x3_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_2x3_Complete",
+     "guid": "fd0e80fb1c1ce47e0a71aa5052138a7a",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_2x3/Tile_2x3_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Tile_2x3_SolidBody",
+     "guid": "de63cc590b6704855815204e5c814a0b",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      4168108755306940300
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Tile_2x4",
+   "family": "Tiles",
+   "folder": "Tiles/Tile_2x4",
+   "shape": "box",
+   "size": [
+    4,
+    2
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "files": [
+    {
+     "file": "Tiles/Tile_2x4/Tile_2x4_Complete+HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Tile_2x4_Complete+HollowBody_NoBevel",
+     "guid": "1084b5782e09c46a9b4ef93d2a3c4781",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -549861845236167820
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_2x4/Tile_2x4_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_2x4_Complete",
+     "guid": "6b028cc5888d048d0925c9558398f0be",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -7373212347387429202
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Prefabs/NatureScene.prefab",
+      "Assets/Resources/2x4Tile - Placed.prefab",
+      "Assets/Resources/2x4Tile.prefab"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_2x4/Tile_2x4_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Tile_2x4_HollowBody",
+     "guid": "4b29ecd6ebd37447aafbe99f449206d9",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_2x4/Tile_2x4_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Tile_2x4_SolidBody",
+     "guid": "5e492d3a2e4d94591a8c8c32a35ed369",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_2x4/Tile_2x4_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Tile_2x4_SolidBody_NoBevel",
+     "guid": "395410367ce434982b861bfc77523520",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -8561472664913899931
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Tile_2x6",
+   "family": "Tiles",
+   "folder": "Tiles/Tile_2x6",
+   "shape": "box",
+   "size": [
+    6,
+    2
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "files": [
+    {
+     "file": "Tiles/Tile_2x6/Tile_2x6_Complete-HollowBody.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_2x6_Complete-HollowBody",
+     "guid": "db8675070b0dc4f82af6cebca16a0db5",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -1761507600644905062
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Resources/2x6Tile - Placed.prefab",
+      "Assets/Resources/2x6Tile.prefab",
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_2x6/Tile_2x6_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_2x6_Complete",
+     "guid": "0e4f562bbbbd245c090bc368d2e4fed5",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_2x6/Tile_2x6_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Tile_2x6_SolidBody",
+     "guid": "c0f6095a5157b454d894c8e8c89bbad0",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -6030749215220484512
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Tile_2x8",
+   "family": "Tiles",
+   "folder": "Tiles/Tile_2x8",
+   "shape": "box",
+   "size": [
+    8,
+    2
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "files": [
+    {
+     "file": "Tiles/Tile_2x8/Tile_2x8_Complete+HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Tile_2x8_Complete+HollowBody_NoBevel",
+     "guid": "86182954227304acca8e212b2a29b685",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      3059775469784666474
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_2x8/Tile_2x8_Complete-HollowBody.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_2x8_Complete-HollowBody",
+     "guid": "37bda2dc856bf49a0817e3556f6c0a34",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -4327259031156653939
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Resources/2x8Tile - Placed.prefab",
+      "Assets/Resources/2x8Tile.prefab"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_2x8/Tile_2x8_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_2x8_Complete",
+     "guid": "bfcc41df9784445489b758bc6775b48d",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_2x8/Tile_2x8_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Tile_2x8_SolidBody",
+     "guid": "517116daaa48240e1830c610b9db25bc",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Tiles/Tile_2x8/Tile_2x8_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Tile_2x8_SolidBody_NoBevel",
+     "guid": "27e5997638e584cfa83e6358e79fd6d3",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -6748108647064591225
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Tile_Round_1x1",
+   "family": "Tiles",
+   "folder": "Tiles/Tile_Round_1x1",
+   "shape": "round",
+   "size": [
+    1,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "files": [
+    {
+     "file": "Tiles/Tile_Round_1x1/Tile_Round_1x1_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Tile_Round_1x1_Complete",
+     "guid": "2ac3ffce5fbb140d9bf488c74fbf053a",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      7725127515873793861
+     ],
+     "name_source": "unknown-original-name (meta patch)",
+     "referenced_by": [
+      "Assets/Resources/1x1RoundTile - Placed.prefab",
+      "Assets/Resources/1x1RoundTile.prefab",
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Tiles/Tile_Round_1x1/Tile_Round_1x1_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Tile_Round_1x1_SolidBody",
+     "guid": "e0f0ae037381544c0b32af4e526438b0",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      3927138021457702319
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Window_1x2",
+   "family": "Windows",
+   "folder": "Windows/Window_1x2",
+   "shape": "window",
+   "size": [
+    2,
+    1
+   ],
+   "height_plates": 6,
+   "bottom_plates": -3,
+   "studs": "all",
+   "window": {
+    "frame": 0.0015,
+    "sill_plates": 1
+   },
+   "files": [
+    {
+     "file": "Windows/Window_1x2/Window_1x2_Complete.fbx",
+     "variant": "complete",
+     "mesh_name": "Window_1x2_Complete",
+     "guid": "0a66a856a918a49c2a5bd790aeed6bc3",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      2291607942833550444
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Resources/1x2Window - Placed.prefab",
+      "Assets/Resources/1x2Window.prefab"
+     ]
+    },
+    {
+     "file": "Windows/Window_1x2/Window_1x2_HollowBody.fbx",
+     "variant": "hollow",
+     "mesh_name": "Window_1x2_HollowBody",
+     "guid": "045e6520c206e4254a5d299e39023966",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Windows/Window_1x2/Window_1x2_HollowBody_NoBevel.fbx",
+     "variant": "hollow_nobevel",
+     "mesh_name": "Window_1x2_HollowBody_NoBevel",
+     "guid": "023359dfb006c4b888dd8da58f339ec9",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -9055483527060196791
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    },
+    {
+     "file": "Windows/Window_1x2/Window_1x2_SolidBody.fbx",
+     "variant": "solid",
+     "mesh_name": "Window_1x2_SolidBody",
+     "guid": "dbd285998d0254d56a28b883cd6011eb",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    },
+    {
+     "file": "Windows/Window_1x2/Window_1x2_SolidBody_NoBevel.fbx",
+     "variant": "solid_nobevel",
+     "mesh_name": "Window_1x2_SolidBody_NoBevel",
+     "guid": "137ab56e46176407181af5f8aab545d3",
+     "upstream_global_scale": 1.07,
+     "upstream_mesh_file_ids": [
+      -397734621175620119
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Round_Stud",
+   "family": "z_Extras",
+   "folder": "z_Extras",
+   "shape": "stud_hollow",
+   "size": [
+    1,
+    1
+   ],
+   "studs": [],
+   "files": [
+    {
+     "file": "z_Extras/Round_Stud.fbx",
+     "variant": "complete",
+     "mesh_name": "Round_Stud",
+     "guid": "801ded63191b64a10b8d4ebd519248f4",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      -2454713794861659202
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Slope_Tube",
+   "family": "z_Extras",
+   "folder": "z_Extras",
+   "shape": "tube_slope",
+   "size": [
+    1,
+    1
+   ],
+   "studs": [],
+   "files": [
+    {
+     "file": "z_Extras/Slope_Tube.fbx",
+     "variant": "complete",
+     "mesh_name": "Slope_Tube",
+     "guid": "d43302c0e0df946878889020f1424e40",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "Stud",
+   "family": "z_Extras",
+   "folder": "z_Extras",
+   "shape": "stud",
+   "size": [
+    1,
+    1
+   ],
+   "studs": [],
+   "files": [
+    {
+     "file": "z_Extras/Stud.fbx",
+     "variant": "complete",
+     "mesh_name": "Stud",
+     "guid": "114bcc953e4884a7aa02d758cb99d0e7",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [
+      393121357274687783
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Tube",
+   "family": "z_Extras",
+   "folder": "z_Extras",
+   "shape": "tube",
+   "size": [
+    1,
+    1
+   ],
+   "studs": [],
+   "files": [
+    {
+     "file": "z_Extras/Tube.fbx",
+     "variant": "complete",
+     "mesh_name": "Tube",
+     "guid": "64e8cf6c9f5de4624b40e76a54df46a8",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "Tube_Short",
+   "family": "z_Extras",
+   "folder": "z_Extras",
+   "shape": "tube_short",
+   "size": [
+    1,
+    1
+   ],
+   "studs": [],
+   "files": [
+    {
+     "file": "z_Extras/Tube_Short.fbx",
+     "variant": "complete",
+     "mesh_name": "Tube_Short",
+     "guid": "02fe93992b9134695a7d9aa72b66063a",
+     "upstream_global_scale": 1.065,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "1x1",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    1,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/1x1.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "badf2d57dd5a04180a387a520e159301",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [
+      -5963442920211976399
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Prefabs/BrickCityscape.prefab",
+      "Assets/Prefabs/Hammer.prefab"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "1x10",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    10,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/1x10.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "675bdf0c3a5ba4ab28ba7ca05a3a0521",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "1x10Plate",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    10,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/1x10Plate.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "e4159de4a378642cbb79821642811ae6",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "1x10Tile",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    10,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/1x10Tile.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "d642af6cf198f4fcd90e2b92c5148b44",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "1x1Plate",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    1,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/1x1Plate.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "80a7a9415f5a3464a811b2320e29528f",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "1x1Tile",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    1,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/1x1Tile.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "12a157232c8de4ba4aac7bd6e592ffbc",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [
+      -5963442920211976399
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Prefabs/BrickCityscape.prefab"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "1x2",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    2,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/1x2.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "ace48abb3b27d478da9c1665078663ef",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [
+      -5963442920211976399
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Prefabs/Hammer.prefab"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "1x2Plate",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    2,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/1x2Plate.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "bbee6d41155a240adbafd4a17efd7cd4",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "1x2Tile",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    2,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/1x2Tile.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "7ed1294e6bc6f4be89a0bf521e4024bf",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [
+      -5963442920211976399
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Prefabs/BrickCityscape.prefab"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "1x4",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    4,
+    1
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/1x4.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "4b1df40ce3425432e9314af88521029a",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "1x4Plate",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    4,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/1x4Plate.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "4b17e46f83a9b462fac30bccd9ec9937",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "1x4Tile",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    4,
+    1
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/1x4Tile.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "ac91ef70ab35444fb8e0b7cb41be757f",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "2x2",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    2,
+    2
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/2x2.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "3bd2a5f37e9544bdf99275fb7bc94802",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "2x2Plate",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    2,
+    2
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/2x2Plate.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "7f2b694eddaaf44c9b6c6649072b7ddf",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "2x2Tile",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    2,
+    2
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/2x2Tile.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "5b9869841dda3487b949c7d917c96be1",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "2x4Plate",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    4,
+    2
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": "all",
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/2x4Plate.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "00720e90125c04ebb8fcc88f7be87d42",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "2x4Tile",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    4,
+    2
+   ],
+   "height_plates": 1,
+   "bottom_plates": -0.5,
+   "studs": [],
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/2x4Tile.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "18c59531f6d44479ba5f79ce3e1458b9",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [],
+     "name_source": "unreferenced (stem used)",
+     "referenced_by": []
+    }
+   ]
+  },
+  {
+   "name": "4x2",
+   "family": "z_OldModels",
+   "folder": "z_OldModels",
+   "shape": "box",
+   "size": [
+    4,
+    2
+   ],
+   "height_plates": 3,
+   "bottom_plates": -1.5,
+   "studs": "all",
+   "legacy": true,
+   "files": [
+    {
+     "file": "z_OldModels/4x2.fbx",
+     "variant": "complete",
+     "mesh_name": "Body_1",
+     "guid": "082f0b173a2904ad99f20ad6a7749102",
+     "upstream_global_scale": 1.0,
+     "upstream_mesh_file_ids": [
+      -5963442920211976399
+     ],
+     "name_source": "hash-verified",
+     "referenced_by": [
+      "Assets/Prefabs/BrickCityscape.prefab",
+      "Assets/Prefabs/Hammer.prefab",
+      "Assets/Prefabs/Screen.prefab",
+      "Assets/Resources/BrickGhost.prefab",
+      "Assets/Scenes/Main Scene.unity"
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,6559 @@
+[
+ {
+  "file": "Arches/Brick_1x3_Arch/Brick_1x3_Arch_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_1x3_Arch_Complete",
+  "mesh_file_id": -8739384063890720086,
+  "upstream_mesh_file_ids": [
+   -8739384063890720086
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 146,
+  "tris": 246
+ },
+ {
+  "file": "Arches/Brick_1x3_Arch/Brick_1x3_Arch_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_1x3_Arch_HollowBody",
+  "mesh_file_id": 2794109961086056732,
+  "upstream_mesh_file_ids": [
+   2794109961086056732
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 74,
+  "tris": 144
+ },
+ {
+  "file": "Arches/Brick_1x3_Arch/Brick_1x3_Arch_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_1x3_Arch_SolidBody",
+  "mesh_file_id": -1267985273458256665,
+  "upstream_mesh_file_ids": [
+   -1267985273458256665
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 58,
+  "tris": 112
+ },
+ {
+  "file": "Arches/Brick_1x4_Arch/Brick_1x4_Arch_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_1x4_Arch_Complete",
+  "mesh_file_id": -6402410196752924946,
+  "upstream_mesh_file_ids": [
+   -6402410196752924946
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 170,
+  "tris": 280
+ },
+ {
+  "file": "Arches/Brick_1x4_Arch/Brick_1x4_Arch_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_1x4_Arch_HollowBody",
+  "mesh_file_id": 8690412735392022435,
+  "upstream_mesh_file_ids": [
+   8690412735392022435
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 74,
+  "tris": 144
+ },
+ {
+  "file": "Arches/Brick_1x4_Arch/Brick_1x4_Arch_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_1x4_Arch_SolidBody",
+  "mesh_file_id": -1133428822396802290,
+  "upstream_mesh_file_ids": [
+   -1133428822396802290
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 58,
+  "tris": 112
+ },
+ {
+  "file": "Arches/Brick_1x6_Arch/Brick_1x6_Arch_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_1x6_Arch_Complete",
+  "mesh_file_id": -2064389047162867318,
+  "upstream_mesh_file_ids": [
+   -2064389047162867318
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0239,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 218,
+  "tris": 348
+ },
+ {
+  "file": "Arches/Brick_1x6_Arch/Brick_1x6_Arch_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_1x6_Arch_HollowBody",
+  "mesh_file_id": 1187830188626729247,
+  "upstream_mesh_file_ids": [
+   1187830188626729247
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0239,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 74,
+  "tris": 144
+ },
+ {
+  "file": "Arches/Brick_1x6_Arch/Brick_1x6_Arch_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_1x6_Arch_SolidBody",
+  "mesh_file_id": -4069944871601069052,
+  "upstream_mesh_file_ids": [
+   -4069944871601069052
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0239,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 58,
+  "tris": 112
+ },
+ {
+  "file": "Bricks/Brick_1x1/Brick_1x1_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_1x1_Complete",
+  "mesh_file_id": 4047860501499412163,
+  "upstream_mesh_file_ids": [
+   4047860501499412163
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 56,
+  "tris": 94
+ },
+ {
+  "file": "Bricks/Brick_1x1/Brick_1x1_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_1x1_HollowBody",
+  "mesh_file_id": 7990348753721009457,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 32,
+  "tris": 60
+ },
+ {
+  "file": "Bricks/Brick_1x1/Brick_1x1_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Brick_1x1_HollowBody_NoBevel",
+  "mesh_file_id": -6198864047793392816,
+  "upstream_mesh_file_ids": [
+   -6198864047793392816
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 16,
+  "tris": 28
+ },
+ {
+  "file": "Bricks/Brick_1x1/Brick_1x1_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_1x1_SolidBody",
+  "mesh_file_id": -4137307366638558841,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Bricks/Brick_1x1/Brick_1x1_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Brick_1x1_SolidBody_NoBevel",
+  "mesh_file_id": 3892171845944583718,
+  "upstream_mesh_file_ids": [
+   3892171845944583718
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Bricks/Brick_1x10/Brick_1x10_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_1x10_Complete",
+  "mesh_file_id": -365641137892825773,
+  "upstream_mesh_file_ids": [
+   -365641137892825773
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 416,
+  "tris": 598
+ },
+ {
+  "file": "Bricks/Brick_1x10/Brick_1x10_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_1x10_HollowBody",
+  "mesh_file_id": -7684015004026060043,
+  "upstream_mesh_file_ids": [
+   -7684015004026060043
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 176,
+  "tris": 258
+ },
+ {
+  "file": "Bricks/Brick_1x10/Brick_1x10_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Brick_1x10_HollowBody_NoBevel",
+  "mesh_file_id": -4094899329177763879,
+  "upstream_mesh_file_ids": [
+   -4094899329177763879
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 160,
+  "tris": 226
+ },
+ {
+  "file": "Bricks/Brick_1x10/Brick_1x10_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_1x10_SolidBody",
+  "mesh_file_id": 430954631345188222,
+  "upstream_mesh_file_ids": [
+   430954631345188222
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Bricks/Brick_1x10/Brick_1x10_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Brick_1x10_SolidBody_NoBevel",
+  "mesh_file_id": 4568534974655984002,
+  "upstream_mesh_file_ids": [
+   4568534974655984002
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Bricks/Brick_1x2/Brick_1x2_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_1x2_Complete",
+  "mesh_file_id": -9031240278408722307,
+  "upstream_mesh_file_ids": [
+   -9031240278408722307
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 96,
+  "tris": 150
+ },
+ {
+  "file": "Bricks/Brick_1x2/Brick_1x2_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_1x2_HollowBody",
+  "mesh_file_id": -2325331878339724461,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 48,
+  "tris": 82
+ },
+ {
+  "file": "Bricks/Brick_1x2/Brick_1x2_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Brick_1x2_HollowBody_NoBevel",
+  "mesh_file_id": 3100128127608479972,
+  "upstream_mesh_file_ids": [
+   3100128127608479972
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 32,
+  "tris": 50
+ },
+ {
+  "file": "Bricks/Brick_1x2/Brick_1x2_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_1x2_SolidBody",
+  "mesh_file_id": -8766518077952116002,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Bricks/Brick_1x2/Brick_1x2_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Brick_1x2_SolidBody_NoBevel",
+  "mesh_file_id": 2962210569379975165,
+  "upstream_mesh_file_ids": [
+   2962210569379975165
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Bricks/Brick_1x3/Brick_1x3_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_1x3_Complete",
+  "mesh_file_id": -8190449186959557402,
+  "upstream_mesh_file_ids": [
+   -8190449186959557402
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 136,
+  "tris": 206
+ },
+ {
+  "file": "Bricks/Brick_1x3/Brick_1x3_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_1x3_HollowBody",
+  "mesh_file_id": 661361885987124665,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 64,
+  "tris": 104
+ },
+ {
+  "file": "Bricks/Brick_1x3/Brick_1x3_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Brick_1x3_HollowBody_NoBevel",
+  "mesh_file_id": -8817485180858593558,
+  "upstream_mesh_file_ids": [
+   -8817485180858593558
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 48,
+  "tris": 72
+ },
+ {
+  "file": "Bricks/Brick_1x3/Brick_1x3_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_1x3_SolidBody",
+  "mesh_file_id": -8101157349946956648,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Bricks/Brick_1x3/Brick_1x3_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Brick_1x3_SolidBody_NoBevel",
+  "mesh_file_id": 3867578561609386630,
+  "upstream_mesh_file_ids": [
+   3867578561609386630
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Bricks/Brick_1x4/Brick_1x4_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_1x4_Complete",
+  "mesh_file_id": 4151752812887827602,
+  "upstream_mesh_file_ids": [
+   4151752812887827602
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 176,
+  "tris": 262
+ },
+ {
+  "file": "Bricks/Brick_1x4/Brick_1x4_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_1x4_HollowBody",
+  "mesh_file_id": 9002706629581293581,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 80,
+  "tris": 126
+ },
+ {
+  "file": "Bricks/Brick_1x4/Brick_1x4_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Brick_1x4_HollowBody_NoBevel",
+  "mesh_file_id": -7094641262858654551,
+  "upstream_mesh_file_ids": [
+   -7094641262858654551
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 64,
+  "tris": 94
+ },
+ {
+  "file": "Bricks/Brick_1x4/Brick_1x4_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_1x4_SolidBody",
+  "mesh_file_id": 9059178725530954996,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Bricks/Brick_1x4/Brick_1x4_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Brick_1x4_SolidBody_NoBevel",
+  "mesh_file_id": 2892865974015904513,
+  "upstream_mesh_file_ids": [
+   2892865974015904513
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Bricks/Brick_1x6/Brick_1x6_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_1x6_Complete",
+  "mesh_file_id": -1796566443659330726,
+  "upstream_mesh_file_ids": [
+   -1796566443659330726
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0239,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 256,
+  "tris": 374
+ },
+ {
+  "file": "Bricks/Brick_1x6/Brick_1x6_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_1x6_HollowBody",
+  "mesh_file_id": 7017125736742206294,
+  "upstream_mesh_file_ids": [
+   7017125736742206294
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0239,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 112,
+  "tris": 170
+ },
+ {
+  "file": "Bricks/Brick_1x6/Brick_1x6_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_1x6_SolidBody",
+  "mesh_file_id": -7442994202669622048,
+  "upstream_mesh_file_ids": [
+   -7442994202669622048
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0239,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Bricks/Brick_1x8/Brick_1x8_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_1x8_Complete",
+  "mesh_file_id": 7087868006114543687,
+  "upstream_mesh_file_ids": [
+   7087868006114543687
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0319,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 336,
+  "tris": 486
+ },
+ {
+  "file": "Bricks/Brick_1x8/Brick_1x8_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_1x8_HollowBody",
+  "mesh_file_id": -7669848285573524936,
+  "upstream_mesh_file_ids": [
+   -7669848285573524936
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0319,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 144,
+  "tris": 214
+ },
+ {
+  "file": "Bricks/Brick_1x8/Brick_1x8_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_1x8_SolidBody",
+  "mesh_file_id": -1028506163573225932,
+  "upstream_mesh_file_ids": [
+   -1028506163573225932
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0319,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Bricks/Brick_2x2/Brick_2x2_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_2x2_Complete",
+  "mesh_file_id": 3165059112001151810,
+  "upstream_mesh_file_ids": [
+   3165059112001151810
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0065,
+    0.0079
+   ]
+  ],
+  "verts": 168,
+  "tris": 256
+ },
+ {
+  "file": "Bricks/Brick_2x2/Brick_2x2_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_2x2_HollowBody",
+  "mesh_file_id": 8923236155514895451,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 72,
+  "tris": 120
+ },
+ {
+  "file": "Bricks/Brick_2x2/Brick_2x2_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Brick_2x2_HollowBody_NoBevel",
+  "mesh_file_id": 652874246274987942,
+  "upstream_mesh_file_ids": [
+   652874246274987942
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 56,
+  "tris": 88
+ },
+ {
+  "file": "Bricks/Brick_2x2/Brick_2x2_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_2x2_SolidBody",
+  "mesh_file_id": 3178378998582367144,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Bricks/Brick_2x2/Brick_2x2_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Brick_2x2_SolidBody_NoBevel",
+  "mesh_file_id": -4829072286563320259,
+  "upstream_mesh_file_ids": [
+   -4829072286563320259
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Bricks/Brick_2x2_Corner/Brick_2x2_Corner_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_2x2_Corner_Complete",
+  "mesh_file_id": 4417872634275097404,
+  "upstream_mesh_file_ids": [
+   4417872634275097404
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0065,
+    0.0079
+   ]
+  ],
+  "verts": 121,
+  "tris": 196
+ },
+ {
+  "file": "Bricks/Brick_2x2_Corner/Brick_2x2_Corner_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_2x2_Corner_HollowBody",
+  "mesh_file_id": 968793734231460142,
+  "upstream_mesh_file_ids": [
+   968793734231460142
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 49,
+  "tris": 94
+ },
+ {
+  "file": "Bricks/Brick_2x2_Corner/Brick_2x2_Corner_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_2x2_Corner_SolidBody",
+  "mesh_file_id": 4784415628653499047,
+  "upstream_mesh_file_ids": [
+   4784415628653499047
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 36,
+  "tris": 68
+ },
+ {
+  "file": "Bricks/Brick_2x3/Brick_2x3_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_2x3_Complete",
+  "mesh_file_id": 4937820704872165802,
+  "upstream_mesh_file_ids": [
+   4937820704872165802
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0119,
+    0.0065,
+    0.0079
+   ]
+  ],
+  "verts": 256,
+  "tris": 384
+ },
+ {
+  "file": "Bricks/Brick_2x3/Brick_2x3_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_2x3_HollowBody",
+  "mesh_file_id": 4009195618479928762,
+  "upstream_mesh_file_ids": [
+   4009195618479928762
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0119,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 112,
+  "tris": 180
+ },
+ {
+  "file": "Bricks/Brick_2x3/Brick_2x3_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_2x3_SolidBody",
+  "mesh_file_id": -4576774772208496622,
+  "upstream_mesh_file_ids": [
+   -4576774772208496622
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0119,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Bricks/Brick_2x4/Brick_2x4_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_2x4_Complete",
+  "mesh_file_id": -3159978364427899027,
+  "upstream_mesh_file_ids": [
+   -3159978364427899027
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0065,
+    0.0079
+   ]
+  ],
+  "verts": 344,
+  "tris": 512
+ },
+ {
+  "file": "Bricks/Brick_2x4/Brick_2x4_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_2x4_HollowBody",
+  "mesh_file_id": 6907828766910747350,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 152,
+  "tris": 240
+ },
+ {
+  "file": "Bricks/Brick_2x4/Brick_2x4_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Brick_2x4_HollowBody_NoBevel",
+  "mesh_file_id": 5838977262975087403,
+  "upstream_mesh_file_ids": [
+   5838977262975087403
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 136,
+  "tris": 208
+ },
+ {
+  "file": "Bricks/Brick_2x4/Brick_2x4_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_2x4_SolidBody",
+  "mesh_file_id": -1735478624095498780,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Bricks/Brick_2x4/Brick_2x4_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Brick_2x4_SolidBody_NoBevel",
+  "mesh_file_id": 6538896473265349376,
+  "upstream_mesh_file_ids": [
+   6538896473265349376
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Bricks/Brick_2x6/Brick_2x6_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_2x6_Complete",
+  "mesh_file_id": 2145964417238504352,
+  "upstream_mesh_file_ids": [
+   2145964417238504352
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0239,
+    0.0065,
+    0.0079
+   ]
+  ],
+  "verts": 520,
+  "tris": 768
+ },
+ {
+  "file": "Bricks/Brick_2x6/Brick_2x6_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_2x6_HollowBody",
+  "mesh_file_id": -8167150723122388064,
+  "upstream_mesh_file_ids": [
+   -8167150723122388064
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0239,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 232,
+  "tris": 360
+ },
+ {
+  "file": "Bricks/Brick_2x6/Brick_2x6_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_2x6_SolidBody",
+  "mesh_file_id": -6125873032034406246,
+  "upstream_mesh_file_ids": [
+   -6125873032034406246
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0239,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Bricks/Brick_2x8/Brick_2x8_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_2x8_Complete",
+  "mesh_file_id": 5400634216820004204,
+  "upstream_mesh_file_ids": [
+   5400634216820004204
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0319,
+    0.0065,
+    0.0079
+   ]
+  ],
+  "verts": 696,
+  "tris": 1024
+ },
+ {
+  "file": "Bricks/Brick_2x8/Brick_2x8_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_2x8_HollowBody",
+  "mesh_file_id": 6101341028230671325,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0319,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 312,
+  "tris": 480
+ },
+ {
+  "file": "Bricks/Brick_2x8/Brick_2x8_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Brick_2x8_HollowBody_NoBevel",
+  "mesh_file_id": 4426340236654509489,
+  "upstream_mesh_file_ids": [
+   4426340236654509489
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0319,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 296,
+  "tris": 448
+ },
+ {
+  "file": "Bricks/Brick_2x8/Brick_2x8_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_2x8_SolidBody",
+  "mesh_file_id": 5182953625897523057,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0319,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Bricks/Brick_2x8/Brick_2x8_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Brick_2x8_SolidBody_NoBevel",
+  "mesh_file_id": -716223655601728521,
+  "upstream_mesh_file_ids": [
+   -716223655601728521
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0319,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Bricks_Masonry/Brick_1x2_Masonry/Brick_1x2_Masonry_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_1x2_Masonry_Complete",
+  "mesh_file_id": 6214842436787067395,
+  "upstream_mesh_file_ids": [
+   6214842436787067395
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 208,
+  "tris": 318
+ },
+ {
+  "file": "Bricks_Masonry/Brick_1x2_Masonry/Brick_1x2_Masonry_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_1x2_Masonry_HollowBody",
+  "mesh_file_id": 5681612441761802822,
+  "upstream_mesh_file_ids": [
+   5681612441761802822
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 160,
+  "tris": 250
+ },
+ {
+  "file": "Bricks_Masonry/Brick_1x2_Masonry/Brick_1x2_Masonry_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_1x2_Masonry_SolidBody",
+  "mesh_file_id": 1390559934189122890,
+  "upstream_mesh_file_ids": [
+   1390559934189122890
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 136,
+  "tris": 212
+ },
+ {
+  "file": "Bricks_Masonry/Brick_1x4_Masonry/Brick_1x4_Masonry_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_1x4_Masonry_Complete",
+  "mesh_file_id": 6894739018472991694,
+  "upstream_mesh_file_ids": [
+   6894739018472991694
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 384,
+  "tris": 574
+ },
+ {
+  "file": "Bricks_Masonry/Brick_1x4_Masonry/Brick_1x4_Masonry_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Brick_1x4_Masonry_HollowBody",
+  "mesh_file_id": -890891172759037251,
+  "upstream_mesh_file_ids": [
+   -890891172759037251
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 288,
+  "tris": 438
+ },
+ {
+  "file": "Bricks_Masonry/Brick_1x4_Masonry/Brick_1x4_Masonry_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_1x4_Masonry_SolidBody",
+  "mesh_file_id": -2196657782392827299,
+  "upstream_mesh_file_ids": [
+   -2196657782392827299
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 232,
+  "tris": 356
+ },
+ {
+  "file": "Misc/Bob.fbx",
+  "variant": "complete",
+  "mesh_name": "Bob",
+  "mesh_file_id": 4820097219023787154,
+  "upstream_mesh_file_ids": [
+   -2812107940972762080
+  ],
+  "meta_patched": true,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    0.017463,
+    0.0013,
+    -0.0245
+   ],
+   [
+    0.034137,
+    0.0603,
+    0.0245
+   ]
+  ],
+  "verts": 72,
+  "tris": 120
+ },
+ {
+  "file": "Plants/Plant_Green_Flat.fbx",
+  "variant": "complete",
+  "mesh_name": "Plant_Green_Flat",
+  "mesh_file_id": -4799873028984781982,
+  "upstream_mesh_file_ids": [
+   -4799873028984781982
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.00996,
+    -0.0016,
+    -0.011709
+   ],
+   [
+    0.012311,
+    0.003884,
+    0.011709
+   ]
+  ],
+  "verts": 124,
+  "tris": 224
+ },
+ {
+  "file": "Plants/Plant_Green_MediumHeight.fbx",
+  "variant": "complete",
+  "mesh_name": "Plant_Green_MediumHeight",
+  "mesh_file_id": -4435103942091294989,
+  "upstream_mesh_file_ids": [
+   -4435103942091294989
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.007235,
+    -0.0016,
+    -0.004928
+   ],
+   [
+    0.007235,
+    0.019195,
+    0.008354
+   ]
+  ],
+  "verts": 100,
+  "tris": 180
+ },
+ {
+  "file": "Plates/Plate_1x1/Plate_1x1_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Plate_1x1_Complete",
+  "mesh_file_id": -6034191114104528692,
+  "upstream_mesh_file_ids": [
+   -6034191114104528692
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0033,
+    0.0039
+   ]
+  ],
+  "verts": 56,
+  "tris": 94
+ },
+ {
+  "file": "Plates/Plate_1x1/Plate_1x1_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Plate_1x1_HollowBody",
+  "mesh_file_id": 2848872595277907495,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 32,
+  "tris": 60
+ },
+ {
+  "file": "Plates/Plate_1x1/Plate_1x1_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Plate_1x1_HollowBody_NoBevel",
+  "mesh_file_id": 2315913335825194320,
+  "upstream_mesh_file_ids": [
+   2315913335825194320
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 16,
+  "tris": 28
+ },
+ {
+  "file": "Plates/Plate_1x1/Plate_1x1_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Plate_1x1_SolidBody",
+  "mesh_file_id": -7023958279592797106,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Plates/Plate_1x1/Plate_1x1_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Plate_1x1_SolidBody_NoBevel",
+  "mesh_file_id": 9048931087584910796,
+  "upstream_mesh_file_ids": [
+   9048931087584910796
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Plates/Plate_1x10/Plate_1x10_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Plate_1x10_Complete",
+  "mesh_file_id": 1175238929172934835,
+  "upstream_mesh_file_ids": [
+   1175238929172934835
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0033,
+    0.0039
+   ]
+  ],
+  "verts": 416,
+  "tris": 598
+ },
+ {
+  "file": "Plates/Plate_1x10/Plate_1x10_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Plate_1x10_HollowBody",
+  "mesh_file_id": -4474792966609579169,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 176,
+  "tris": 258
+ },
+ {
+  "file": "Plates/Plate_1x10/Plate_1x10_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Plate_1x10_HollowBody_NoBevel",
+  "mesh_file_id": 7617755756511306680,
+  "upstream_mesh_file_ids": [
+   7617755756511306680
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 160,
+  "tris": 226
+ },
+ {
+  "file": "Plates/Plate_1x10/Plate_1x10_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Plate_1x10_SolidBody",
+  "mesh_file_id": 4917692167970378980,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Plates/Plate_1x10/Plate_1x10_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Plate_1x10_SolidBody_NoBevel",
+  "mesh_file_id": 7871938380314904445,
+  "upstream_mesh_file_ids": [
+   7871938380314904445
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Plates/Plate_1x2/Plate_1x2_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Plate_1x2_Complete",
+  "mesh_file_id": -8379499910406495561,
+  "upstream_mesh_file_ids": [
+   -8379499910406495561
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0033,
+    0.0039
+   ]
+  ],
+  "verts": 96,
+  "tris": 150
+ },
+ {
+  "file": "Plates/Plate_1x2/Plate_1x2_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Plate_1x2_HollowBody",
+  "mesh_file_id": 2919186967261323437,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 48,
+  "tris": 82
+ },
+ {
+  "file": "Plates/Plate_1x2/Plate_1x2_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Plate_1x2_HollowBody_NoBevel",
+  "mesh_file_id": 5354561264344527366,
+  "upstream_mesh_file_ids": [
+   5354561264344527366
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 32,
+  "tris": 50
+ },
+ {
+  "file": "Plates/Plate_1x2/Plate_1x2_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Plate_1x2_SolidBody",
+  "mesh_file_id": -606255807501574244,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Plates/Plate_1x2/Plate_1x2_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Plate_1x2_SolidBody_NoBevel",
+  "mesh_file_id": 3034811006328683373,
+  "upstream_mesh_file_ids": [
+   3034811006328683373
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Plates/Plate_1x2_1Stud/Plate_1x2_1Stud_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Plate_1x2_1Stud_Complete",
+  "mesh_file_id": -1169991453205134546,
+  "upstream_mesh_file_ids": [
+   -1169991453205134546
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0033,
+    0.0039
+   ]
+  ],
+  "verts": 72,
+  "tris": 116
+ },
+ {
+  "file": "Plates/Plate_1x2_1Stud/Plate_1x2_1Stud_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Plate_1x2_1Stud_HollowBody",
+  "mesh_file_id": 3296851739547891861,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 48,
+  "tris": 82
+ },
+ {
+  "file": "Plates/Plate_1x2_1Stud/Plate_1x2_1Stud_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Plate_1x2_1Stud_SolidBody",
+  "mesh_file_id": 261893159654452803,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Plates/Plate_1x3/Plate_1x3_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Plate_1x3_Complete",
+  "mesh_file_id": -1926275790256614241,
+  "upstream_mesh_file_ids": [
+   -1926275790256614241
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0033,
+    0.0039
+   ]
+  ],
+  "verts": 136,
+  "tris": 206
+ },
+ {
+  "file": "Plates/Plate_1x3/Plate_1x3_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Plate_1x3_HollowBody",
+  "mesh_file_id": -5332360021287919538,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 64,
+  "tris": 104
+ },
+ {
+  "file": "Plates/Plate_1x3/Plate_1x3_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Plate_1x3_HollowBody_NoBevel",
+  "mesh_file_id": -9209378921855270722,
+  "upstream_mesh_file_ids": [
+   -9209378921855270722
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 48,
+  "tris": 72
+ },
+ {
+  "file": "Plates/Plate_1x3/Plate_1x3_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Plate_1x3_SolidBody",
+  "mesh_file_id": -2861914071654498746,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Plates/Plate_1x3/Plate_1x3_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Plate_1x3_SolidBody_NoBevel",
+  "mesh_file_id": 5375580435838867662,
+  "upstream_mesh_file_ids": [
+   5375580435838867662
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Plates/Plate_1x4/Plate_1x4_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Plate_1x4_Complete",
+  "mesh_file_id": -5355602627545535795,
+  "upstream_mesh_file_ids": [
+   -5355602627545535795
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0033,
+    0.0039
+   ]
+  ],
+  "verts": 176,
+  "tris": 262
+ },
+ {
+  "file": "Plates/Plate_1x4/Plate_1x4_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Plate_1x4_HollowBody",
+  "mesh_file_id": -1399025714669225611,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 80,
+  "tris": 126
+ },
+ {
+  "file": "Plates/Plate_1x4/Plate_1x4_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Plate_1x4_HollowBody_NoBevel",
+  "mesh_file_id": -9219491792462332424,
+  "upstream_mesh_file_ids": [
+   -9219491792462332424
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 64,
+  "tris": 94
+ },
+ {
+  "file": "Plates/Plate_1x4/Plate_1x4_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Plate_1x4_SolidBody",
+  "mesh_file_id": -7758416191598142467,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Plates/Plate_1x4/Plate_1x4_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Plate_1x4_SolidBody_NoBevel",
+  "mesh_file_id": -4344930828572440404,
+  "upstream_mesh_file_ids": [
+   -4344930828572440404
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Plates/Plate_1x6/Plate_1x6_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Plate_1x6_Complete",
+  "mesh_file_id": -5767639774255567600,
+  "upstream_mesh_file_ids": [
+   -5767639774255567600
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0239,
+    0.0033,
+    0.0039
+   ]
+  ],
+  "verts": 256,
+  "tris": 374
+ },
+ {
+  "file": "Plates/Plate_1x6/Plate_1x6_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Plate_1x6_HollowBody",
+  "mesh_file_id": -7585219109110377787,
+  "upstream_mesh_file_ids": [
+   -7585219109110377787
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0239,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 112,
+  "tris": 170
+ },
+ {
+  "file": "Plates/Plate_1x6/Plate_1x6_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Plate_1x6_SolidBody",
+  "mesh_file_id": -4776171996822984301,
+  "upstream_mesh_file_ids": [
+   -4776171996822984301
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0239,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Plates/Plate_1x8/Plate_1x8_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Plate_1x8_Complete",
+  "mesh_file_id": 7114417540042471169,
+  "upstream_mesh_file_ids": [
+   7114417540042471169
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0319,
+    0.0033,
+    0.0039
+   ]
+  ],
+  "verts": 336,
+  "tris": 486
+ },
+ {
+  "file": "Plates/Plate_1x8/Plate_1x8_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Plate_1x8_HollowBody",
+  "mesh_file_id": 7603802878751205462,
+  "upstream_mesh_file_ids": [
+   7603802878751205462
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0319,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 144,
+  "tris": 214
+ },
+ {
+  "file": "Plates/Plate_1x8/Plate_1x8_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Plate_1x8_SolidBody",
+  "mesh_file_id": -3816912498493048821,
+  "upstream_mesh_file_ids": [
+   -3816912498493048821
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0319,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Plates/Plate_2x2/Plate_2x2_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Plate_2x2_Complete",
+  "mesh_file_id": -1063922579623717517,
+  "upstream_mesh_file_ids": [
+   -1063922579623717517
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0033,
+    0.0079
+   ]
+  ],
+  "verts": 168,
+  "tris": 256
+ },
+ {
+  "file": "Plates/Plate_2x2/Plate_2x2_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Plate_2x2_HollowBody",
+  "mesh_file_id": 2473581752218269122,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 72,
+  "tris": 120
+ },
+ {
+  "file": "Plates/Plate_2x2/Plate_2x2_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Plate_2x2_HollowBody_NoBevel",
+  "mesh_file_id": 4599737022522426103,
+  "upstream_mesh_file_ids": [
+   4599737022522426103
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 56,
+  "tris": 88
+ },
+ {
+  "file": "Plates/Plate_2x2/Plate_2x2_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Plate_2x2_SolidBody",
+  "mesh_file_id": 3117736792106380490,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Plates/Plate_2x2/Plate_2x2_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Plate_2x2_SolidBody_NoBevel",
+  "mesh_file_id": -7551239734322960994,
+  "upstream_mesh_file_ids": [
+   -7551239734322960994
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Plates/Plate_2x2_1Stud/Plate_2x2_1Stud_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Plate_2x2_1Stud_Complete",
+  "mesh_file_id": -5458407958307401675,
+  "upstream_mesh_file_ids": [
+   -5458407958307401675
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0033,
+    0.0079
+   ]
+  ],
+  "verts": 96,
+  "tris": 154
+ },
+ {
+  "file": "Plates/Plate_2x2_1Stud/Plate_2x2_1Stud_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Plate_2x2_1Stud_HollowBody",
+  "mesh_file_id": 2959045207080933071,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 72,
+  "tris": 120
+ },
+ {
+  "file": "Plates/Plate_2x2_1Stud/Plate_2x2_1Stud_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Plate_2x2_1Stud_SolidBody",
+  "mesh_file_id": 4416465661130024359,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Plates/Plate_2x2_Corner/Plate_2x2_Corner_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Plate_2x2_Corner_Complete",
+  "mesh_file_id": -7120606640047244864,
+  "upstream_mesh_file_ids": [
+   -3240734288270418986
+  ],
+  "meta_patched": true,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0033,
+    0.0079
+   ]
+  ],
+  "verts": 120,
+  "tris": 194
+ },
+ {
+  "file": "Plates/Plate_2x2_Corner/Plate_2x2_Corner_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Plate_2x2_Corner_HollowBody",
+  "mesh_file_id": -5321350088704396871,
+  "upstream_mesh_file_ids": [
+   -5321350088704396871
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 48,
+  "tris": 92
+ },
+ {
+  "file": "Plates/Plate_2x2_Corner/Plate_2x2_Corner_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Plate_2x2_Corner_SolidBody",
+  "mesh_file_id": -1501313499209864266,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 36,
+  "tris": 68
+ },
+ {
+  "file": "Plates/Plate_2x3/Plate_2x3_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Plate_2x3_Complete",
+  "mesh_file_id": 2582079332005992847,
+  "upstream_mesh_file_ids": [
+   2582079332005992847
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0119,
+    0.0033,
+    0.0079
+   ]
+  ],
+  "verts": 256,
+  "tris": 384
+ },
+ {
+  "file": "Plates/Plate_2x3/Plate_2x3_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Plate_2x3_HollowBody",
+  "mesh_file_id": 4298704177441886525,
+  "upstream_mesh_file_ids": [
+   4298704177441886525
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0119,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 112,
+  "tris": 180
+ },
+ {
+  "file": "Plates/Plate_2x3/Plate_2x3_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Plate_2x3_SolidBody",
+  "mesh_file_id": 5933647837967785936,
+  "upstream_mesh_file_ids": [
+   5933647837967785936
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0119,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Plates/Plate_2x4/Plate_2x4_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Plate_2x4_Complete",
+  "mesh_file_id": -941664010615619532,
+  "upstream_mesh_file_ids": [
+   -941664010615619532
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0033,
+    0.0079
+   ]
+  ],
+  "verts": 344,
+  "tris": 512
+ },
+ {
+  "file": "Plates/Plate_2x4/Plate_2x4_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Plate_2x4_HollowBody",
+  "mesh_file_id": -4283208862706800753,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 152,
+  "tris": 240
+ },
+ {
+  "file": "Plates/Plate_2x4/Plate_2x4_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Plate_2x4_HollowBody_NoBevel",
+  "mesh_file_id": -842448537587983713,
+  "upstream_mesh_file_ids": [
+   -842448537587983713
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 136,
+  "tris": 208
+ },
+ {
+  "file": "Plates/Plate_2x4/Plate_2x4_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Plate_2x4_SolidBody",
+  "mesh_file_id": -3263201285071671625,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Plates/Plate_2x4/Plate_2x4_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Plate_2x4_SolidBody_NoBevel",
+  "mesh_file_id": 3948064403138139522,
+  "upstream_mesh_file_ids": [
+   3948064403138139522
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Plates/Plate_2x6/Plate_2x6_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Plate_2x6_Complete",
+  "mesh_file_id": 3038539734813603626,
+  "upstream_mesh_file_ids": [
+   3038539734813603626
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0239,
+    0.0033,
+    0.0079
+   ]
+  ],
+  "verts": 520,
+  "tris": 768
+ },
+ {
+  "file": "Plates/Plate_2x6/Plate_2x6_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Plate_2x6_HollowBody",
+  "mesh_file_id": 269558089957196993,
+  "upstream_mesh_file_ids": [
+   269558089957196993
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0239,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 232,
+  "tris": 360
+ },
+ {
+  "file": "Plates/Plate_2x6/Plate_2x6_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Plate_2x6_SolidBody",
+  "mesh_file_id": -423683531764942047,
+  "upstream_mesh_file_ids": [
+   -423683531764942047
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0239,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Plates/Plate_2x8/Plate_2x8_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Plate_2x8_Complete",
+  "mesh_file_id": -5413004394979882842,
+  "upstream_mesh_file_ids": [
+   -5413004394979882842
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0319,
+    0.0033,
+    0.0079
+   ]
+  ],
+  "verts": 696,
+  "tris": 1024
+ },
+ {
+  "file": "Plates/Plate_2x8/Plate_2x8_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Plate_2x8_HollowBody",
+  "mesh_file_id": 2597652973790218476,
+  "upstream_mesh_file_ids": [
+   2597652973790218476
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0319,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 312,
+  "tris": 480
+ },
+ {
+  "file": "Plates/Plate_2x8/Plate_2x8_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Plate_2x8_HollowBody_NoBevel",
+  "mesh_file_id": 8251246647805523824,
+  "upstream_mesh_file_ids": [
+   8251246647805523824
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0319,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 296,
+  "tris": 448
+ },
+ {
+  "file": "Plates/Plate_2x8/Plate_2x8_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Plate_2x8_SolidBody",
+  "mesh_file_id": -4221632615441497196,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0319,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Plates/Plate_2x8/Plate_2x8_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Plate_2x8_SolidBody_NoBevel",
+  "mesh_file_id": -2110086650737854383,
+  "upstream_mesh_file_ids": [
+   -2110086650737854383
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0319,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Plates/Plate_3x3/Plate_3x3_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Plate_3x3_Complete",
+  "mesh_file_id": 2079471183151972776,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0119
+   ],
+   [
+    0.0119,
+    0.0033,
+    0.0119
+   ]
+  ],
+  "verts": 408,
+  "tris": 606
+ },
+ {
+  "file": "Plates/Plate_3x3/Plate_3x3_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Plate_3x3_HollowBody",
+  "mesh_file_id": 3498559531653317937,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0119
+   ],
+   [
+    0.0119,
+    0.0016,
+    0.0119
+   ]
+  ],
+  "verts": 192,
+  "tris": 300
+ },
+ {
+  "file": "Plates/Plate_3x3/Plate_3x3_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Plate_3x3_SolidBody",
+  "mesh_file_id": -5950111006653377426,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0119
+   ],
+   [
+    0.0119,
+    0.0016,
+    0.0119
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Plates/Plate_Round_1x1/Plate_Round_1x1_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Plate_Round_1x1_Complete",
+  "mesh_file_id": -4361308284578209232,
+  "upstream_mesh_file_ids": [
+   -4361308284578209232
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.003861,
+    -0.0016,
+    -0.003861
+   ],
+   [
+    0.003861,
+    0.0033,
+    0.003861
+   ]
+  ],
+  "verts": 152,
+  "tris": 286
+ },
+ {
+  "file": "Plates/Plate_Round_1x1/Plate_Round_1x1_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Plate_Round_1x1_HollowBody",
+  "mesh_file_id": -7199924275864254328,
+  "upstream_mesh_file_ids": [
+   -7199924275864254328
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.003861,
+    -0.0016,
+    -0.003861
+   ],
+   [
+    0.003861,
+    0.0016,
+    0.003861
+   ]
+  ],
+  "verts": 128,
+  "tris": 252
+ },
+ {
+  "file": "Plates/Plate_Round_1x1/Plate_Round_1x1_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Plate_Round_1x1_SolidBody",
+  "mesh_file_id": 2377844408187826158,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.003861,
+    -0.0016,
+    -0.003861
+   ],
+   [
+    0.003861,
+    0.0016,
+    0.003861
+   ]
+  ],
+  "verts": 96,
+  "tris": 188
+ },
+ {
+  "file": "Pyramids/Brick_1x1_Pyramid/Brick_1x1_Pyramid_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_1x1_Pyramid_Complete",
+  "mesh_file_id": 319421322080526634,
+  "upstream_mesh_file_ids": [
+   -4439177635779473790
+  ],
+  "meta_patched": true,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0004,
+    0.0039
+   ]
+  ],
+  "verts": 37,
+  "tris": 66
+ },
+ {
+  "file": "Pyramids/Brick_1x1_Pyramid/Brick_1x1_Pyramid_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Brick_1x1_Pyramid_SolidBody",
+  "mesh_file_id": -3073488902156337868,
+  "upstream_mesh_file_ids": [
+   -3073488902156337868
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0004,
+    0.0039
+   ]
+  ],
+  "verts": 29,
+  "tris": 50
+ },
+ {
+  "file": "SideStudBricks/Brick_1x1_1FaceSideStud/Brick_1x1_1FaceSideStud_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_1x1_1FaceSideStud_Complete",
+  "mesh_file_id": -5034860358258627910,
+  "upstream_mesh_file_ids": [
+   -5547226821776838944
+  ],
+  "meta_patched": true,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0065,
+    0.0056
+   ]
+  ],
+  "verts": 80,
+  "tris": 128
+ },
+ {
+  "file": "SideStudBricks/Brick_1x1_4FaceSideStud/Brick_1x1_4FaceSideStud_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_1x1_4FaceSideStud_Complete",
+  "mesh_file_id": -5951544029789490672,
+  "upstream_mesh_file_ids": [
+   -7075533180959684982
+  ],
+  "meta_patched": true,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0056,
+    -0.0048,
+    -0.0056
+   ],
+   [
+    0.0056,
+    0.0065,
+    0.0056
+   ]
+  ],
+  "verts": 152,
+  "tris": 230
+ },
+ {
+  "file": "SideStudBricks/Brick_1x2_1FaceSideStud/Brick_1x2_1FaceSideStud_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_1x2_1FaceSideStud_Complete",
+  "mesh_file_id": 909663449611441342,
+  "upstream_mesh_file_ids": [
+   2478642557212298803
+  ],
+  "meta_patched": true,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0065,
+    0.0056
+   ]
+  ],
+  "verts": 144,
+  "tris": 218
+ },
+ {
+  "file": "SideStudBricks/Brick_1x4_1FaceSideStud/Brick_1x4_1FaceSideStud_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Brick_1x4_1FaceSideStud_Complete",
+  "mesh_file_id": 4610693698803924363,
+  "upstream_mesh_file_ids": [
+   6948634446427596978
+  ],
+  "meta_patched": true,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0065,
+    0.0056
+   ]
+  ],
+  "verts": 272,
+  "tris": 398
+ },
+ {
+  "file": "Slopes/Slope_1x1x2-3/Slope_1x1x2-3_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Slope_1x1x2-3_Complete",
+  "mesh_file_id": -1082647308161197973,
+  "upstream_mesh_file_ids": [
+   8947455821484762293
+  ],
+  "meta_patched": true,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.001483,
+    0.0039
+   ]
+  ],
+  "verts": 32,
+  "tris": 60
+ },
+ {
+  "file": "Slopes/Slope_1x1x2-3/Slope_1x1x2-3_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Slope_1x1x2-3_SolidBody",
+  "mesh_file_id": 3998812471721418272,
+  "upstream_mesh_file_ids": [
+   3998812471721418272
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.001483,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Slopes/Slope_1x2/Slope_1x2_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Slope_1x2_Complete",
+  "mesh_file_id": 1293541810172995276,
+  "upstream_mesh_file_ids": [
+   1293541810172995276
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 80,
+  "tris": 132
+ },
+ {
+  "file": "Slopes/Slope_1x2/Slope_1x2_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Slope_1x2_HollowBody",
+  "mesh_file_id": 2788235909124006522,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 56,
+  "tris": 98
+ },
+ {
+  "file": "Slopes/Slope_1x2/Slope_1x2_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Slope_1x2_HollowBody_NoBevel",
+  "mesh_file_id": 401631329912737744,
+  "upstream_mesh_file_ids": [
+   401631329912737744
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 36,
+  "tris": 58
+ },
+ {
+  "file": "Slopes/Slope_1x2/Slope_1x2_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Slope_1x2_SolidBody",
+  "mesh_file_id": -8403039209276441388,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 30,
+  "tris": 56
+ },
+ {
+  "file": "Slopes/Slope_1x2/Slope_1x2_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Slope_1x2_SolidBody_NoBevel",
+  "mesh_file_id": 3133764255893092776,
+  "upstream_mesh_file_ids": [
+   3133764255893092776
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 10,
+  "tris": 16
+ },
+ {
+  "file": "Slopes/Slope_1x2_Inverted/Slope_1x2_Inverted_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Slope_1x2_Inverted_Complete",
+  "mesh_file_id": 3508588571457314370,
+  "upstream_mesh_file_ids": [
+   3508588571457314370
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 86,
+  "tris": 140
+ },
+ {
+  "file": "Slopes/Slope_1x2_Inverted/Slope_1x2_Inverted_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Slope_1x2_Inverted_HollowBody",
+  "mesh_file_id": -4423795422912902238,
+  "upstream_mesh_file_ids": [
+   -4423795422912902238
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 38,
+  "tris": 72
+ },
+ {
+  "file": "Slopes/Slope_1x2_Inverted/Slope_1x2_Inverted_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Slope_1x2_Inverted_SolidBody",
+  "mesh_file_id": -6122365266489183019,
+  "upstream_mesh_file_ids": [
+   -6122365266489183019
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 30,
+  "tris": 56
+ },
+ {
+  "file": "Slopes/Slope_1x2x3/Slope_1x2x3_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Slope_1x2x3_Complete",
+  "mesh_file_id": -8070799192665740776,
+  "upstream_mesh_file_ids": [
+   -8070799192665740776
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0257,
+    0.0039
+   ]
+  ],
+  "verts": 80,
+  "tris": 132
+ },
+ {
+  "file": "Slopes/Slope_1x2x3/Slope_1x2x3_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Slope_1x2x3_HollowBody",
+  "mesh_file_id": 4235884857370184580,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.024,
+    0.0039
+   ]
+  ],
+  "verts": 56,
+  "tris": 98
+ },
+ {
+  "file": "Slopes/Slope_1x2x3/Slope_1x2x3_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Slope_1x2x3_SolidBody",
+  "mesh_file_id": 4249908254403750061,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.024,
+    0.0039
+   ]
+  ],
+  "verts": 30,
+  "tris": 56
+ },
+ {
+  "file": "Slopes/Slope_1x3/Slope_1x3_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Slope_1x3_Complete",
+  "mesh_file_id": 9119962407987461182,
+  "upstream_mesh_file_ids": [
+   9119962407987461182
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 98,
+  "tris": 158
+ },
+ {
+  "file": "Slopes/Slope_1x3/Slope_1x3_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Slope_1x3_HollowBody",
+  "mesh_file_id": -6418235285101789029,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 74,
+  "tris": 124
+ },
+ {
+  "file": "Slopes/Slope_1x3/Slope_1x3_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Slope_1x3_HollowBody_NoBevel",
+  "mesh_file_id": -1265378529647897953,
+  "upstream_mesh_file_ids": [
+   -1265378529647897953
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 54,
+  "tris": 84
+ },
+ {
+  "file": "Slopes/Slope_1x3/Slope_1x3_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Slope_1x3_SolidBody",
+  "mesh_file_id": -3113450023547275827,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 30,
+  "tris": 56
+ },
+ {
+  "file": "Slopes/Slope_1x3/Slope_1x3_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Slope_1x3_SolidBody_NoBevel",
+  "mesh_file_id": -9213066544345054581,
+  "upstream_mesh_file_ids": [
+   -9213066544345054581
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 10,
+  "tris": 16
+ },
+ {
+  "file": "Slopes/Slope_1x4/Slope_1x4_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Slope_1x4_Complete",
+  "mesh_file_id": 8592048090100981297,
+  "upstream_mesh_file_ids": [
+   8592048090100981297
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 114,
+  "tris": 180
+ },
+ {
+  "file": "Slopes/Slope_1x4/Slope_1x4_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Slope_1x4_HollowBody",
+  "mesh_file_id": -2054593536987871203,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 90,
+  "tris": 146
+ },
+ {
+  "file": "Slopes/Slope_1x4/Slope_1x4_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Slope_1x4_HollowBody_NoBevel",
+  "mesh_file_id": 4158550022977358545,
+  "upstream_mesh_file_ids": [
+   4158550022977358545
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 70,
+  "tris": 106
+ },
+ {
+  "file": "Slopes/Slope_1x4/Slope_1x4_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Slope_1x4_SolidBody",
+  "mesh_file_id": 7763932410668478954,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 30,
+  "tris": 56
+ },
+ {
+  "file": "Slopes/Slope_1x4/Slope_1x4_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Slope_1x4_SolidBody_NoBevel",
+  "mesh_file_id": -1733912369294414215,
+  "upstream_mesh_file_ids": [
+   -1733912369294414215
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0039
+   ]
+  ],
+  "verts": 10,
+  "tris": 16
+ },
+ {
+  "file": "Slopes/Slope_1x4x2-3/Slope_1x4x2-3_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Slope_1x4x2-3_Complete",
+  "mesh_file_id": 9210455066739586873,
+  "upstream_mesh_file_ids": [
+   -5805454270036199996
+  ],
+  "meta_patched": true,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0048,
+    -0.0159
+   ],
+   [
+    0.0039,
+    0.001483,
+    0.0159
+   ]
+  ],
+  "verts": 32,
+  "tris": 60
+ },
+ {
+  "file": "Slopes/Slope_1x4x2-3/Slope_1x4x2-3_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Slope_1x4x2-3_SolidBody",
+  "mesh_file_id": 4461862648615533422,
+  "upstream_mesh_file_ids": [
+   4461862648615533422
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0048,
+    -0.0159
+   ],
+   [
+    0.0039,
+    0.001483,
+    0.0159
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Slopes/Slope_2x2/Slope_2x2_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Slope_2x2_Complete",
+  "mesh_file_id": -2538813143022482412,
+  "upstream_mesh_file_ids": [
+   -2538813143022482412
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0065,
+    0.0079
+   ]
+  ],
+  "verts": 128,
+  "tris": 204
+ },
+ {
+  "file": "Slopes/Slope_2x2/Slope_2x2_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Slope_2x2_HollowBody",
+  "mesh_file_id": -8931402091498055865,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 80,
+  "tris": 136
+ },
+ {
+  "file": "Slopes/Slope_2x2/Slope_2x2_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Slope_2x2_HollowBody_NoBevel",
+  "mesh_file_id": -8984864573839673976,
+  "upstream_mesh_file_ids": [
+   -8984864573839673976
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 60,
+  "tris": 96
+ },
+ {
+  "file": "Slopes/Slope_2x2/Slope_2x2_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Slope_2x2_SolidBody",
+  "mesh_file_id": -4648444382654234179,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 30,
+  "tris": 56
+ },
+ {
+  "file": "Slopes/Slope_2x2/Slope_2x2_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Slope_2x2_SolidBody_NoBevel",
+  "mesh_file_id": -291397147737461078,
+  "upstream_mesh_file_ids": [
+   -291397147737461078
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 10,
+  "tris": 16
+ },
+ {
+  "file": "Slopes/Slope_Corner_2x2/Slope_Corner_2x2_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Corner_2x2_Complete",
+  "mesh_file_id": 6503436045309741318,
+  "upstream_mesh_file_ids": [
+   6503436045309741318
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0065,
+    0.0079
+   ]
+  ],
+  "verts": 109,
+  "tris": 180
+ },
+ {
+  "file": "Slopes/Slope_Corner_2x2/Slope_Corner_2x2_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Corner_2x2_HollowBody",
+  "mesh_file_id": 2400339237857727962,
+  "upstream_mesh_file_ids": [
+   2400339237857727962
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 85,
+  "tris": 146
+ },
+ {
+  "file": "Slopes/Slope_Corner_2x2/Slope_Corner_2x2_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Corner_2x2_SolidBody",
+  "mesh_file_id": 7272684702512119577,
+  "upstream_mesh_file_ids": [
+   7272684702512119577
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0048,
+    0.0079
+   ]
+  ],
+  "verts": 34,
+  "tris": 64
+ },
+ {
+  "file": "Slopes/Slope_Corner_3x3/Slope_Corner_3x3_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Corner_3x3_Complete",
+  "mesh_file_id": 6035168433501024876,
+  "upstream_mesh_file_ids": [
+   6035168433501024876
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0119
+   ],
+   [
+    0.0119,
+    0.0065,
+    0.0119
+   ]
+  ],
+  "verts": 232,
+  "tris": 366
+ },
+ {
+  "file": "Slopes/Slope_Corner_3x3/Slope_Corner_3x3_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Corner_3x3_HollowBody",
+  "mesh_file_id": 7215532761686794062,
+  "upstream_mesh_file_ids": [
+   7215532761686794062
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0119
+   ],
+   [
+    0.0119,
+    0.0048,
+    0.0119
+   ]
+  ],
+  "verts": 208,
+  "tris": 332
+ },
+ {
+  "file": "Slopes/Slope_Corner_3x3/Slope_Corner_3x3_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Corner_3x3_SolidBody",
+  "mesh_file_id": 2341939545110718052,
+  "upstream_mesh_file_ids": [
+   2341939545110718052
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0048,
+    -0.0119
+   ],
+   [
+    0.0119,
+    0.0048,
+    0.0119
+   ]
+  ],
+  "verts": 34,
+  "tris": 64
+ },
+ {
+  "file": "Slopes/Slope_Corner_4x4/Slope_Corner_4x4_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Corner_4x4_Complete",
+  "mesh_file_id": -4703184657675060824,
+  "upstream_mesh_file_ids": [
+   -4703184657675060824
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0159
+   ],
+   [
+    0.0159,
+    0.0065,
+    0.0159
+   ]
+  ],
+  "verts": 432,
+  "tris": 666
+ },
+ {
+  "file": "Slopes/Slope_Corner_4x4/Slope_Corner_4x4_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Corner_4x4_HollowBody",
+  "mesh_file_id": -1992737408373519832,
+  "upstream_mesh_file_ids": [
+   -1992737408373519832
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0159
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0159
+   ]
+  ],
+  "verts": 408,
+  "tris": 632
+ },
+ {
+  "file": "Slopes/Slope_Corner_4x4/Slope_Corner_4x4_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Corner_4x4_SolidBody",
+  "mesh_file_id": 2087900427076881482,
+  "upstream_mesh_file_ids": [
+   2087900427076881482
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0159
+   ],
+   [
+    0.0159,
+    0.0048,
+    0.0159
+   ]
+  ],
+  "verts": 34,
+  "tris": 64
+ },
+ {
+  "file": "Tiles/Tile_1x1/Tile_1x1_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_1x1_Complete",
+  "mesh_file_id": -2787826082196537194,
+  "upstream_mesh_file_ids": [
+   -2787826082196537194
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 32,
+  "tris": 60
+ },
+ {
+  "file": "Tiles/Tile_1x1/Tile_1x1_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Tile_1x1_HollowBody",
+  "mesh_file_id": 4604820740267488802,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 32,
+  "tris": 60
+ },
+ {
+  "file": "Tiles/Tile_1x1/Tile_1x1_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Tile_1x1_HollowBody_NoBevel",
+  "mesh_file_id": 8400006838361860939,
+  "upstream_mesh_file_ids": [
+   8400006838361860939
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 16,
+  "tris": 28
+ },
+ {
+  "file": "Tiles/Tile_1x1/Tile_1x1_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Tile_1x1_SolidBody",
+  "mesh_file_id": 7338033203174595654,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Tiles/Tile_1x1/Tile_1x1_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Tile_1x1_SolidBody_NoBevel",
+  "mesh_file_id": -2117484658973385311,
+  "upstream_mesh_file_ids": [
+   -2117484658973385311
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Tiles/Tile_1x10/Tile_1x10_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_1x10_Complete",
+  "mesh_file_id": -1445654430636573457,
+  "upstream_mesh_file_ids": [
+   -1445654430636573457
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 176,
+  "tris": 258
+ },
+ {
+  "file": "Tiles/Tile_1x10/Tile_1x10_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Tile_1x10_HollowBody",
+  "mesh_file_id": 4777537666839805878,
+  "upstream_mesh_file_ids": [
+   4777537666839805878
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 176,
+  "tris": 258
+ },
+ {
+  "file": "Tiles/Tile_1x10/Tile_1x10_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Tile_1x10_HollowBody_NoBevel",
+  "mesh_file_id": -3281535294825906478,
+  "upstream_mesh_file_ids": [
+   -3281535294825906478
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 160,
+  "tris": 226
+ },
+ {
+  "file": "Tiles/Tile_1x10/Tile_1x10_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Tile_1x10_SolidBody",
+  "mesh_file_id": 7579898313361351363,
+  "upstream_mesh_file_ids": [
+   7579898313361351363
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Tiles/Tile_1x10/Tile_1x10_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Tile_1x10_SolidBody_NoBevel",
+  "mesh_file_id": -6717757014263753755,
+  "upstream_mesh_file_ids": [
+   -6717757014263753755
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Tiles/Tile_1x2/Tile_1x2_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_1x2_Complete",
+  "mesh_file_id": -6714474705893732472,
+  "upstream_mesh_file_ids": [
+   -6714474705893732472
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 48,
+  "tris": 82
+ },
+ {
+  "file": "Tiles/Tile_1x2/Tile_1x2_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Tile_1x2_HollowBody",
+  "mesh_file_id": 5543296917188478792,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 48,
+  "tris": 82
+ },
+ {
+  "file": "Tiles/Tile_1x2/Tile_1x2_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Tile_1x2_HollowBody",
+  "mesh_file_id": 5543296917188478792,
+  "upstream_mesh_file_ids": [
+   5543296917188478792
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 32,
+  "tris": 50
+ },
+ {
+  "file": "Tiles/Tile_1x2/Tile_1x2_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Tile_1x2_SolidBody",
+  "mesh_file_id": -4877397986670628976,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Tiles/Tile_1x2/Tile_1x2_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Tile_1x2_SolidBody_NoBevel",
+  "mesh_file_id": -384344152684795786,
+  "upstream_mesh_file_ids": [
+   -384344152684795786
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Tiles/Tile_1x3/Tile_1x3_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_1x3_Complete",
+  "mesh_file_id": 6270263121857088359,
+  "upstream_mesh_file_ids": [
+   6270263121857088359
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 64,
+  "tris": 104
+ },
+ {
+  "file": "Tiles/Tile_1x3/Tile_1x3_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Tile_1x3_HollowBody",
+  "mesh_file_id": -4719521158902875736,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 64,
+  "tris": 104
+ },
+ {
+  "file": "Tiles/Tile_1x3/Tile_1x3_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Tile_1x3_HollowBody_NoBevel",
+  "mesh_file_id": 3997252155275095761,
+  "upstream_mesh_file_ids": [
+   3997252155275095761
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 48,
+  "tris": 72
+ },
+ {
+  "file": "Tiles/Tile_1x3/Tile_1x3_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Tile_1x3_SolidBody",
+  "mesh_file_id": -8525537866941361215,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Tiles/Tile_1x3/Tile_1x3_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Tile_1x3_SolidBody_NoBevel",
+  "mesh_file_id": 1930828042954089294,
+  "upstream_mesh_file_ids": [
+   1930828042954089294
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0119,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Tiles/Tile_1x4/Tile_1x4_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_1x4_Complete",
+  "mesh_file_id": -6058702092227891373,
+  "upstream_mesh_file_ids": [
+   -6058702092227891373
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 80,
+  "tris": 126
+ },
+ {
+  "file": "Tiles/Tile_1x4/Tile_1x4_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Tile_1x4_HollowBody",
+  "mesh_file_id": -5532125563894587583,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 80,
+  "tris": 126
+ },
+ {
+  "file": "Tiles/Tile_1x4/Tile_1x4_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Tile_1x4_HollowBody_NoBevel",
+  "mesh_file_id": 934487796056681267,
+  "upstream_mesh_file_ids": [
+   934487796056681267
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 64,
+  "tris": 94
+ },
+ {
+  "file": "Tiles/Tile_1x4/Tile_1x4_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Tile_1x4_SolidBody",
+  "mesh_file_id": -1575145430210056244,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Tiles/Tile_1x4/Tile_1x4_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Tile_1x4_SolidBody_NoBevel",
+  "mesh_file_id": 4246209015241642803,
+  "upstream_mesh_file_ids": [
+   4246209015241642803
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Tiles/Tile_1x6/Tile_1x6_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_1x6_Complete",
+  "mesh_file_id": 5620594722268750596,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0239,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 112,
+  "tris": 170
+ },
+ {
+  "file": "Tiles/Tile_1x6/Tile_1x6_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Tile_1x6_HollowBody",
+  "mesh_file_id": -7994297666480257058,
+  "upstream_mesh_file_ids": [
+   -7994297666480257058
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0239,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 112,
+  "tris": 170
+ },
+ {
+  "file": "Tiles/Tile_1x6/Tile_1x6_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Tile_1x6_SolidBody",
+  "mesh_file_id": 6135233168034270492,
+  "upstream_mesh_file_ids": [
+   6135233168034270492
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0239,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Tiles/Tile_1x8/Tile_1x8_Complete-HollowBody.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_1x8_Complete-HollowBody",
+  "mesh_file_id": 2403382628965871387,
+  "upstream_mesh_file_ids": [
+   5952950207144732928
+  ],
+  "meta_patched": true,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0319,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 144,
+  "tris": 214
+ },
+ {
+  "file": "Tiles/Tile_1x8/Tile_1x8_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_1x8_Complete",
+  "mesh_file_id": -6454474379558071193,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0319,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 144,
+  "tris": 214
+ },
+ {
+  "file": "Tiles/Tile_1x8/Tile_1x8_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Tile_1x8_SolidBody",
+  "mesh_file_id": 3621351128134978531,
+  "upstream_mesh_file_ids": [
+   3621351128134978531
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0319,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Tiles/Tile_2x2/Tile_2x2_Complete+HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Tile_2x2_Complete+HollowBody_NoBevel",
+  "mesh_file_id": -888645809021613679,
+  "upstream_mesh_file_ids": [
+   2331013928504239841
+  ],
+  "meta_patched": true,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 56,
+  "tris": 88
+ },
+ {
+  "file": "Tiles/Tile_2x2/Tile_2x2_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_2x2_Complete",
+  "mesh_file_id": -8338598605111023405,
+  "upstream_mesh_file_ids": [
+   -8338598605111023405
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 72,
+  "tris": 120
+ },
+ {
+  "file": "Tiles/Tile_2x2/Tile_2x2_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Tile_2x2_HollowBody",
+  "mesh_file_id": 2222396931152296044,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 72,
+  "tris": 120
+ },
+ {
+  "file": "Tiles/Tile_2x2/Tile_2x2_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Tile_2x2_SolidBody",
+  "mesh_file_id": -3803323988499531953,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Tiles/Tile_2x2/Tile_2x2_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Tile_2x2_SolidBody_NoBevel",
+  "mesh_file_id": 9020815842931854921,
+  "upstream_mesh_file_ids": [
+   9020815842931854921
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Tiles/Tile_2x2_Corner/Tile_2x2_Corner_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_2x2_Corner_Complete",
+  "mesh_file_id": -4665193293690919022,
+  "upstream_mesh_file_ids": [
+   1102457469446066216
+  ],
+  "meta_patched": true,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 48,
+  "tris": 92
+ },
+ {
+  "file": "Tiles/Tile_2x2_Corner/Tile_2x2_Corner_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Tile_2x2_Corner_SolidBody",
+  "mesh_file_id": -3463520483103145272,
+  "upstream_mesh_file_ids": [
+   -3463520483103145272
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 36,
+  "tris": 68
+ },
+ {
+  "file": "Tiles/Tile_2x3/Tile_2x3_Complete-HollowBody.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_2x3_Complete-HollowBody",
+  "mesh_file_id": -5036567532043092862,
+  "upstream_mesh_file_ids": [
+   -7773910122194904890
+  ],
+  "meta_patched": true,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0119,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 112,
+  "tris": 180
+ },
+ {
+  "file": "Tiles/Tile_2x3/Tile_2x3_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_2x3_Complete",
+  "mesh_file_id": -9072857323274028748,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0119,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 112,
+  "tris": 180
+ },
+ {
+  "file": "Tiles/Tile_2x3/Tile_2x3_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Tile_2x3_SolidBody",
+  "mesh_file_id": 4168108755306940300,
+  "upstream_mesh_file_ids": [
+   4168108755306940300
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0119,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0119,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Tiles/Tile_2x4/Tile_2x4_Complete+HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Tile_2x4_Complete+HollowBody_NoBevel",
+  "mesh_file_id": -3015506710334426682,
+  "upstream_mesh_file_ids": [
+   -549861845236167820
+  ],
+  "meta_patched": true,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 136,
+  "tris": 208
+ },
+ {
+  "file": "Tiles/Tile_2x4/Tile_2x4_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_2x4_Complete",
+  "mesh_file_id": -7373212347387429202,
+  "upstream_mesh_file_ids": [
+   -7373212347387429202
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 152,
+  "tris": 240
+ },
+ {
+  "file": "Tiles/Tile_2x4/Tile_2x4_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Tile_2x4_HollowBody",
+  "mesh_file_id": -2593034919951535852,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 152,
+  "tris": 240
+ },
+ {
+  "file": "Tiles/Tile_2x4/Tile_2x4_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Tile_2x4_SolidBody",
+  "mesh_file_id": 5049756097728707135,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Tiles/Tile_2x4/Tile_2x4_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Tile_2x4_SolidBody_NoBevel",
+  "mesh_file_id": -8561472664913899931,
+  "upstream_mesh_file_ids": [
+   -8561472664913899931
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Tiles/Tile_2x6/Tile_2x6_Complete-HollowBody.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_2x6_Complete-HollowBody",
+  "mesh_file_id": 6653030855841497379,
+  "upstream_mesh_file_ids": [
+   -1761507600644905062
+  ],
+  "meta_patched": true,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0239,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 232,
+  "tris": 360
+ },
+ {
+  "file": "Tiles/Tile_2x6/Tile_2x6_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_2x6_Complete",
+  "mesh_file_id": 7824131680277258940,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0239,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 232,
+  "tris": 360
+ },
+ {
+  "file": "Tiles/Tile_2x6/Tile_2x6_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Tile_2x6_SolidBody",
+  "mesh_file_id": -6030749215220484512,
+  "upstream_mesh_file_ids": [
+   -6030749215220484512
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0239,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0239,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Tiles/Tile_2x8/Tile_2x8_Complete+HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Tile_2x8_Complete+HollowBody_NoBevel",
+  "mesh_file_id": -3509483789358167401,
+  "upstream_mesh_file_ids": [
+   3059775469784666474
+  ],
+  "meta_patched": true,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0319,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 296,
+  "tris": 448
+ },
+ {
+  "file": "Tiles/Tile_2x8/Tile_2x8_Complete-HollowBody.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_2x8_Complete-HollowBody",
+  "mesh_file_id": 2199766216442030122,
+  "upstream_mesh_file_ids": [
+   -4327259031156653939
+  ],
+  "meta_patched": true,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0319,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 312,
+  "tris": 480
+ },
+ {
+  "file": "Tiles/Tile_2x8/Tile_2x8_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_2x8_Complete",
+  "mesh_file_id": -4970758693901026951,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0319,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 312,
+  "tris": 480
+ },
+ {
+  "file": "Tiles/Tile_2x8/Tile_2x8_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Tile_2x8_SolidBody",
+  "mesh_file_id": -7895804031682558129,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0319,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "Tiles/Tile_2x8/Tile_2x8_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Tile_2x8_SolidBody_NoBevel",
+  "mesh_file_id": -6748108647064591225,
+  "upstream_mesh_file_ids": [
+   -6748108647064591225
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0319,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0319,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 8,
+  "tris": 12
+ },
+ {
+  "file": "Tiles/Tile_Round_1x1/Tile_Round_1x1_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Tile_Round_1x1_Complete",
+  "mesh_file_id": -5392627434288672809,
+  "upstream_mesh_file_ids": [
+   7725127515873793861
+  ],
+  "meta_patched": true,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.003861,
+    -0.0016,
+    -0.003861
+   ],
+   [
+    0.003861,
+    0.0016,
+    0.003861
+   ]
+  ],
+  "verts": 128,
+  "tris": 252
+ },
+ {
+  "file": "Tiles/Tile_Round_1x1/Tile_Round_1x1_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Tile_Round_1x1_SolidBody",
+  "mesh_file_id": 3927138021457702319,
+  "upstream_mesh_file_ids": [
+   3927138021457702319
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.003861,
+    -0.0016,
+    -0.003861
+   ],
+   [
+    0.003861,
+    0.0016,
+    0.003861
+   ]
+  ],
+  "verts": 96,
+  "tris": 188
+ },
+ {
+  "file": "Windows/Window_1x2/Window_1x2_Complete.fbx",
+  "variant": "complete",
+  "mesh_name": "Window_1x2_Complete",
+  "mesh_file_id": 2291607942833550444,
+  "upstream_mesh_file_ids": [
+   2291607942833550444
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0096,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0113,
+    0.0039
+   ]
+  ],
+  "verts": 104,
+  "tris": 170
+ },
+ {
+  "file": "Windows/Window_1x2/Window_1x2_HollowBody.fbx",
+  "variant": "hollow",
+  "mesh_name": "Window_1x2_HollowBody",
+  "mesh_file_id": 4031323141374964016,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0096,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0096,
+    0.0039
+   ]
+  ],
+  "verts": 56,
+  "tris": 102
+ },
+ {
+  "file": "Windows/Window_1x2/Window_1x2_HollowBody_NoBevel.fbx",
+  "variant": "hollow_nobevel",
+  "mesh_name": "Window_1x2_HollowBody_NoBevel",
+  "mesh_file_id": -9055483527060196791,
+  "upstream_mesh_file_ids": [
+   -9055483527060196791
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0096,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0096,
+    0.0039
+   ]
+  ],
+  "verts": 40,
+  "tris": 70
+ },
+ {
+  "file": "Windows/Window_1x2/Window_1x2_SolidBody.fbx",
+  "variant": "solid",
+  "mesh_name": "Window_1x2_SolidBody",
+  "mesh_file_id": -7584159745128753845,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0096,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0096,
+    0.0039
+   ]
+  ],
+  "verts": 32,
+  "tris": 64
+ },
+ {
+  "file": "Windows/Window_1x2/Window_1x2_SolidBody_NoBevel.fbx",
+  "variant": "solid_nobevel",
+  "mesh_name": "Window_1x2_SolidBody_NoBevel",
+  "mesh_file_id": -397734621175620119,
+  "upstream_mesh_file_ids": [
+   -397734621175620119
+  ],
+  "meta_patched": false,
+  "global_scale": 1.07,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0096,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0096,
+    0.0039
+   ]
+  ],
+  "verts": 16,
+  "tris": 32
+ },
+ {
+  "file": "z_Extras/Round_Stud.fbx",
+  "variant": "complete",
+  "mesh_name": "Round_Stud",
+  "mesh_file_id": -2454713794861659202,
+  "upstream_mesh_file_ids": [
+   -2454713794861659202
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.002318,
+    -0.0004,
+    -0.002318
+   ],
+   [
+    0.002318,
+    0.0015,
+    0.002318
+   ]
+  ],
+  "verts": 48,
+  "tris": 96
+ },
+ {
+  "file": "z_Extras/Slope_Tube.fbx",
+  "variant": "complete",
+  "mesh_name": "Slope_Tube",
+  "mesh_file_id": 7249989764595858987,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.003096,
+    -0.006,
+    -0.003255
+   ],
+   [
+    0.003096,
+    0.0,
+    0.003255
+   ]
+  ],
+  "verts": 40,
+  "tris": 80
+ },
+ {
+  "file": "z_Extras/Stud.fbx",
+  "variant": "complete",
+  "mesh_name": "Stud",
+  "mesh_file_id": 393121357274687783,
+  "upstream_mesh_file_ids": [
+   393121357274687783
+  ],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.002318,
+    -0.0004,
+    -0.002318
+   ],
+   [
+    0.002318,
+    0.0015,
+    0.002318
+   ]
+  ],
+  "verts": 24,
+  "tris": 44
+ },
+ {
+  "file": "z_Extras/Tube.fbx",
+  "variant": "complete",
+  "mesh_name": "Tube",
+  "mesh_file_id": -309684176625119091,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.003096,
+    -0.0086,
+    -0.003255
+   ],
+   [
+    0.003096,
+    0.0,
+    0.003255
+   ]
+  ],
+  "verts": 40,
+  "tris": 80
+ },
+ {
+  "file": "z_Extras/Tube_Short.fbx",
+  "variant": "complete",
+  "mesh_name": "Tube_Short",
+  "mesh_file_id": -2529969423850568188,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.065,
+  "unity_bounds": [
+   [
+    -0.003096,
+    -0.0022,
+    -0.003255
+   ],
+   [
+    0.003096,
+    0.0,
+    0.003255
+   ]
+  ],
+  "verts": 40,
+  "tris": 80
+ },
+ {
+  "file": "z_OldModels/1x1.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [
+   -5963442920211976399
+  ],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 56,
+  "tris": 94
+ },
+ {
+  "file": "z_OldModels/1x10.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 416,
+  "tris": 598
+ },
+ {
+  "file": "z_OldModels/1x10Plate.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0033,
+    0.0039
+   ]
+  ],
+  "verts": 416,
+  "tris": 598
+ },
+ {
+  "file": "z_OldModels/1x10Tile.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0399,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0399,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 176,
+  "tris": 258
+ },
+ {
+  "file": "z_OldModels/1x1Plate.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0033,
+    0.0039
+   ]
+  ],
+  "verts": 56,
+  "tris": 94
+ },
+ {
+  "file": "z_OldModels/1x1Tile.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [
+   -5963442920211976399
+  ],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0039,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0039,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 32,
+  "tris": 60
+ },
+ {
+  "file": "z_OldModels/1x2.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [
+   -5963442920211976399
+  ],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 96,
+  "tris": 150
+ },
+ {
+  "file": "z_OldModels/1x2Plate.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0033,
+    0.0039
+   ]
+  ],
+  "verts": 96,
+  "tris": 150
+ },
+ {
+  "file": "z_OldModels/1x2Tile.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [
+   -5963442920211976399
+  ],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 48,
+  "tris": 82
+ },
+ {
+  "file": "z_OldModels/1x4.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0065,
+    0.0039
+   ]
+  ],
+  "verts": 176,
+  "tris": 262
+ },
+ {
+  "file": "z_OldModels/1x4Plate.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0033,
+    0.0039
+   ]
+  ],
+  "verts": 176,
+  "tris": 262
+ },
+ {
+  "file": "z_OldModels/1x4Tile.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0039
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0039
+   ]
+  ],
+  "verts": 80,
+  "tris": 126
+ },
+ {
+  "file": "z_OldModels/2x2.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0065,
+    0.0079
+   ]
+  ],
+  "verts": 168,
+  "tris": 256
+ },
+ {
+  "file": "z_OldModels/2x2Plate.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0033,
+    0.0079
+   ]
+  ],
+  "verts": 168,
+  "tris": 256
+ },
+ {
+  "file": "z_OldModels/2x2Tile.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0079,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0079,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 72,
+  "tris": 120
+ },
+ {
+  "file": "z_OldModels/2x4Plate.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0033,
+    0.0079
+   ]
+  ],
+  "verts": 344,
+  "tris": 512
+ },
+ {
+  "file": "z_OldModels/2x4Tile.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0016,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0016,
+    0.0079
+   ]
+  ],
+  "verts": 152,
+  "tris": 240
+ },
+ {
+  "file": "z_OldModels/4x2.fbx",
+  "variant": "complete",
+  "mesh_name": "Body_1",
+  "mesh_file_id": -5963442920211976399,
+  "upstream_mesh_file_ids": [
+   -5963442920211976399
+  ],
+  "meta_patched": false,
+  "global_scale": 1.0,
+  "unity_bounds": [
+   [
+    -0.0159,
+    -0.0048,
+    -0.0079
+   ],
+   [
+    0.0159,
+    0.0065,
+    0.0079
+   ]
+  ],
+  "verts": 344,
+  "tris": 512
+ }
+]

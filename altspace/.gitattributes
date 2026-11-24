@@ -1,0 +1,18 @@
+# The Altspace port stores its files as ordinary git objects, not Git LFS: GitHub refuses LFS pushes to a
+# public fork whose network already has LFS objects, and the upstream's LFS objects are gone (410).
+*.fbx -filter -diff -merge binary
+*.png -filter -diff -merge binary
+*.jpg -filter -diff -merge binary
+*.wav -filter -diff -merge binary
+*.ogg -filter -diff -merge binary
+*.mp3 -filter -diff -merge binary
+*.exr -filter -diff -merge binary
+*.tga -filter -diff -merge binary
+*.psd -filter -diff -merge binary
+*.blend -filter -diff -merge binary
+*.ttf -filter -diff -merge binary
+*.otf -filter -diff -merge binary
+*.asset -filter -diff -merge
+*.unity -filter -diff -merge
+*.prefab -filter -diff -merge
+*.mat -filter -diff -merge
