@@ -20,6 +20,21 @@ The page side of the Play-mode tests is `Assets/WebRoot/playtest/brick-playtest.
 `brick-rungs.js` (rungs 3 and 4); the editor side adds the test commands `renderstats` (UnityStats and what the chunk
 renderer holds) and `framems` (`Assets/Kit/Editor/BrickChecks.cs`). Full logs: `playtest/evidence_*.txt`.
 
+## Canvas colliders, 2026-11-25 evening (portkit 16be5ff: 476075d and 425bd55)
+
+In world 9d7311 the SDK's `BSKitItem` gave every world-space canvas without a BoxCollider a solid one when the kit
+loaded: rect x scale, on the canvas's layer. rp-toolkit's head-label canvas then pushed its wearer about (measured in
+the hub's Play mode, portkit GAPS.md "Fourth pass"). Re-synced to portkit `16be5ff`. Its builder (`476075d`) gives every
+world-space canvas a trigger box of its own first, and whose `PortKit/Kit/Check` fails a canvas that would end up
+solid; `425bd55` also makes the page load kit items one at a time (overlapping loads lost relay graphs in the app). Rebuilt:
+
+- Build Prefabs: 1 trigger boxes added to world-space canvases, 0 canvas boxes made triggers.
+- rung 0/1: `npm test` **38 of 38** (0 failed). `npm run build`: 777441 bytes.
+- rung 2: Check all PASS (bindings `c3c20bbb`, the new "canvas colliders" line, both bundles). Android 2960 KiB, Windows 3421 KiB.
+- rung 3 (`playtest/single.json`, brick-single): **20 passed, 0 failed**, 1 console error lines (`playtest/evidence_single.txt`).
+- rung 4 (`playtest/multi.json`, brick-multi): **14 passed, 0 failed**, 0 console error lines (`playtest/evidence_multi.txt`).
+- `dist/` exported: 11 files (6 licence texts), footprint 3.58 x 1.7 x 4.09 m, bindings c3c20bbbc4a96e83bdb0e5952d06da4038cde1d9.
+
 ## Rung 0: static
 
 `npm run typecheck` (tsc, strict) and `npm run lint`: clean (`lint: src, portkit/src clean (page and clock rules)`).

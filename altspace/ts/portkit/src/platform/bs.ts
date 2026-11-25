@@ -137,6 +137,8 @@ interface Registry {
   debug: Record<string, Record<string, unknown>>;
   clock(key: string, id: string, seconds: string): void;
   event(key: string, name: string, args?: string): void;
+  /** The page's kit-loading turn (BsPlatform.kitTurn): settles when the last kit item that asked has loaded. */
+  kitTurn?: Promise<void>;
 }
 
 type StateHandler = { prefix: string; fn: (path: string, value: string | undefined) => void };
@@ -258,6 +260,32 @@ export class BsPlatform implements Platform {
       win.__pk1 = made;
     }
     return registry;
+  }
+
+  /**
+   * Waits until no other kit item of this page is loading (the registry's kitTurn, a chain every game script on the page
+   * joins: scripts are separate bundles, so the turn lives on window.__pk1), then holds the turn. Resolves to the call
+   * that hands it on; call it once the kit item has reported loaded (or given up). A script of an older portkit on the
+   * same page does not take turns, so it can still overlap the others.
+   */
+  private async kitTurn(holderName: string): Promise<() => void> {
+    const registry = this.registry();
+    const before: Promise<void> = registry.kitTurn instanceof Promise ? registry.kitTurn : Promise.resolve();
+    let hand!: () => void;
+    const mine = new Promise<void>((resolve) => {
+      hand = resolve;
+    });
+    registry.kitTurn = before.then(() => mine);
+    const waited = this.env.now();
+    await before;
+    const ms = this.env.now() - waited;
+    if (ms > 0) this.log("debug", `kit ${holderName}: waited ${Math.round(ms)} ms for the other kits on the page to load`);
+    let handed = false;
+    return () => {
+      if (handed) return;
+      handed = true;
+      hand();
+    };
   }
 
   claimGame(slug: string, info: Record<string, unknown>): boolean {
@@ -837,14 +865,26 @@ export class BsPlatform implements Platform {
     if (Object.keys(placement).length) await holder.SetTransform(placement);
     // As vehicle-kits.js does: a bundle component, then a kit item whose path "*" means the bundle's first prefab.
     await holder.AddComponent(new BS.AssetBundle(spec.windows, "", "", spec.android, "", "", false, false));
-    const item = new BS.KitItem("*");
-    const loaded = deferred<boolean>();
-    item.On("loaded", () => loaded.resolve(true));
-    await holder.AddComponent(item);
-    if (item.isLoaded) loaded.resolve(true);
-    const timer = this.env.setTimeout(() => loaded.resolve(false), this.options.kitTimeoutMs);
-    const ok = await loaded.promise;
-    this.env.clearTimeout(timer);
+    // One kit item at a time on the page, across every game script on it (kitTurn). The bundle above downloads at once;
+    // only the kit item waits. Since 2026-11-18 the app's BSKitItem loads the prefab on Unity's loading thread, and the
+    // app's Visual Scripting skips (and so loses) the data of any graph or Variables that one thread reaches while
+    // another thread is inside Visual Scripting's serializer: a kit loaded or instantiated while another kit was still
+    // loading came up with no relay graph, or with no Variables ("Variable not found: 'PkRoot'"). Found on the Quest in
+    // world 9d7311 (ten kits, all dead); reproduced and the fix proven in vs-repro (FINDINGS.md).
+    const handOn = await this.kitTurn(spec.holderName);
+    let ok: boolean;
+    try {
+      const item = new BS.KitItem("*");
+      const loaded = deferred<boolean>();
+      item.On("loaded", () => loaded.resolve(true));
+      await holder.AddComponent(item);
+      if (item.isLoaded) loaded.resolve(true);
+      const timer = this.env.setTimeout(() => loaded.resolve(false), this.options.kitTimeoutMs);
+      ok = await loaded.promise;
+      this.env.clearTimeout(timer);
+    } finally {
+      handOn();
+    }
     if (!ok) this.log("error", `kit ${spec.holderName}: the kit item never reported loaded`);
 
     // The page only knows objects that carry a BS Object Id: the kit builder puts one on every bound object and on

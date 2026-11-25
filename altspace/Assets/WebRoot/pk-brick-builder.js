@@ -27646,6 +27646,31 @@ ${label}`)));
       }
       return registry;
     }
+    /**
+     * Waits until no other kit item of this page is loading (the registry's kitTurn, a chain every game script on the page
+     * joins: scripts are separate bundles, so the turn lives on window.__pk1), then holds the turn. Resolves to the call
+     * that hands it on; call it once the kit item has reported loaded (or given up). A script of an older portkit on the
+     * same page does not take turns, so it can still overlap the others.
+     */
+    async kitTurn(holderName2) {
+      const registry = this.registry();
+      const before = registry.kitTurn instanceof Promise ? registry.kitTurn : Promise.resolve();
+      let hand;
+      const mine = new Promise((resolve) => {
+        hand = resolve;
+      });
+      registry.kitTurn = before.then(() => mine);
+      const waited = this.env.now();
+      await before;
+      const ms = this.env.now() - waited;
+      if (ms > 0) this.log("debug", `kit ${holderName2}: waited ${Math.round(ms)} ms for the other kits on the page to load`);
+      let handed = false;
+      return () => {
+        if (handed) return;
+        handed = true;
+        hand();
+      };
+    }
     claimGame(slug, info) {
       const registry = this.registry();
       if (Object.prototype.hasOwnProperty.call(registry.games, slug)) return false;
@@ -28161,14 +28186,20 @@ ${label}`)));
       if (spec.scale) placement.localScale = toBs3(BS, spec.scale);
       if (Object.keys(placement).length) await holder.SetTransform(placement);
       await holder.AddComponent(new BS.AssetBundle(spec.windows, "", "", spec.android, "", "", false, false));
-      const item = new BS.KitItem("*");
-      const loaded = deferred();
-      item.On("loaded", () => loaded.resolve(true));
-      await holder.AddComponent(item);
-      if (item.isLoaded) loaded.resolve(true);
-      const timer = this.env.setTimeout(() => loaded.resolve(false), this.options.kitTimeoutMs);
-      const ok = await loaded.promise;
-      this.env.clearTimeout(timer);
+      const handOn = await this.kitTurn(spec.holderName);
+      let ok;
+      try {
+        const item = new BS.KitItem("*");
+        const loaded = deferred();
+        item.On("loaded", () => loaded.resolve(true));
+        await holder.AddComponent(item);
+        if (item.isLoaded) loaded.resolve(true);
+        const timer = this.env.setTimeout(() => loaded.resolve(false), this.options.kitTimeoutMs);
+        ok = await loaded.promise;
+        this.env.clearTimeout(timer);
+      } finally {
+        handOn();
+      }
       if (!ok) this.log("error", `kit ${spec.holderName}: the kit item never reported loaded`);
       const scene = this.scene;
       const childrenOf = (parent) => {
