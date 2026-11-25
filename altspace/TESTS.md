@@ -20,6 +20,14 @@ The page side of the Play-mode tests is `Assets/WebRoot/playtest/brick-playtest.
 `brick-rungs.js` (rungs 3 and 4); the editor side adds the test commands `renderstats` (UnityStats and what the chunk
 renderer holds) and `framems` (`Assets/Kit/Editor/BrickChecks.cs`). Full logs: `playtest/evidence_*.txt`.
 
+## Page script on portkit 552622c, 2026-11-25 evening
+
+Re-synced `ts/portkit` and the package to portkit `552622c`. That commit includes `425bd55`: the page loads kit
+items one at a time, because overlapping loads lost relay graphs and Variables in the app. It also includes
+`0880bf5`: a referee claimant starts only once its claim has stood for 1.5 s, which fixes the equal-term double
+claim, and user-state flushes go one at a time. The bundles are unchanged from the rebuild below. `npm test`:
+**38 of 38** (0 failed). `npm run build`: 778991 bytes. Export Artifacts -> `dist/`: 11 files (6 licence texts), footprint 3.58 x 1.7 x 4.09 m, bindings c3c20bbbc4a96e83bdb0e5952d06da4038cde1d9.
+
 ## Canvas colliders, 2026-11-25 evening (portkit 16be5ff: 476075d and 425bd55)
 
 In world 9d7311 the SDK's `BSKitItem` gave every world-space canvas without a BoxCollider a solid one when the kit

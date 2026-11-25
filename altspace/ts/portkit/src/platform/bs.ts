@@ -183,6 +183,7 @@ export class BsPlatform implements Platform {
   /** For tests and diagnostics: handoffs to the app, and the largest one in bytes. */
   readonly stateStats = { handoffs: 0, largest: 0, deferred: 0 };
   private readonly pendingUser = new Map<string, string | null>();
+  private userFlushing = false;
   private userTimer = 0;
   private userLastFlush = -Infinity;
   private userBackoff = 0;
@@ -767,7 +768,10 @@ export class BsPlatform implements Platform {
   }
 
   private scheduleUserFlush(): void {
-    if (this.userTimer) return;
+    // One flush at a time: a second one started while the first awaits an earlier leaf would send a leaf's newer value
+    // before the first sends its older one, and the room would keep the older (seen as a player id that went back from
+    // 4 to 3 on a slow network). The running flush schedules the next when it ends.
+    if (this.userTimer || this.userFlushing) return;
     const wait = Math.max(0, this.userLastFlush + Math.max(this.options.userFlushMs, this.userBackoff) - this.env.now());
     this.userTimer = this.env.setTimeout(() => {
       this.userTimer = 0;
@@ -776,11 +780,23 @@ export class BsPlatform implements Platform {
   }
 
   private async flushUser(): Promise<void> {
+    this.userFlushing = true;
+    try {
+      await this.flushUserBatch();
+    } finally {
+      this.userFlushing = false;
+    }
+    if (this.pendingUser.size) this.scheduleUserFlush();
+  }
+
+  private async flushUserBatch(): Promise<void> {
     this.userLastFlush = this.env.now();
     const batch = [...this.pendingUser];
     this.pendingUser.clear();
     let limited = false;
     for (const [path, value] of batch) {
+      // A newer value of this leaf was asked for while this batch awaited an earlier one: that one goes next instead.
+      if (this.pendingUser.has(path)) continue;
       if (this.localUser) {
         this.setLocalUser(path, value);
         continue;
@@ -803,7 +819,6 @@ export class BsPlatform implements Platform {
       }
     }
     this.userBackoff = limited ? Math.min(Math.max(this.userBackoff * 2, 250), 4000) : 0;
-    if (this.pendingUser.size) this.scheduleUserFlush();
   }
 
   private setLocalUser(path: string, value: string | null): void {
