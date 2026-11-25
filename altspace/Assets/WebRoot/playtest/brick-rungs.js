@@ -13,6 +13,18 @@
     return r;
   }
 
+  /**
+   * The renderer is up to date with the ledger: every brick has a chunk slot (the renderer's update, which runs in the
+   * page's next Update, has seen the change) and the graph has reported every record sent as built. The renderer's
+   * `idle` alone is true between a change and that Update (nothing sent yet), so a check that read Unity at once could
+   * see the build before the change (seen after the re-sync to portkit c971100, with ten editors on the machine).
+   */
+  function settled(t) {
+    const r = t.debug().render();
+    const slots = Object.values(r.counts).reduce((a, b) => a + b, 0);
+    return r.idle && slots === t.debug().bricks();
+  }
+
   async function placeOnCarpet(t, p, what) {
     const n = t.debug().bricks();
     await clickLattice(t, p, what);
@@ -26,7 +38,7 @@
     if (back) {
       flag("brickRung3Reload", null);
       const want = Number(flag("brickRung3Count"));
-      const ok = await until(() => debug().bricks() === want && debug().render().idle && debug().render().built.ops > 0, 30000, 50);
+      const ok = await until(() => debug().bricks() === want && settled(t) && debug().render().built.ops > 0, 30000, 50);
       const s = await stats();
       check(!!ok && debug().bricksDigest() === flag("brickRung3Digest"), "after a reload the build is there again (late join from room state)", `${debug().bricks()} of ${want} bricks, digest ${debug().bricksDigest()}`);
       check(s.drawn === want, "and every brick of it is drawn", `${s.drawn} drawn; ${s.text}`);
@@ -35,7 +47,7 @@
       const loaded = await until(() => debug().bricks() === Number(flag("brickRung3Saved")), 8000, 100);
       check(!!loaded, "Load puts back the build saved on this device", `${debug().bricks()} bricks, saved ${flag("brickRung3Saved")}`);
       await sleep(1000);
-      await until(() => debug().render().idle, 5000, 50);
+      await until(() => settled(t), 5000, 50);
       const s2 = await stats();
       check(s2.drawn === debug().bricks(), "the loaded build is drawn", `${s2.drawn} drawn`);
       await cmd("shot loaded 0 1.8 -3.2 0 0.2 0 50");
@@ -89,7 +101,7 @@
     const top = debug().placed().find((b) => b.pos[1] === 144);
     check(!!stacked && !!top && top.pos[0] === first.pos[0] && top.pos[2] === first.pos[2], "a click on a brick's top puts the next brick on its studs (the build is clickable)",
       top ? JSON.stringify([top.prefab, top.pos, top.color.toString(16)]) : "nothing stacked (" + debug().bricks() + " bricks)");
-    await until(() => debug().render().idle, 4000, 50);
+    await until(() => settled(t), 4000, 50);
     const s = await stats();
     check(s.drawn === debug().bricks() && s.chunks >= 1, "every placed brick is drawn by the chunk renderer", `${s.drawn} drawn of ${debug().bricks()}; ${s.text}`);
     await cmd("shot built 1.2 0.9 -1.5 -0.2 0.05 -0.6 50");
@@ -134,7 +146,7 @@
     await clickLattice(t, [victim.pos[0] + 10, victim.pos[1] + 48, victim.pos[2] + 10], "the stacked brick with the hammer");
     say("INFO", "the hammer click reached the page as", JSON.stringify(debug().lastClick()));
     const gone = await until(() => debug().bricks() === n1 - 1 && !debug().placed().some((b) => b.id === victim.id), 4000, 50);
-    await until(() => debug().render().idle, 4000, 50);
+    await until(() => settled(t), 4000, 50);
     const s3 = await stats();
     check(!!on && marker === "True" && !!gone && s3.drawn === debug().bricks(), "the hammer removes the brick it hits, for the renderer too", `hammer ${on}, marker ${marker}; ${n1} -> ${debug().bricks()} bricks; drawn ${s3.drawn}`);
     await clickPath("Tools/HammerButton", "Hammer off");
@@ -160,7 +172,7 @@
     const underArch = await placeOnCarpet(t, [800, 0, 800], "the carpet where the arch goes");
     const archId = debug().placeOne("1x3Arch", 0, 800, 48, 800, 0x9ba19d);
     await sleep(1500);
-    await until(() => debug().render().idle, 4000, 50);
+    await until(() => settled(t), 4000, 50);
     const s4 = await stats();
     check(underArch && !!archId && s4.drawn === debug().bricks(), "an arch goes over a 1x1 plate on the carpet, and both are drawn",
       `plate ${underArch}, arch ${archId}; ${s4.drawn} drawn of ${debug().bricks()}`);
@@ -250,7 +262,7 @@
     if (back) {
       flag("brickRung4Reload", null);
       const want = Number(flag("brickRung4Count"));
-      const ok = await until(() => debug().bricks() >= want && debug().render().idle && debug().render().built.ops > 0, 30000, 50);
+      const ok = await until(() => debug().bricks() >= want && settled(t) && debug().render().built.ops > 0, 30000, 50);
       const s = await stats();
       check(!!ok && s.drawn === debug().bricks(), "late join by reload: the build is rebuilt and drawn", `${debug().bricks()} bricks (had ${want}), drawn ${s.drawn}`);
       send({ kind: "back", digest: debug().bricksDigest(), bricks: debug().bricks() });
@@ -281,7 +293,7 @@
     }
     check(mine === 3, "this player placed three bricks by clicking the carpet", `${mine}`);
     const all = await until(() => debug().bricks() === 6, 20000, 100);
-    await until(() => debug().render().idle, 5000, 50);
+    await until(() => settled(t), 5000, 50);
     const s = await stats();
     check(!!all && s.drawn === 6, "both players' bricks arrive on this page and are drawn", `${debug().bricks()} bricks, ${s.drawn} drawn`);
     await sleep(2500);

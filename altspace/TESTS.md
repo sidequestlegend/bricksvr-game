@@ -1,6 +1,6 @@
 # brick-builder: test evidence
 
-Everything here ran on 2026-11-24 (first Unity phase) and 2026-11-25 (after the review; sections say which) on Windows, Unity 6000.3.21f1, Creator SDK 4.0.29, in the Unity editor. Nothing ran
+Everything here ran on 2026-11-24 (first Unity phase) and 2026-11-25 (after the review, and again after the re-sync to portkit `c971100`; sections say which) on Windows, Unity 6000.3.21f1, Creator SDK 4.0.29, in the Unity editor. Nothing ran
 in the Altspace app, on a Quest, or with controllers (rung 5: not run; worlds stay Private).
 
 How to run each rung again:
@@ -25,6 +25,13 @@ renderer holds) and `framems` (`Assets/Kit/Editor/BrickChecks.cs`). Full logs: `
 `npm run typecheck` (tsc, strict) and `npm run lint`: clean (`lint: src, portkit/src clean (page and clock rules)`).
 
 ## Rung 1: Node (no Unity)
+
+**2026-11-25, re-synced to portkit `c971100`:** `npm test` in `altspace/ts`: typecheck and lint clean, **38 tests, 38
+pass, 0 fail**; the kit's own suite run from the game's copy (`node --test portkit/test/*.test.ts`): 110 of 110. Every
+measured number is unchanged but two: the 2,000-brick load reaches the other player after 2,700 ms virtual (was 2,800;
+the same 3 space-state batches and 4 user-state writes), and the rebuild of 2,000 bricks took a median 29.8 ms (was
+20.2 ms; wall-clock, with ten games' editors and tests on the machine). The game needed no source change: it uses none
+of the APIs the kit changed (no draws or deals, commands, attachments, `findpos`, reach).
 
 `npm test` in `altspace/ts`: **38 tests, 38 pass, 0 fail** (portkit `812f285`, re-synced 2026-11-25). The golden vectors
 (upstream `BrickAttachDetector.cs`, `LegoConnectorScript.cs`, `ColorInt.cs` compiled unchanged with dotnet 8: 650
@@ -76,6 +83,29 @@ Test 18 was written after Play mode showed a reload of the only page losing the 
 (clear and place again in one pass) leaving the chunk's slots empty; fixed in `BrickRenderer.update`.
 
 ## Rung 2: the kit in edit mode (`PortKit/Kit/Check`)
+
+**2026-11-25, re-synced to portkit `c971100`** (`altspace/tools/rebuild_kit.sh`): PASS.
+
+```
+brick-builder_relay: 912 units, 319 control and 921 value connections, 72 distinct members, all on the allow list of 29061
+   relay ops: clock, pkHead, text, active, ... rbLaunch, spawn, despawn, bricks, bspawn, tint; relayed events: 4
+ok brick-builder: 3395 objects, 114 bound (13 synced, 13 grabbable, 90 clickable), 7 refs, 127 behaviours, 6 events; bindings c3c20bbbc4a96e83bdb0e5952d06da4038cde1d9 -> ts/bindings.json
+android brick-builder: 2962 KiB, with notices, licence texts: (the same six)
+windows brick-builder: 3418 KiB, with notices, licence texts: (the same six)
+PASS graphs: the SDK's check found 0 nodes the app will not run
+PASS brick-builder bindings: 114 objects resolve by path; hash matches (c3c20bbbc4a96e83bdb0e5952d06da4038cde1d9)
+PASS brick-builder android bundle: PASS Kind=Pass Reasons=[] Reports=[] Stats=files 1 (format 22), scenes 0, objects 271/11129, behaviours 259, scripts 12, ...
+PASS brick-builder windows bundle: PASS Kind=Pass Reasons=[] Reports=[] ...
+DONE
+```
+
+What the kit changed: the relay graph gains `pkHead` and the per-target launch list (857 -> 912 units, 69 -> 72
+members, still all allowed); the 13 grabbables each gain a `BSPlayerEvents` with its events made (the kit's workaround
+for the SDK's null `onClick` in `BSScene.Click`), so the bundle holds 26 more behaviours (233 -> 259) and one more script
+type. Bindings unchanged. The description and the in-world credits no longer say all brick models are "regenerated plain
+shapes" (the plants and pyramid are upstream's own meshes); the longer credits line set to shrink to fit its panel
+(TextMesh Pro auto size 0.26-0.32) instead of losing its last line, which the first build of this pass did (seen in the
+photo). Bundle sizes (`dist/`, bytes): Android 3,021,299 -> 3,032,666, Windows 3,487,447 -> 3,500,078.
 
 **2026-11-25, after the review** (portkit `812f285`; `altspace/tools/rebuild_kit.sh`): PASS.
 
@@ -198,6 +228,22 @@ How (b) works (README op table of this game, `Assets/Kit/Editor/BrickKitBuilder.
 
 ## Rung 3: Play mode, one player (`playtest/single.json`)
 
+**2026-11-25, re-synced to portkit `c971100`, on the rebuilt bundles: RESULT 20 passed, 0 failed, twice in a row**
+(`playtest.sh --keep-play`; `playtest/evidence_single_run1.txt`, `playtest/evidence_single.txt`). Console: the same one
+SDK line per run (`Failed to load after 25 seconds ... no component is still loading (1 registered)`; the instance
+started at 5,512 ms and every check passed).
+
+The first two runs on these bundles failed renderer counts: run 1 19/1 (the hammer removed the brick, 5 -> 4 bricks,
+but `renderstats` said 5 drawn), run 2 18/2 (that, and "3 drawn of 4" after the stacked brick;
+`playtest/evidence_single_race.txt`). Every later check in both runs saw the renderer complete (the arch check "6 drawn
+of 6", the reload "7 drawn"), so the build was drawn, only read too early. Cause, in the test: the renderer sends a
+change in the page's next `Update`, and its `idle` ("every record sent has been reported built") is already true in
+between, so `until(idle)` returned before anything was sent and `renderstats` read Unity before the change. It passed
+before because the round trip happened to outlast a frame; with ten editors on the machine it did not. The test now
+waits for `settled`: `idle` and every brick of the ledger holding a chunk slot (the renderer has seen the change), at
+each of the seven places that read `renderstats` after a change (`Assets/WebRoot/playtest/brick-rungs.js`). The checks
+themselves are unchanged (drawn equals bricks); the wait only got stricter. The game's renderer is unchanged.
+
 **2026-11-25, after the review, on the rebuilt bundles: RESULT 20 passed, 0 failed, twice in a row**
 (`playtest/evidence_single_run1.txt`, `playtest/evidence_single.txt`; picture of the new arch check
 `playtest/evidence_single_arch.jpg`). Three checks are new, for what the fixes changed that Play mode can show:
@@ -258,6 +304,11 @@ Play session lets go by itself, so the test spends it on the hammer first.
 
 ## Rung 4: two Local Multiplayer players (`playtest/multi.json`)
 
+**2026-11-25, re-synced to portkit `c971100`, on the rebuilt bundles: RESULT 14 passed, 0 failed, twice in a row**
+(`playtest/evidence_multi_run1.txt`, `playtest/evidence_multi.txt`; "Player 2: Launched (Clone)"; console 0 error lines;
+with the `settled` wait above). Digests at equal state: run 1 `6:8c3b9317` on both pages, `7:9cf18dc6` on both after the
+reload (this time the main editor's page was the one that reloaded); run 2 `6:60a4b93c`, then `7:208ee080` on both.
+
 **2026-11-25, after the review, on the rebuilt bundles: RESULT 14 passed, 0 failed, twice in a row**
 (`playtest/evidence_multi_run1.txt`, `playtest/evidence_multi.txt`; `playtest.sh` activated Player 2 and waited for
 it, "Player 2: Launched (Clone)"; console 0 error lines). Digests at equal state on both pages:
@@ -296,6 +347,15 @@ First Unity phase (2026-11-24):
 ```
 
 ## Artifacts
+
+**2026-11-25, re-synced to portkit `c971100`**: `PortKit/Kit/Take Photos` ("'Picker' only, 78 renderers (5 bound
+objects off)": the count now includes the picker's world-space uGUI), `PortKit/Kit/Export Artifacts` ("11 files (6
+licence texts), footprint 3.58 x 1.7 x 4.09 m") -> `altspace/dist/` (not committed): `android/brick-builder` (3,032,666
+bytes), `windows/brick-builder` (3,500,078 bytes), `pk-brick-builder.js` (776,174 bytes), `brick-builder.jpg` (the picker,
+credits line complete), `brick-builder.snippet.html` (unchanged: box gizmo 3.584 x 0.2 x 3.584 m from `GizmoSize`),
+`licenses/brick-builder/` (new: the six licence texts the bundles carry, each with its sha1 in the manifest),
+`manifest.json`. `GizmoSize` and `PhotoRoot` stay: the build area's size is a setting, not the footprint, and the
+whole kit's photo would be mostly carpet.
 
 **2026-11-25**: `PortKit/Kit/Take Photos` ("'Picker' only, 69 renderers", `PhotoRoot`), `PortKit/Kit/Export Artifacts`
 -> `altspace/dist/` (not committed): `android/brick-builder` (3,021,299 bytes, was 3,009,968), `windows/brick-builder`

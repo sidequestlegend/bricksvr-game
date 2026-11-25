@@ -364,7 +364,7 @@ leaf (plus the runtime's announcement leaf). Networked objects: 12 per area (the
 
 ## 9. Test plan and results
 
-`cd altspace/ts && npm test` (typecheck, lint, 38 tests), run on portkit `812f285` (re-synced). The game sends no
+`cd altspace/ts && npm test` (typecheck, lint, 38 tests), run on portkit `c971100` (re-synced 2026-11-25; 11.6). The game sends no
 network events and no commands (all its state is fields), so it declares no `networkCallable` methods; its only relay
 op is the standard `active` on `@` paths, so it needs no `Host.op` or `defineRelayOp`. `npm run golden` regenerates the vectors with dotnet 8.
 `npm run build` writes `../Assets/WebRoot/pk-brick-builder.js`; this job built it to a scratch folder instead:
@@ -419,18 +419,20 @@ trigger cubes.
 | N8 | spawn from the pool, grab, drop near the carpet: snaps at y = 48; pick it up from the build, drop it in the air: loose 6 s, then the slot is free | as stated |
 | N9 | the owner locks: a member cannot place or unlock | as stated |
 | N10 | hammer 75 of 400, author leaves | the 75 deleted bricks leave the archive (repacked by the referee while the author was still there); the 75 tombstones stay until they are a quarter of the archive; a joiner rebuilds the 325 |
-| N11 | a non-referee loads a 2,000-brick save at once | the other player has all 2,000 after 2.8 s (virtual): **3 space-state batches and 4 user-state writes**, largest log leaf 11,708 bytes, no rate limiting (plan's spike: at most 100 batches) |
+| N11 | a non-referee loads a 2,000-brick save at once | the other player has all 2,000 after 2.7 s (virtual; 2.8 s before portkit `c971100`): **3 space-state batches and 4 user-state writes**, largest log leaf 11,708 bytes, no rate limiting (plan's spike: at most 100 batches) |
 | N12 | the review's findings 3-15 (`findings.test.ts`, `repack.test.ts`; each fails on the code before its fix) | a full archive refuses with a notice and loses nothing; bad records refused; the hammer's blast; pick-up needs a slot, a leaver's slot is freed; logs speak only for their player; loose bricks block; one segment decoded per write; the hand spawner; a 19-segment repack in parts; tombstone numbers not reused |
 
 ### 9.3 Unity (rungs 2 to 4)
 
 Run in the Unity phase: `altspace/TESTS.md` (rung 2 PASS, rendering spike PASS with option (b), rung 3 17/0, rung 4 14/0);
 again after the review on the rebuilt bundles (2026-11-25): rung 2 PASS, rung 3 20/0 twice (3 new checks: an arch over a
-plate, a full area and its notice, room again after removing), rung 4 14/0 twice.
+plate, a full area and its notice, room again after removing), rung 4 14/0 twice; and again after the re-sync to portkit
+`c971100` (11.6): rung 2 PASS, rung 3 20/0 twice, rung 4 14/0 twice.
 
-Known issue (minor, left for the next kit rebuild): the kit's description and in-world credits say the brick models are
-"regenerated plain shapes"; since this pass the two plants and the pyramid are upstream's own meshes (section 6). The
-wording is in `BrickKitBuilder.cs` (Description, credits); changing it means another bundle build and rung 3/4 run.
+Fixed in the re-sync to portkit `c971100` (11.6): the kit's description and in-world credits said every brick model was
+"regenerated plain shapes", though the two plants and the pyramid are upstream's own meshes (section 6). They now say
+the bricks are regenerated as plain shapes and the plants and pyramid rebuilt from upstream's meshes
+(`BrickKitBuilder.cs` Description, `CreditsText`; THIRD-PARTY-NOTICES.md already said so).
 
 ---
 
@@ -575,3 +577,25 @@ the builder sets `GizmoSize` and `PhotoRoot`.
 | The runtime resets an empty room's instance by default (`whenEmpty: "reset"`); a game whose state should outlive the visitors must know to opt out | `portkit/README.md` (Runtime shape) | say it in the README next to `GameDefinition.options`; this game sets `whenEmpty: "keep"` |
 | The snippet markup's box gizmo is the kit's footprint; a game whose size is a setting (width, depth) cannot make it follow | `portkit/unity/Editor/Kit/KitArtifacts.cs` `Markup` | let a builder override the gizmo size (or skip the box) |
 | The kit photo frames the whole footprint from far away; for a flat kit it shows mostly floor | `KitArtifacts.Photos` | let a builder give the photo's camera |
+
+### 11.6 Re-sync to portkit `c971100` (2026-11-25)
+
+`portkit/tools/sync.sh brick-builder` (unity/ and ts/ mirrored; no game source change needed: the game uses no draws,
+deals, commands, attachments, head readings or reach checks, and had no workaround for any third-pass row). Nothing to
+remove. `npm test` 38/38 (the kit's own 110/110 from the game's copy). Evidence: `altspace/TESTS.md` (sections marked
+"re-synced to portkit `c971100`").
+
+- Rebuilt (Build Prefabs, script, Build Bundles, Check: rung 2 PASS). From the kit: the relay graph gains `pkHead` and
+  per-target launches (857 -> 912 units, all allowed); the 13 grabbables (12 pool slots, the hammer) carry a
+  `BSPlayerEvents` with its events made, the kit's workaround for the SDK's null `onClick` in `BSScene.Click` (26 more
+  behaviours in the bundle); `dist/licenses/brick-builder/` holds the six licence texts; the photo and footprint count
+  the picker's world-space uGUI. `GizmoSize` and `PhotoRoot` stay (they are not uGUI make-up: the area's size is a
+  setting, and the whole kit's photo would be mostly carpet).
+- Description and credits wording fixed (9.3). The longer credits line lost its last line on the panel in the first
+  build (seen in the photo), so the credits text now shrinks to fit (TextMesh Pro auto size 0.26-0.32).
+- Bundles (`dist/`): Android 3,021,299 -> 3,032,666 bytes, Windows 3,487,447 -> 3,500,078; script 763,355 -> 776,174.
+- Rung 3 20/0 and rung 4 14/0, each twice in a row, after one fix to the Play-mode test: its wait before reading
+  `renderstats` could pass before the page's next `Update` had sent the change (TESTS.md rung 3); now it waits until every
+  brick holds a chunk slot as well. The game's renderer did not change.
+- Newly verified: nothing the game relies on; the `BSPlayerEvents` on the pool slots and the hammer did not change the
+  held-brick and hammer checks (grab, let go, snap, trigger), which pass as before.

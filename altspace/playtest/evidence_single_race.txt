@@ -1,0 +1,250 @@
+play.1 already held by brick-builder
+local relay room cleared (1 saved rooms)
+armed 'brick-single': 4 elements, test server http://localhost:43500 (running), page port 43400
+2026-11-25T05:34:18.6610402+04:00 play -> entering play mode
+local: script and bundles from the test server http://localhost:43500
+[main] INFO main in Play, page port 43400
+[main] PASS the kit loads from a hand-written bs-snippet and the instance starts: at 5563 ms after the page opened
+[main] CMD b1_877088 probe pk1:brick-builder:0 pos Hammer
+[main] REPLY b1_877088 0.926 0.966 -2.150
+[main] CMD b2_228535 look 0.926 0.966 -2.150
+[main] REPLY b2_228535 ok camera at 0.00,1.60,0.00
+[main] CMD b3_7479 press 0.926 0.966 -2.150
+[main] REPLY b3_7479 ok screen 584,512 of 1169x1024
+[main] CMD b4_204278 wait 10
+[main] REPLY b4_204278 ok
+[main] CMD b5_969337 release
+[main] REPLY b5_969337 ok
+[main] CMD b6_348280 probe pk1:brick-builder:0 pos Picker/Tabs/Tab1
+[main] REPLY b6_348280 -1.146 1.620 -2.150
+[main] CMD b7_200721 look -1.146 1.620 -2.150
+[main] REPLY b7_200721 ok camera at 0.00,1.60,0.00
+[main] CMD b8_923120 click -1.146 1.620 -2.150
+[main] REPLY b8_923120 ok screen 585,512 of 1169x1024
+[main] INFO click the Plates tab: ok screen 585,512 of 1169x1024 at -1.146 1.620 -2.150
+[main] CMD b9_648263 probe pk1:brick-builder:0 active Picker/Cat1
+[main] REPLY b9_648263 True
+[main] CMD b10_622344 probe pk1:brick-builder:0 active Picker/Cat0
+[main] REPLY b10_622344 False
+[main] PASS a category tab shows its bricks: category 1; Cat1 active True, Cat0 active False
+[main] CMD b11_190092 probe pk1:brick-builder:0 pos Picker/Tabs/Tab0
+[main] REPLY b11_190092 -1.410 1.620 -2.150
+[main] CMD b12_655824 look -1.410 1.620 -2.150
+[main] REPLY b12_655824 ok camera at 0.00,1.60,0.00
+[main] CMD b13_272324 click -1.410 1.620 -2.150
+[main] REPLY b13_272324 ok screen 584,512 of 1169x1024
+[main] INFO click the Bricks tab: ok screen 584,512 of 1169x1024 at -1.410 1.620 -2.150
+[main] CMD b14_838730 probe pk1:brick-builder:0 pos Picker/Cat0/Tile_2x2
+[main] REPLY b14_838730 -1.146 1.250 -2.150
+[main] CMD b15_225654 look -1.146 1.250 -2.150
+[main] REPLY b15_225654 ok camera at 0.00,1.60,0.00
+[main] CMD b16_236250 click -1.146 1.250 -2.150
+[main] REPLY b16_236250 ok screen 585,512 of 1169x1024
+[main] INFO click the 2x2 brick: ok screen 585,512 of 1169x1024 at -1.146 1.250 -2.150
+[main] PASS a click on a picker tile selects that brick: {"type":7,"prefab":"2x2","color":13179401,"hammer":false,"category":0,"yaw":0}
+[main] CMD b17_575144 probe pk1:brick-builder:0 pos Picker/Swatches/S4
+[main] REPLY b17_575144 -1.110 0.820 -2.150
+[main] CMD b18_409600 look -1.110 0.820 -2.150
+[main] REPLY b18_409600 ok camera at 0.00,1.60,0.00
+[main] CMD b19_83537 click -1.110 0.820 -2.150
+[main] REPLY b19_83537 ok screen 585,512 of 1169x1024
+[main] INFO click the blue swatch: ok screen 585,512 of 1169x1024 at -1.110 0.820 -2.150
+[main] CMD b20_142796 probe pk1:brick-builder:0 color Picker/Cat0/Tile_2x2/Model _BaseColor
+[main] REPLY b20_142796 0.000 0.333 0.749 1.000
+[main] PASS a swatch sets the colour; the picker's bricks show it (relay op tint): colour 55bf, tile 0.000 0.333 0.749 1.000
+[main] CMD b21_151677 look -0.2800 0.0000 -0.5600
+[main] REPLY b21_151677 ok camera at 0.00,1.60,0.00
+[main] CMD b22_22087 click -0.2800 0.0000 -0.5600
+[main] REPLY b22_22087 ok screen 584,512 of 1169x1024
+[main] INFO click the carpet 0: ok screen 584,512 of 1169x1024 at -0.2800 0.0000 -0.5600
+[main] CMD b23_949487 look 0.0000 0.0000 -0.5600
+[main] REPLY b23_949487 ok camera at 0.00,1.60,0.00
+[main] CMD b24_929615 click 0.0000 0.0000 -0.5600
+[main] REPLY b24_929615 ok screen 585,512 of 1169x1024
+[main] INFO click the carpet 1: ok screen 585,512 of 1169x1024 at 0.0000 0.0000 -0.5600
+[main] CMD b25_411161 look 0.2800 0.0000 -0.5600
+[main] REPLY b25_411161 ok camera at 0.00,1.60,0.00
+[main] CMD b26_57831 click 0.2800 0.0000 -0.5600
+[main] REPLY b26_57831 ok screen 585,512 of 1169x1024
+[main] INFO click the carpet 2: ok screen 585,512 of 1169x1024 at 0.2800 0.0000 -0.5600
+[main] PASS clicks on the carpet place the selected brick in the selected colour, snapped to the studs: [["2x2",[-440,48,-840],"55bf"],["2x2",[-40,48,-840],"55bf"],["2x2",[360,48,-840],"55bf"]]
+[main] CMD b27_595445 probe pk1:brick-builder:0 pos Picker/Swatches/S2
+[main] REPLY b27_595445 -1.290 0.820 -2.150
+[main] CMD b28_762713 look -1.290 0.820 -2.150
+[main] REPLY b28_762713 ok camera at 0.00,1.60,0.00
+[main] CMD b29_849258 click -1.290 0.820 -2.150
+[main] REPLY b29_849258 ok screen 585,512 of 1169x1024
+[main] INFO click the yellow swatch: ok screen 585,512 of 1169x1024 at -1.290 0.820 -2.150
+[main] CMD b30_380512 look -0.3052 0.0672 -0.5908
+[main] REPLY b30_380512 ok camera at 0.00,1.60,0.00
+[main] CMD b31_379094 click -0.3052 0.0672 -0.5908
+[main] REPLY b31_379094 ok screen 585,512 of 1169x1024
+[main] INFO click the top of the first brick: ok screen 585,512 of 1169x1024 at -0.3052 0.0672 -0.5908
+[main] INFO the click on the brick reached the page as: {"point":[-0.3052017,0.06720001,-0.5908033],"normal":[0,1,0],"result":"placed at -440,144,-840"}
+[main] PASS a click on a brick's top puts the next brick on its studs (the build is clickable): ["2x2",[-440,144,-840],"f2cd37"]
+[main] CMD b32_822248 renderstats pk1:brick-builder:0
+[main] REPLY b32_822248 batches 13 drawCalls 13 setPass 11 triangles 3364 vertices 8030 instancedBatches 0 chunks 2 drawn 3 emptySlots 0 chunkVertices 744 spikeObjects 0
+[main] FAIL every placed brick is drawn by the chunk renderer: 3 drawn of 4; batches 13 drawCalls 13 setPass 11 triangles 3364 vertices 8030 instancedBatches 0 chunks 2 drawn 3 emptySlots 0 chunkVertices 744 spikeObjects 0
+[main] CMD b33_255174 shot built 1.2 0.9 -1.5 -0.2 0.05 -0.6 50
+[main] REPLY b33_255174 Library/PortKit/shots/brick-single_built.jpg
+[main] CMD b34_511760 probe pk1:brick-builder:0 pos Pool/Held6
+[main] REPLY b34_511760 0.560 0.031 -0.280
+[main] CMD b35_878670 look 0.560 0.031 -0.280
+[main] REPLY b35_878670 ok camera at 0.00,1.60,0.00
+[main] CMD b36_164032 press 0.560 0.031 -0.280
+[main] REPLY b36_164032 ok screen 584,512 of 1169x1024
+[main] CMD b37_761978 wait 15
+[main] REPLY b37_761978 ok
+[main] CMD b38_545048 release
+[main] REPLY b38_545048 ok
+[main] PASS a held brick grabbed and let go above the carpet snaps, and its pool slot is free again: slot 6 at 0.560 0.031 -0.280; bricks 4 -> 5; slot {"t":-1,"c":15912247,"d":0,"held":false}
+[main] CMD b39_447606 probe pk1:brick-builder:0 pos Pool/Held6
+[main] REPLY b39_447606 0.000 0.032 -0.840
+[main] CMD b40_280531 probe pk1:brick-builder:0 pos Pool/Held6
+[main] REPLY b40_280531 0.000 1.600 0.000
+[main] CMD b41_738395 look 1.5 1 0
+[main] REPLY b41_738395 ok camera at 0.00,1.60,0.00
+[main] CMD b42_877964 probe pk1:brick-builder:0 pos Pool/Held6
+[main] REPLY b42_877964 0.000 1.600 0.000
+[main] INFO AttachToHand in Play mode: before 0.000 0.032 -0.840, attached 0.000 1.600 0.000, after turning 0.000 1.600 0.000: it moved with the player
+[main] INFO after letting go: {"t":7,"c":15912247,"d":1,"held":false}
+[main] CMD b43_353778 probe pk1:brick-builder:0 pos Tools/HammerButton
+[main] REPLY b43_353778 0.450 1.550 -2.150
+[main] CMD b44_21461 look 0.450 1.550 -2.150
+[main] REPLY b44_21461 ok camera at 0.00,1.60,0.00
+[main] CMD b45_529327 click 0.450 1.550 -2.150
+[main] REPLY b45_529327 ok screen 584,512 of 1169x1024
+[main] INFO click Hammer: ok screen 584,512 of 1169x1024 at 0.450 1.550 -2.150
+[main] CMD b46_680649 probe pk1:brick-builder:0 active Tools/HammerButton/On
+[main] REPLY b46_680649 True
+[main] CMD b47_707551 look -0.3010 0.1344 -0.5810
+[main] REPLY b47_707551 ok camera at 0.00,1.60,0.00
+[main] CMD b48_18414 click -0.3010 0.1344 -0.5810
+[main] REPLY b48_18414 ok screen 584,512 of 1169x1024
+[main] INFO click the stacked brick with the hammer: ok screen 584,512 of 1169x1024 at -0.3010 0.1344 -0.5810
+[main] INFO the hammer click reached the page as: {"point":[-0.3010002,0.1344,-0.5810005],"normal":[0,1,0],"result":"removed ea71beabbcdd9d67f76671884c9073a7~rsess_3993f41d-08e1-4b69-8b8a-e1952f47d6b1#4"}
+[main] CMD b49_950813 renderstats pk1:brick-builder:0
+[main] REPLY b49_950813 batches 14 drawCalls 14 setPass 11 triangles 3820 vertices 8698 instancedBatches 0 chunks 2 drawn 5 emptySlots 0 chunkVertices 1016 spikeObjects 0
+[main] FAIL the hammer removes the brick it hits, for the renderer too: hammer true, marker True; 5 -> 4 bricks; drawn 5
+[main] CMD b50_795200 probe pk1:brick-builder:0 pos Tools/HammerButton
+[main] REPLY b50_795200 0.450 1.550 -2.150
+[main] CMD b51_555393 look 0.450 1.550 -2.150
+[main] REPLY b51_555393 ok camera at 0.00,1.60,0.00
+[main] CMD b52_34397 click 0.450 1.550 -2.150
+[main] REPLY b52_34397 ok screen 584,512 of 1169x1024
+[main] INFO click Hammer off: ok screen 584,512 of 1169x1024 at 0.450 1.550 -2.150
+[main] CMD b53_291907 probe pk1:brick-builder:0 pos Hammer
+[main] REPLY b53_291907 0.926 0.966 -2.150
+[main] CMD b54_875310 look 0.926 0.966 -2.150
+[main] REPLY b54_875310 ok camera at 0.00,1.60,0.00
+[main] CMD b55_734909 press 0.926 0.966 -2.150
+[main] REPLY b55_734909 ok screen 584,512 of 1169x1024
+[main] CMD b56_591729 wait 10
+[main] REPLY b56_591729 ok
+[main] CMD b57_578115 key Digit3 tap
+[main] REPLY b57_578115 ok
+[main] CMD b58_970020 wait 10
+[main] REPLY b58_970020 ok
+[main] CMD b59_189374 release
+[main] REPLY b59_189374 ok
+[main] PASS the hammer's trigger away from the build removes nothing: ok; 4 bricks
+[main] CMD b60_555589 probe pk1:brick-builder:0 pos Picker/Tabs/Tab1
+[main] REPLY b60_555589 -1.146 1.620 -2.150
+[main] CMD b61_168878 look -1.146 1.620 -2.150
+[main] REPLY b61_168878 ok camera at 0.00,1.60,0.00
+[main] CMD b62_308428 click -1.146 1.620 -2.150
+[main] REPLY b62_308428 ok screen 585,512 of 1169x1024
+[main] INFO click the Plates tab: ok screen 585,512 of 1169x1024 at -1.146 1.620 -2.150
+[main] CMD b63_278890 probe pk1:brick-builder:0 pos Picker/Cat1/Tile_1x1Plate
+[main] REPLY b63_278890 -1.410 1.470 -2.150
+[main] CMD b64_721897 look -1.410 1.470 -2.150
+[main] REPLY b64_721897 ok camera at 0.00,1.60,0.00
+[main] CMD b65_290586 click -1.410 1.470 -2.150
+[main] REPLY b65_290586 ok screen 584,512 of 1169x1024
+[main] INFO click the 1x1 plate: ok screen 584,512 of 1169x1024 at -1.410 1.470 -2.150
+[main] CMD b66_262458 look 0.5600 0.0000 0.5600
+[main] REPLY b66_262458 ok camera at 0.00,1.60,0.00
+[main] CMD b67_794055 click 0.5600 0.0000 0.5600
+[main] REPLY b67_794055 ok screen 584,512 of 1169x1024
+[main] INFO click the carpet where the arch goes: ok screen 584,512 of 1169x1024 at 0.5600 0.0000 0.5600
+[main] CMD b68_160541 renderstats pk1:brick-builder:0
+[main] REPLY b68_160541 batches 15 drawCalls 15 setPass 11 triangles 4065 vertices 9045 instancedBatches 0 chunks 3 drawn 6 emptySlots 1 chunkVertices 1363 spikeObjects 0
+[main] PASS an arch goes over a 1x1 plate on the carpet, and both are drawn: plate true, arch ea71beabbcdd9d67f76671884c9073a7~rsess_3993f41d-08e1-4b69-8b8a-e1952f47d6b1#8; 6 drawn of 6
+[main] CMD b69_465466 shot arch 0.56 0.3 0.15 0.56 0.03 0.56 45
+[main] REPLY b69_465466 Library/PortKit/shots/brick-single_arch.jpg
+[main] CMD b70_330682 probe pk1:brick-builder:0 pos Picker/Tabs/Tab0
+[main] REPLY b70_330682 -1.410 1.620 -2.150
+[main] CMD b71_802848 look -1.410 1.620 -2.150
+[main] REPLY b71_802848 ok camera at 0.00,1.60,0.00
+[main] CMD b72_972982 click -1.410 1.620 -2.150
+[main] REPLY b72_972982 ok screen 584,512 of 1169x1024
+[main] INFO click the Bricks tab: ok screen 584,512 of 1169x1024 at -1.410 1.620 -2.150
+[main] CMD b73_264467 probe pk1:brick-builder:0 pos Picker/Cat0/Tile_2x2
+[main] REPLY b73_264467 -1.146 1.250 -2.150
+[main] CMD b74_649018 look -1.146 1.250 -2.150
+[main] REPLY b74_649018 ok camera at 0.00,1.60,0.00
+[main] CMD b75_939642 click -1.146 1.250 -2.150
+[main] REPLY b75_939642 ok screen 585,512 of 1169x1024
+[main] INFO click the 2x2 brick: ok screen 585,512 of 1169x1024 at -1.146 1.250 -2.150
+[main] CMD b76_996053 probe pk1:brick-builder:0 text Picker/Status
+[main] REPLY b76_996053 2x2 Brick   229 bricks   AREA FULL: remove bricks to build more
+[main] PASS a full area refuses new bricks and the status line says so: 223 placed before the refusal; status '2x2 Brick   229 bricks   AREA FULL: remove bricks to build more'
+[main] CMD b77_755256 probe pk1:brick-builder:0 text Picker/Status
+[main] REPLY b77_755256 2x2 Brick   6 bricks
+[main] PASS removing bricks makes room again: 223 removed; status '2x2 Brick   6 bricks'
+[main] CMD b78_769787 probe pk1:brick-builder:0 pos Tools/LockButton
+[main] REPLY b78_769787 0.450 1.310 -2.150
+[main] CMD b79_558054 look 0.450 1.310 -2.150
+[main] REPLY b79_558054 ok camera at 0.00,1.60,0.00
+[main] CMD b80_889355 click 0.450 1.310 -2.150
+[main] REPLY b80_889355 ok screen 585,512 of 1169x1024
+[main] INFO click Lock: ok screen 585,512 of 1169x1024 at 0.450 1.310 -2.150
+[main] CMD b81_354750 probe pk1:brick-builder:0 text Picker/Status
+[main] REPLY b81_354750 2x2 Brick   6 bricks   locked (you may build)
+[main] PASS the owner locks the area (protected state); the status line says so: locked true; status '2x2 Brick   6 bricks   locked (you may build)'
+[main] CMD b82_785698 probe pk1:brick-builder:0 pos Tools/LockButton
+[main] REPLY b82_785698 0.450 1.310 -2.150
+[main] CMD b83_436361 look 0.450 1.310 -2.150
+[main] REPLY b83_436361 ok camera at 0.00,1.60,0.00
+[main] CMD b84_991776 click 0.450 1.310 -2.150
+[main] REPLY b84_991776 ok screen 585,512 of 1169x1024
+[main] INFO click Unlock: ok screen 585,512 of 1169x1024 at 0.450 1.310 -2.150
+[main] PASS and unlocks it again: false
+[main] CMD b85_630881 probe pk1:brick-builder:0 pos Tools/SaveButton
+[main] REPLY b85_630881 0.450 1.190 -2.150
+[main] CMD b86_314858 look 0.450 1.190 -2.150
+[main] REPLY b86_314858 ok camera at 0.00,1.60,0.00
+[main] CMD b87_443433 click 0.450 1.190 -2.150
+[main] REPLY b87_443433 ok screen 585,512 of 1169x1024
+[main] INFO click Save: ok screen 585,512 of 1169x1024 at 0.450 1.190 -2.150
+[main] CMD b88_636595 look -0.5600 0.0000 -0.8400
+[main] REPLY b88_636595 ok camera at 0.00,1.60,0.00
+[main] CMD b89_714379 click -0.5600 0.0000 -0.8400
+[main] REPLY b89_714379 ok screen 585,512 of 1169x1024
+[main] INFO click the carpet once more: ok screen 585,512 of 1169x1024 at -0.5600 0.0000 -0.8400
+[main] INFO reloading the page: 7 bricks, digest 7:65ef46fb
+[main] PASS the kit loads from a hand-written bs-snippet and the instance starts: at 5135 ms after the page opened
+[main] CMD b1_456344 renderstats pk1:brick-builder:0
+[main] REPLY b1_456344 batches 18 drawCalls 18 setPass 12 triangles 4420 vertices 9886 instancedBatches 0 chunks 4 drawn 7 emptySlots 0 chunkVertices 1608 spikeObjects 0
+[main] PASS after a reload the build is there again (late join from room state): 7 of 7 bricks, digest 7:65ef46fb
+[main] PASS and every brick of it is drawn: 7 drawn; batches 18 drawCalls 18 setPass 12 triangles 4420 vertices 9886 instancedBatches 0 chunks 4 drawn 7 emptySlots 0 chunkVertices 1608 spikeObjects 0
+[main] CMD b2_793836 probe pk1:brick-builder:0 pos Tools/LoadButton
+[main] REPLY b2_793836 0.450 1.070 -2.150
+[main] CMD b3_251815 look 0.450 1.070 -2.150
+[main] REPLY b3_251815 ok camera at 0.00,1.60,0.00
+[main] CMD b4_517360 click 0.450 1.070 -2.150
+[main] REPLY b4_517360 ok screen 585,512 of 1169x1024
+[main] INFO click Load: ok screen 585,512 of 1169x1024 at 0.450 1.070 -2.150
+[main] PASS Load puts back the build saved on this device: 6 bricks, saved 6
+[main] CMD b5_29865 renderstats pk1:brick-builder:0
+[main] REPLY b5_29865 batches 87 drawCalls 87 setPass 14 triangles 8468 vertices 16558 instancedBatches 0 chunks 4 drawn 6 emptySlots 1 chunkVertices 1363 spikeObjects 0
+[main] PASS the loaded build is drawn: 6 drawn
+[main] CMD b6_176620 shot loaded 0 1.8 -3.2 0 0.2 0 50
+[main] REPLY b6_176620 Library/PortKit/shots/brick-single_loaded.jpg
+[main] DONE
+served: /web/pk-brick-builder.js x2, /web/playtest/brick-playtest.js x2, /web/playtest/brick-rungs.js x2, HEAD /kits/windows/brick-builder x2
+console (main editor): 1 error lines
+   [Error] Failed to load after 25 seconds: http://localhost:43400 (state SCENE_START): no component is still loading (1 registered).
+RESULT 18 passed, 2 failed
+DONE
+keeping the Play slot for brick-builder (--keep-play): release it with editor_slot.sh release brick-builder play

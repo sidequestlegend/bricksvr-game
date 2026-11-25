@@ -47,7 +47,7 @@ namespace BrickBuilder
             "take them off again or knock them out with the hammer. Everyone in the world builds on the same area, late arrivals see " +
             "the whole build, and the build stays for a day (and can be saved on your device). In VR take bricks from the picker " +
             "and put them where you like; on a desktop click a brick in the picker, then click the carpet or a brick to place it. " +
-            "A port of BricksVR by BricksVR Studios (MIT); the brick models are regenerated plain shapes.";
+            "A port of BricksVR by BricksVR Studios (MIT); the brick models are regenerated: plain shapes, and the plants and pyramid rebuilt from upstream's own meshes.";
         public override IReadOnlyList<(string name, string value)> SnippetSettings => new[]
         {
             ("room", ""), ("width", "64"), ("depth", "64"), ("height", "480"), ("performance", "false"),
@@ -250,6 +250,10 @@ namespace BrickBuilder
             Text(creditsText, CreditsText, 0.32f, TextAlignmentOptions.TopLeft);
             creditsText.textWrappingMode = TextWrappingModes.Normal;
             creditsText.overflowMode = TextOverflowModes.Truncate;
+            // shrink a little rather than lose the last line (the credits name the plants' and pyramid's source)
+            creditsText.enableAutoSizing = true;
+            creditsText.fontSizeMin = 0.26f;
+            creditsText.fontSizeMax = 0.32f;
             creditsText.color = new Color(0.8f, 0.82f, 0.85f);
             creditsText.rectTransform.sizeDelta = new Vector2(1.58f, 0.12f);
             credits.transform.localPosition = new Vector3(0f, 0.53f, -0.012f);
@@ -697,7 +701,8 @@ namespace BrickBuilder
 
         const string CreditsText =
             "Brick Builder: a port of BricksVR by BricksVR Studios (github.com/d12/bricksvr-game, MIT; the BricksVR name and logos are " +
-            "not used). The script holds the portkit runtime (MIT). Brick models regenerated as plain shapes. Sounds: Kenney (kenney.nl), " +
+            "not used), with the portkit runtime (MIT). Bricks regenerated as plain shapes; plants and pyramid rebuilt from upstream's meshes. " +
+            "Sounds: Kenney (kenney.nl), " +
             "CC0. Text: Liberation Sans (SIL OFL 1.1). Not affiliated with BricksVR or any toy maker.";
 
         static Vector3 V3(JToken a) => new Vector3((float)a[0], (float)a[1], (float)a[2]);
